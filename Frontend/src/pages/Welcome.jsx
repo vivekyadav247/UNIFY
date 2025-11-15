@@ -1,81 +1,44 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-
-const Welcome = () => {
-  const navigate = useNavigate();
-
-  const handleContinue = () => {
-    // Button click hone par login page pe le jaayega
-    navigate("/login");
-  };
-
+export default function Welcome() {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "linear-gradient(135deg, #a2c2e6, #dbeafe)",
-        color: "#1e3a8a",
-        fontFamily: "'Poppins', sans-serif",
-        textAlign: "center",
-      }}
-    >
-      {/* Heading */}
-      <h1 style={{ fontSize: "3rem", fontWeight: "bold", marginBottom: "10px" }}>
-        UNIFY
-      </h1>
+    <div className="min-h-screen bg-white flex flex-col items-center relative overflow-hidden">
+      {/* NAVBAR */}
+      <nav className="w-[90%] mt-6">
+        <div className="flex justify-between items-center px-10 py-3 bg-[#c9d9ff] border border-blue-700 rounded-full text-gray-700 font-medium">
+          <a href="#" className="hover:text-blue-700">
+            Glitchy
+          </a>
+          <a href="#" className="hover:text-blue-700">
+            Home
+          </a>
+          <a href="#" className="hover:text-blue-700">
+            About
+          </a>
+          <a href="#" className="hover:text-blue-700">
+            Contact Us
+          </a>
+        </div>
+      </nav>
 
-      {/* Subtext */}
-      <p style={{ fontSize: "1.2rem", marginBottom: "40px", color: "#1e40af" }}>
-        Mini ERP System for College Management
-      </p>
+      {/* MAIN TITLE */}
+      <h1 className="text-6xl font-semibold text-gray-600 mt-24">UNIFY</h1>
 
-      {/* Developer Info Card */}
-      <div
-        style={{
-          backgroundColor: "white",
-          padding: "20px 40px",
-          borderRadius: "15px",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          marginBottom: "30px",
-        }}
-      >
-        <h2 style={{ marginBottom: "10px", color: "#1d4ed8" }}>Developed By</h2>
-        <ul style={{ listStyle: "none", padding: 0, margin: 0, color: "#333" }}>
-          <li>👩‍💻 Sakshi Chouhan</li>
-          <li>👨‍💻 [Your Teammate 2]</li>
-          <li>👨‍💻 [Your Teammate 3]</li>
-        </ul>
-      </div>
-
-      {/* Continue Button */}
-      <button
-        onClick={handleContinue}
-        style={{
-          backgroundColor: "#1d4ed8",
-          color: "white",
-          border: "none",
-          padding: "12px 30px",
-          borderRadius: "30px",
-          fontSize: "1rem",
-          cursor: "pointer",
-          transition: "all 0.3s ease",
-        }}
-        onMouseOver={(e) => (e.target.style.backgroundColor = "#1e40af")}
-        onMouseOut={(e) => (e.target.style.backgroundColor = "#1d4ed8")}
-      >
-        Continue to Unify →
+      {/* GET STARTED BUTTON */}
+      <button className="mt-20 px-6 py-2 border-2 border-blue-700 text-blue-700 rounded-full font-medium hover:bg-blue-700 hover:text-white transition">
+        GET STARTED
       </button>
 
-      {/* Footer */}
-      <footer style={{ marginTop: "40px", fontSize: "0.9rem", color: "#334155" }}>
-        © {new Date().getFullYear()} UNIFY | Minor Project
-      </footer>
+      {/* DEVELOPERS TITLE */}
+      <h2 className="text-2xl text-gray-600 mt-32 mb-8">developers</h2>
+
+      {/* 3 CIRCLES */}
+      <div className="flex gap-16 mb-32">
+        <div className="w-32 h-32 bg-blue-700 rounded-full"></div>
+        <div className="w-32 h-32 bg-blue-700 rounded-full"></div>
+        <div className="w-32 h-32 bg-blue-700 rounded-full"></div>
+      </div>
+
+      {/* BOTTOM BLUE BAR */}
+      <div className="w-full h-48 bg-blue-700"></div>
     </div>
   );
-};
-
-export default Welcome;
+}

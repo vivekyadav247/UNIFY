@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 export default function Welcome() {
+  const navigate = useNavigate();
+
   return (
     <div
       className="
@@ -84,6 +88,8 @@ export default function Welcome() {
 
         {/* Get Started Button */}
         <button
+          onClick={() => navigate("/login")}
+
           className="
       mt-10 px-8 py-3
       rounded-full font-semibold

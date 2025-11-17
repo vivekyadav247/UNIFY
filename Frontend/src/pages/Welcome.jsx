@@ -20,13 +20,13 @@ export default function Welcome() {
       flex justify-between items-center px-10 py-4
       bg-white/5 backdrop-blur-xl
       border border-white/20 shadow-[0_8px_40px_rgba(0,0,0,0.25)]
-      rounded-2xl
+      rounded-full
       text-white
     "
         >
           {/* Brand */}
           <a
-            href="#"
+            href="/"
             className="
         text-2xl font-bold tracking-wide 
         bg-gradient-to-r from-purple-300 to-blue-300 
@@ -38,18 +38,25 @@ export default function Welcome() {
 
           {/* Nav Links */}
           <div className="flex gap-10 text-lg">
-            {["Home", "About", "Contact"].map((item) => (
-              <a key={item} href="#" className="relative group transition">
-                {item}
-                <span
-                  className="
-              absolute left-0 -bottom-1 w-0 h-[2px] 
-              bg-gradient-to-r from-purple-400 to-blue-400 
-              transition-all duration-300 group-hover:w-full
-            "
-                ></span>
-              </a>
-            ))}
+            <a href="/" className="relative group transition">
+              Home
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+
+            <a href="#about" className="relative group transition">
+              About
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+
+            <a href="#developers" className="relative group transition">
+              Developers
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+
+            <a href="#footer" className="relative group transition">
+              Contact
+              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
           </div>
         </div>
       </nav>
@@ -105,6 +112,80 @@ export default function Welcome() {
         </button>
       </div>
 
+      {/* ABOUT THE PROJECT SECTION */}
+      <section
+        id="about"
+        className="
+    w-full mt-32 
+    relative 
+    py-28 px-6
+    bg-gradient-to-b from-[#fafbff] to-white
+    border-t border-slate-200
+    rounded-t-[3rem]
+    overflow-hidden
+  "
+      >
+        {/* Soft Background Glows */}
+        <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[500px] h-[200px] bg-purple-300 opacity-10 blur-[120px]"></div>
+        <div className="absolute bottom-0 right-0 w-[300px] h-[150px] bg-blue-300 opacity-10 blur-[100px]"></div>
+
+        {/* Heading */}
+        <h2
+          className="
+      text-4xl font-bold text-center text-slate-900 
+      tracking-tight
+    "
+        >
+          About the Project
+        </h2>
+
+        {/* Divider */}
+        <div className="w-20 h-[3px] bg-gradient-to-r from-purple-400 to-blue-400 mx-auto mt-4 mb-12 rounded-full"></div>
+
+        {/* Content Card */}
+        <div
+          className="
+      max-w-4xl mx-auto bg-white/70 backdrop-blur-xl 
+      rounded-3xl shadow-lg p-10 
+      border border-white/40
+    "
+        >
+          <p className="text-lg text-slate-700 leading-relaxed">
+            <strong>UNIFY</strong> is a modern, modular ERP system designed
+            specifically for colleges and academic institutions. Its primary
+            goal is to simplify daily operations, improve data accessibility,
+            and bring multiple academic workflows under one unified digital
+            platform.
+          </p>
+
+          <p className="text-lg text-slate-700 leading-relaxed mt-6">
+            The current version includes four core modules:
+            <strong> HOD</strong>, <strong>Teacher Guardian (TG)</strong>,
+            <strong> Faculty</strong>, and <strong>Student</strong>. Each module
+            has been crafted with focused functionality so stakeholders can
+            manage tasks more efficiently—from academic performance tracking to
+            basic communication and administrative operations.
+          </p>
+
+          <p className="text-lg text-slate-700 leading-relaxed mt-6">
+            As the project evolves, <strong>UNIFY</strong> aims to grow into a
+            complete enterprise-grade solution with additional modules such as
+            Administration, Examination Cell, Library, Attendance Analytics,
+            Timetable Automation, and more. The system is being built as a
+            learning and innovation project by <strong>Team Glitchy</strong>,
+            and will continue to expand and mature with new features,
+            optimizations, and user feedback.
+          </p>
+
+          <p className="text-lg text-slate-700 leading-relaxed mt-6">
+            This ERP is a non-commercial prototype created purely for academic
+            exploration and skill development, showcasing strong UI/UX design,
+            MERN stack implementation, scalable architecture, and practical
+            problem solving for real-world institutional needs.
+          </p>
+        </div>
+      </section>
+
       {/* DEVELOPERS SECTION */}
       <section
         id="developers"
@@ -134,16 +215,25 @@ export default function Welcome() {
               name: "Vivek Yadav",
               role: "Backend Developer",
               img: "public/devs/vivekydv.jpg",
+              github: "https://github.com/vivekyadav247",
+              linkedin: "https://www.linkedin.com/in/vivek-07x",
+              email: "mailto:vivekyad240706@gmail.com",
             },
             {
               name: "Sujal Bhawsar",
               role: "Frpntend Developer | UI/UX",
               img: "public/devs/sujalb.jpg",
+              github: "https://github.com/SUJAL1902",
+              linkedin: "www.linkedin.com/in/sujalbhawsar19",
+              email : "mailto:sbhawsar2017@gmail.com",
             },
             {
               name: "Sakshi Chouhan",
               role: "Frontend Developer",
               img: "",
+              github: "https://github.com/sakshichouhan305",
+              linkedin: "https://www.linkedin.com/in/sakshi-chouhan-64712b30b/",
+              email: "mailto:chouhansakshi068@gmail.com",
             },
           ].map((dev, index) => (
             <div
@@ -177,21 +267,23 @@ export default function Welcome() {
               {/* Social Icons */}
               <div className="flex gap-6 mt-5">
                 <a
-                  href="#"
+                  href={dev.github}
+                  target="_blank"
                   className="text-slate-500 hover:text-slate-700 transition"
                 >
                   <i className="fa-brands fa-github text-2xl"></i>
                 </a>
 
                 <a
-                  href="#"
+                  href={dev.linkedin}
+                  target="_blank"
                   className="text-slate-500 hover:text-slate-700 transition"
                 >
                   <i className="fa-brands fa-linkedin text-2xl"></i>
                 </a>
 
                 <a
-                  href="#"
+                  href={dev.email}
                   className="text-slate-500 hover:text-slate-700 transition"
                 >
                   <i className="fa-solid fa-envelope text-2xl"></i>
@@ -204,6 +296,7 @@ export default function Welcome() {
 
       {/* FOOTER SECTION */}
       <footer
+        id="footer"
         className="
     w-full 
     bg-[#0d0d16] 
@@ -240,7 +333,7 @@ export default function Welcome() {
               teams. Streamline your workflow with enterprise precision.
             </p>
 
-            {/* Social Icons */}
+            {/* Social Icons
             <div className="flex gap-5 mt-6">
               <a href="#" className="hover:text-white transition text-2xl">
                 <i className="fa-brands fa-github"></i>
@@ -251,7 +344,7 @@ export default function Welcome() {
               <a href="#" className="hover:text-white transition text-2xl">
                 <i className="fa-solid fa-globe"></i>
               </a>
-            </div>
+            // </div> */}
           </div>
 
           {/* COMPANY COLUMN */}
@@ -288,28 +381,28 @@ export default function Welcome() {
               <li className="flex items-center gap-2">
                 <i className="fa-solid fa-envelope"></i>
                 <a
-                  href="mailto:vivek@example.com"
+                  href="mailto:vivekyad240706@gmail.com"
                   className="hover:text-white transition"
                 >
-                  Vivek Yadav — vivek@example.com
+                  Vivek Yadav — vivekyad240706@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <i className="fa-solid fa-envelope"></i>
                 <a
-                  href="mailto:sujal@example.com"
+                  href="mailto:sbhawsar2017@gmail.com"
                   className="hover:text-white transition"
                 >
-                  Sujal Bhawsar — sujal@example.com
+                  Sujal Bhawsar — sbhawsar2017@gmail.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <i className="fa-solid fa-envelope"></i>
                 <a
-                  href="mailto:sakshi@example.com"
+                  href="mailto:chouhansakshi068@gmail.com"
                   className="hover:text-white transition"
                 >
-                  Sakshi Chouhan — sakshi@example.com
+                  Sakshi Chouhan — chouhansakshi068@gmail.com
                 </a>
               </li>
             </ul>

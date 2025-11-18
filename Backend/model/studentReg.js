@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const { createHmac, randomBytes } = require("crypto");
 const { createToken } = require("../services/authentication");
-const { type } = require("os");
 
 const studentRegSchema = new Schema(
   {
@@ -68,6 +67,10 @@ const studentRegSchema = new Schema(
       enum: ["Male", "Female", "Other"],
       required: true,
     },
+    dob: {
+      type: Date,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -85,12 +88,17 @@ const studentRegSchema = new Schema(
       default: "student",
       immutable: true,
     },
+
     salt: {
       type: String,
     },
     password: {
       type: String,
       required: true,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

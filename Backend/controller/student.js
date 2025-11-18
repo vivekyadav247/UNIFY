@@ -17,6 +17,7 @@ async function handleSignup(req, res) {
       mobileNumber,
       gender,
       password,
+      dob,
     } = req.body;
 
     if (
@@ -30,7 +31,8 @@ async function handleSignup(req, res) {
       !email ||
       !mobileNumber ||
       !gender ||
-      !password
+      !password ||
+      !dob
     ) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -84,6 +86,7 @@ async function verifySignupOtp(req, res) {
       academicYear,
       password,
       gender,
+      dob,
       enrollmentNumber,
     } = req.body;
 
@@ -109,6 +112,8 @@ async function verifySignupOtp(req, res) {
       mobileNumber,
       gender,
       password,
+      dob,
+      isVerified: false,
     });
 
     await student.save();

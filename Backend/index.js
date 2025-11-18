@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
-const path = require("path");
+require("dotenv").config();
 const studetRouter = require("./router/student");
 const cookieParser = require("cookie-parser");
 const { cookieAuthenticate } = require("./middleware/cookieAuthenticate");

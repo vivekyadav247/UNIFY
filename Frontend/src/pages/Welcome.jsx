@@ -96,7 +96,6 @@ export default function Welcome() {
         {/* Get Started Button */}
         <button
           onClick={() => navigate("/login")}
-
           className="
       mt-10 px-8 py-3
       rounded-full font-semibold
@@ -225,7 +224,7 @@ export default function Welcome() {
               img: "public/devs/sujalb.jpg",
               github: "https://github.com/SUJAL1902",
               linkedin: "www.linkedin.com/in/sujalbhawsar19",
-              email : "mailto:sbhawsar2017@gmail.com",
+              email: "mailto:sbhawsar2017@gmail.com",
             },
             {
               name: "Sakshi Chouhan",

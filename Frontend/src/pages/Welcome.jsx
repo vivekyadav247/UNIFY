@@ -7,7 +7,7 @@ export default function Welcome() {
     <div
       className="
       min-h-screen 
-      bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] 
+      bg-linear-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] 
       flex flex-col items-center 
       relative overflow-hidden
       text-white
@@ -29,7 +29,7 @@ export default function Welcome() {
             href="/"
             className="
         text-2xl font-bold tracking-wide 
-        bg-gradient-to-r from-purple-300 to-blue-300 
+        bg-linear-to-r from-purple-300 to-blue-300 
         text-transparent bg-clip-text
       "
           >
@@ -40,22 +40,22 @@ export default function Welcome() {
           <div className="flex gap-10 text-lg">
             <a href="/" className="relative group transition">
               Home
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-linear-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
             </a>
 
             <a href="#about" className="relative group transition">
               About
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-linear-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
             </a>
 
             <a href="#developers" className="relative group transition">
               Developers
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-linear-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
             </a>
 
             <a href="#footer" className="relative group transition">
               Contact
-              <span className="absolute left-0 -bottom-1 w-0 h-[2px] bg-gradient-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
+              <span className="absolute left-0 -bottom-1 w-0 h-0.5 bg-linear-to-r from-purple-400 to-blue-400 transition-all duration-300 group-hover:w-full"></span>
             </a>
           </div>
         </div>
@@ -77,7 +77,7 @@ export default function Welcome() {
         <h1
           className="
       text-6xl font-extrabold 
-      bg-gradient-to-r from-purple-400 to-blue-400 
+      bg-linear-to-r from-purple-400 to-blue-400 
       text-transparent bg-clip-text 
       animate-fadeInUp
     "
@@ -91,7 +91,7 @@ export default function Welcome() {
         </p>
 
         {/* Gradient Line */}
-        <div className="h-[3px] w-24 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full mt-3 animate-fadeInUp animation-delay-300"></div>
+        <div className="h-[3px] w-24 bg-linear-to-r from-purple-400 to-blue-400 rounded-full mt-3 animate-fadeInUp animation-delay-300"></div>
 
         {/* Get Started Button */}
         <button
@@ -99,7 +99,7 @@ export default function Welcome() {
           className="
       mt-10 px-8 py-3
       rounded-full font-semibold
-      bg-gradient-to-r from-purple-500 to-blue-500
+      bg-linear-to-r from-purple-500 to-blue-500
       text-white
       shadow-[0_0_20px_rgba(138,43,226,0.6)]
       hover:shadow-[0_0_35px_rgba(138,43,226,0.9)]
@@ -118,7 +118,7 @@ export default function Welcome() {
     w-full mt-32 
     relative 
     py-28 px-6
-    bg-gradient-to-b from-[#fafbff] to-white
+    bg-linear-to-b from-[#fafbff] to-white
     border-t border-slate-200
     rounded-t-[3rem]
     overflow-hidden
@@ -139,7 +139,7 @@ export default function Welcome() {
         </h2>
 
         {/* Divider */}
-        <div className="w-20 h-[3px] bg-gradient-to-r from-purple-400 to-blue-400 mx-auto mt-4 mb-12 rounded-full"></div>
+        <div className="w-20 h-[3px] bg-linear-to-r from-purple-400 to-blue-400 mx-auto mt-4 mb-12 rounded-full"></div>
 
         {/* Content Card */}
         <div
@@ -305,7 +305,7 @@ export default function Welcome() {
   "
       >
         {/* Top Gradient Line */}
-        <div className="w-full h-[2px] bg-gradient-to-r from-purple-500 to-blue-500 opacity-40 mb-10"></div>
+        <div className="w-full h-0.5 bg-linear-to-r from-purple-500 to-blue-500 opacity-40 mb-10"></div>
 
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-14">
           {/* LOGO & SHORT DESCRIPTION */}

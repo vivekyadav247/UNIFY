@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
@@ -114,8 +113,8 @@ export default function Login() {
           <p className="text-center text-gray-700 text-sm mt-4">
             Don’t have an account?{" "}
             <span
-              className="text-blue-500 cursor-pointer hover:underline"
-              onClick={() => navigate("/register")}
+              className="text-blue-600 cursor-pointer hover:underline"
+              onClick={() => navigate("/select-role")}
             >
               Register here
             </span>

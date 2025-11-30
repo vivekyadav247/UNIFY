@@ -212,7 +212,7 @@ export default function Welcome() {
           {[
             {
               name: "Vivek Yadav",
-              role: "Backend Developer",
+              role: "Full Stack Developer",
               img: "public/devs/vivekydv.jpg",
               github: "https://github.com/vivekyadav247",
               linkedin: "https://www.linkedin.com/in/vivek-07x",
@@ -229,7 +229,7 @@ export default function Welcome() {
             {
               name: "Sakshi Chouhan",
               role: "Frontend Developer",
-              img: "",
+              img: "public/devs/sakshic.jpg",
               github: "https://github.com/sakshichouhan305",
               linkedin: "https://www.linkedin.com/in/sakshi-chouhan-64712b30b/",
               email: "mailto:chouhansakshi068@gmail.com",
@@ -243,6 +243,7 @@ export default function Welcome() {
                 transition-all duration-300
               "
               style={{ animationDelay: `${index * 200}ms` }}
+              
             >
               {/* Image */}
               <img

@@ -212,7 +212,7 @@ export default function Welcome() {
           {[
             {
               name: "Vivek Yadav",
-              role: "Backend Developer",
+              role: "Full Stack Developer",
               img: "public/devs/vivekydv.jpg",
               github: "https://github.com/vivekyadav247",
               linkedin: "https://www.linkedin.com/in/vivek-07x",

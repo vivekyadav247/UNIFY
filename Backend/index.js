@@ -5,6 +5,7 @@ require("dotenv").config();
 const studetRouter = require("./router/student");
 const cookieParser = require("cookie-parser");
 const { cookieAuthenticate } = require("./middleware/cookieAuthenticate");
+const adminRouter = require("./router/admin");
 
 mongoose
   .connect("mongodb://127.0.0.1:27017/UnifyDB")
@@ -23,6 +24,8 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/student", studetRouter);
+
+app.use("/api/admin", adminRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Unify Backend");

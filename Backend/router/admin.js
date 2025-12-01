@@ -1,6 +1,12 @@
 const router = require("express").Router();
 
-const { handleAdminLogin, handleCreateHOD } = require("../controller/admin");
+const {
+  handleAdminLogin,
+  handleCreateHOD,
+  editHOD,
+  resetHODPassword,
+  deleteHOD,
+} = require("../controller/admin");
 const { handleLogout } = require("../controller/auth");
 
 router.get("/login", async (req, res) => {
@@ -24,6 +30,14 @@ router.get("/create-hod", (req, res) => {
 });
 
 router.post("/create-hod", handleCreateHOD);
+
+// Edit HOD
+router.put("/edit-hod/:hodId", editHOD);
+
+// Reset HOD password
+router.put("/reset-hod-password/:hodId", resetHODPassword);
+
+router.delete("/delete-hod/:hodId", deleteHOD);
 
 router.post("/logout", handleLogout);
 

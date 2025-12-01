@@ -8,6 +8,8 @@ const { cookieAuthenticate } = require("./middleware/cookieAuthenticate");
 const adminRouter = require("./router/admin");
 const configDB = require("./config/configDB");
 const hodRouter = require("./router/hod");
+const tgRouter = require("./router/tg");
+const facultyRouter = require("./router/faculty");
 
 const Port = process.env.PORT || 3000;
 
@@ -36,6 +38,10 @@ app.use("/api/auth", authRouter);
 app.use("/api/admin", adminRouter);
 
 app.use("/api/hod", hodRouter);
+
+app.use("/api/tg", tgRouter);
+
+app.use("/api/faculty", facultyRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Unify Backend");

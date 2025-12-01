@@ -119,51 +119,55 @@ async function verifySignupOtp(req, res) {
 }
 
 async function handleSignin(req, res) {
-  const { role } = req.body;
-  if (!role) throw new Error("Role is required");
-  if (role === "student") {
-    const { enrollmentNumber, password } = req.body;
-    if (!enrollmentNumber || !password)
-      throw new Error("All fields are required");
-    try {
-      const token = await Student.matchPasswordAndGenerateToken(
-        enrollmentNumber,
-        password
-      );
-      return res.cookie("token", token).redirect(`/student/:${student._id}`);
-    } catch (error) {
-      return res.send({ error: error.message });
+  try {
+    const { role } = req.body;
+    if (!role) throw new Error("Role is required");
+    if (role === "student") {
+      const { enrollmentNumber, password } = req.body;
+      if (!enrollmentNumber || !password)
+        throw new Error("All fields are required");
+      try {
+        const token = await Student.matchPasswordAndGenerateToken(
+          enrollmentNumber,
+          password
+        );
+        return res.cookie("token", token).redirect(`/student/:${student._id}`);
+      } catch (error) {
+        return res.send({ error: error.message });
+      }
+    } else if (role === "hod") {
+      const { hodId, password } = req.body;
+      if (!hodId || !password) throw new Error("All fields are required");
+      try {
+        const token = await Hod.matchPasswordAndGenerateToken(hodId, password);
+        return res.cookie("token", token).redirect(`/hod/:${hodId}`);
+      } catch (error) {
+        return res.send({ error: error.message });
+      }
+    } else if (role === "tg") {
+      const { tgId, password } = req.body;
+      if (!tgId || !password) throw new Error("All fields are required");
+      try {
+        const token = await TG.matchPasswordAndGenerateToken(tgId, password);
+        return res.cookie("token", token).redirect(`/tg/:${tgId}`);
+      } catch (error) {
+        return res.send({ error: error.message });
+      }
+    } else if (role === "faculty") {
+      const { facultyId, password } = req.body;
+      if (!facultyId || !password) throw new Error("All fields are required");
+      try {
+        const token = await Faculty.matchPasswordAndGenerateToken(
+          facultyId,
+          password
+        );
+        return res.cookie("token", token).redirect(`/faculty/:${facultyId}`);
+      } catch (error) {
+        return res.send({ error: error.message });
+      }
     }
-  } else if (role === "hod") {
-    const { hodId, password } = req.body;
-    if (!hodId || !password) throw new Error("All fields are required");
-    try {
-      const token = await Hod.matchPasswordAndGenerateToken(hodId, password);
-      return res.cookie("token", token).redirect(`/hod/:${hodId}`);
-    } catch (error) {
-      return res.send({ error: error.message });
-    }
-  } else if (role === "tg") {
-    const { tgId, password } = req.body;
-    if (!tgId || !password) throw new Error("All fields are required");
-    try {
-      const token = await TG.matchPasswordAndGenerateToken(tgId, password);
-      return res.cookie("token", token).redirect(`/tg/:${tgId}`);
-    } catch (error) {
-      return res.send({ error: error.message });
-    }
-  } else if (role === "faculty") {
-    const { facultyId, password } = req.body;
-    if (!facultyId || !password) throw new Error("All fields are required");
-    try {
-      const token = await Faculty.matchPasswordAndGenerateToken(
-        facultyId,
-        password
-      );
-      return res.cookie("token", token).redirect(`/faculty/:${facultyId}`);
-    } catch (error) {
-      return res.send({ error: error.message });
-    }
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }
 

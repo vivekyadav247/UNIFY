@@ -75,7 +75,7 @@ async function handleCreateHOD(req, res) {
       gender,
     });
     await newHOD.save();
-    return res.status(201).redirect("/api/admin/dashboard");
+    return res.redirect("/api/admin/dashboard");
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }

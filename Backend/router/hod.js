@@ -1,6 +1,18 @@
 const router = require("express").Router();
 
-const { handleCreateTg, handleCreateFaculty } = require("../controller/hod");
+const {
+  handleCreateTg,
+  handleCreateFaculty,
+  createSubject,
+  setSemesterForBatch,
+  assignFacultyToSubject,
+  editTG,
+  resetTGPassword,
+  editFaculty,
+  resetFacultyPassword,
+  deleteTG,
+  deleteFaculty,
+} = require("../controller/hod");
 
 router.get("/dashboard", (req, res) => {
   if (!req.user || req.user.role !== "hod") {
@@ -26,5 +38,20 @@ router.get("/create-faculty", async (req, res) => {
 });
 
 router.post("/create-faculty", handleCreateFaculty);
+
+// TG
+router.put("/edit-tg/:tgId", editTG);
+router.put("/reset-tg-password/:tgId", resetTGPassword);
+
+// Faculty
+router.put("/edit-faculty/:facultyId", editFaculty);
+router.put("/reset-faculty-password/:facultyId", resetFacultyPassword);
+
+router.delete("/delete-tg/:tgId", deleteTG);
+router.delete("/delete-faculty/:facultyId", deleteFaculty);
+
+router.post("/subject", createSubject);
+router.post("/semester", setSemesterForBatch);
+router.post("/assign-faculty", assignFacultyToSubject);
 
 module.exports = router;

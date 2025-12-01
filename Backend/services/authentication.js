@@ -6,7 +6,7 @@ function createToken(user) {
     name: user.name,
     role: user.role,
   };
-  const token = JWT.sign(payload, process.env.SECRET_KEY);
+  const token = JWT.sign(payload, process.env.SECRET_KEY, { expiresIn: "7d" });
   return token;
 }
 

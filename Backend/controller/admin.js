@@ -2,6 +2,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { createToken } = require("../services/authentication");
 const HOD = require("../model/hod");
+const { randomBytes, createHmac } = require("crypto");
 
 async function handleAdminLogin(req, res) {
   try {
@@ -17,10 +18,7 @@ async function handleAdminLogin(req, res) {
       name: "Admin",
       role: "admin",
     });
-    return res
-      .status(200)
-      .cookie("token", token)
-      .redirect("/api/admin/dashboard");
+    return res.cookie("token", token).redirect("/api/admin/dashboard");
   } catch (error) {
     return res.status(401).json({ error: error.message });
   }
@@ -81,7 +79,77 @@ async function handleCreateHOD(req, res) {
   }
 }
 
+// ADMIN — Edit HOD Details
+async function editHOD(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).send("Unauthorized: Admin only.");
+  }
+
+  try {
+    const { hodId } = req.params;
+    const updates = req.body;
+
+    const hod = await HOD.findOneAndUpdate({ hodId }, updates, { new: true });
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    return res.status(200).json({ message: "HOD updated successfully", hod });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// ADMIN — Reset HOD Password
+async function resetHODPassword(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).send("Unauthorized: Admin only.");
+  }
+
+  try {
+    const { hodId } = req.params;
+    const { newPassword } = req.body;
+
+    const hod = await HOD.findOne({ hodId });
+    if (!hod) return res.status(404).json({ error: "HOD not found" });
+
+    const salt = randomBytes(16).toString("hex");
+    const hashed = createHmac("sha256", salt).update(newPassword).digest("hex");
+
+    hod.password = hashed;
+    hod.salt = salt;
+
+    await hod.save();
+
+    return res.status(200).json({ message: "HOD password reset successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// DELETE HOD
+async function deleteHOD(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).send("Unauthorized: Admin only.");
+  }
+
+  try {
+    const { hodId } = req.params;
+
+    const deleted = await HOD.findOneAndDelete({ hodId });
+    if (!deleted) return res.status(404).json({ error: "HOD not found" });
+
+    return res.status(200).json({ message: "HOD deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   handleAdminLogin,
   handleCreateHOD,
+  editHOD,
+  resetHODPassword,
+  deleteHOD,
 };

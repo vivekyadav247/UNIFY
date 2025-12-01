@@ -1,4 +1,4 @@
-const Student = require("../model/studentReg");
+const Student = require("../model/student");
 const Otp = require("../model/otp");
 const { saveOtp } = require("./generateOtp");
 const { sendEmailOtp } = require("./sendMailOtp");

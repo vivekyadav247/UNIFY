@@ -1,7 +1,9 @@
-const Student = require("../model/studentReg");
+const Student = require("../model/student");
+const Hod = require("../model/hod");
 const { saveOtp } = require("./generateOtp");
 const Otp = require("../model/otp");
 const { sendEmailOtp } = require("./sendMailOtp");
+const student = require("../model/student");
 
 async function handleSignup(req, res) {
   try {
@@ -37,26 +39,14 @@ async function handleSignup(req, res) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // Check email
-    const existingEmail = await Student.findOne({ email });
-    if (existingEmail) {
-      return res.status(400).json({ error: "Email already registered" });
-    }
+    const existing = await Student.findOne({
+      $or: [{ enrollmentNumber }, { email }, { mobileNumber }],
+    });
 
-    // Check enrollment number
-    const existingEnroll = await Student.findOne({ enrollmentNumber });
-    if (existingEnroll) {
-      return res
-        .status(400)
-        .json({ error: "Enrollment number already registered" });
-    }
-
-    // Check mobile number
-    const existingMobile = await Student.findOne({ mobileNumber });
-    if (existingMobile) {
-      return res
-        .status(400)
-        .json({ error: "Mobile number already registered" });
+    if (existing) {
+      return res.status(409).json({
+        error: "HOD with this ID, email, or mobile number already exists",
+      });
     }
 
     const otp = await saveOtp(email);
@@ -120,22 +110,37 @@ async function verifySignupOtp(req, res) {
 
     await Otp.deleteOne({ email });
 
-    return res.status(201).json({ message: "Registration successful" });
+    return res.status(201).redirect("/login");
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
 async function handleSignin(req, res) {
-  const { enrollmentNumber, password } = req.body;
-  try {
-    const token = await Student.matchPasswordAndGenerateToken(
-      enrollmentNumber,
-      password
-    );
-    return res.cookie("token", token).redirect("/");
-  } catch (error) {
-    return res.send({ error: error.message });
+  const { role } = req.body;
+  if (!role) throw new Error("Role is required");
+  if (role === "student") {
+    const { enrollmentNumber, password } = req.body;
+    try {
+      const token = await Student.matchPasswordAndGenerateToken(
+        enrollmentNumber,
+        password
+      );
+      return res.cookie("token", token).redirect(`/student/:${student._id}`);
+    } catch (error) {
+      return res.send({ error: error.message });
+    }
+  } else if (role === "hod") {
+    const { hodId, password } = req.body;
+    try {
+      const token = await Hod.matchPasswordAndGenerateToken(hodId, password);
+      return res
+        .cookie("token", token)
+        .redirect(`/hod/:${hodId}`)
+        .json({ message: "HOD logged in successfully" });
+    } catch (error) {
+      return res.send({ error: error.message });
+    }
   }
 }
 

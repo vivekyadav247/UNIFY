@@ -1,6 +1,7 @@
 const Student = require("../model/student");
 const Hod = require("../model/hod");
 const TG = require("../model/tg");
+const Faculty = require("../model/faculty");
 const { saveOtp } = require("./generateOtp");
 const Otp = require("../model/otp");
 const { sendEmailOtp } = require("./sendMailOtp");
@@ -148,6 +149,18 @@ async function handleSignin(req, res) {
     try {
       const token = await TG.matchPasswordAndGenerateToken(tgId, password);
       return res.cookie("token", token).redirect(`/tg/:${tgId}`);
+    } catch (error) {
+      return res.send({ error: error.message });
+    }
+  } else if (role === "faculty") {
+    const { facultyId, password } = req.body;
+    if (!facultyId || !password) throw new Error("All fields are required");
+    try {
+      const token = await Faculty.matchPasswordAndGenerateToken(
+        facultyId,
+        password
+      );
+      return res.cookie("token", token).redirect(`/faculty/:${facultyId}`);
     } catch (error) {
       return res.send({ error: error.message });
     }

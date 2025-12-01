@@ -9,6 +9,7 @@ const hodSchema = new Schema(
       type: String,
       required: true,
       unique: true,
+      trim: true,
     },
     hodId: {
       type: String,

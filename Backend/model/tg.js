@@ -8,6 +8,7 @@ const tgSchema = new Schema(
     name: {
       type: String,
       required: true,
+      trim: true,
     },
     tgId: {
       type: String,

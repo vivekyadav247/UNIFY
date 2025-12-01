@@ -1,5 +1,6 @@
 const Student = require("../model/student");
 const Hod = require("../model/hod");
+const TG = require("../model/tg");
 const { saveOtp } = require("./generateOtp");
 const Otp = require("../model/otp");
 const { sendEmailOtp } = require("./sendMailOtp");
@@ -121,6 +122,8 @@ async function handleSignin(req, res) {
   if (!role) throw new Error("Role is required");
   if (role === "student") {
     const { enrollmentNumber, password } = req.body;
+    if (!enrollmentNumber || !password)
+      throw new Error("All fields are required");
     try {
       const token = await Student.matchPasswordAndGenerateToken(
         enrollmentNumber,
@@ -132,12 +135,19 @@ async function handleSignin(req, res) {
     }
   } else if (role === "hod") {
     const { hodId, password } = req.body;
+    if (!hodId || !password) throw new Error("All fields are required");
     try {
       const token = await Hod.matchPasswordAndGenerateToken(hodId, password);
-      return res
-        .cookie("token", token)
-        .redirect(`/hod/:${hodId}`)
-        .json({ message: "HOD logged in successfully" });
+      return res.cookie("token", token).redirect(`/hod/:${hodId}`);
+    } catch (error) {
+      return res.send({ error: error.message });
+    }
+  } else if (role === "tg") {
+    const { tgId, password } = req.body;
+    if (!tgId || !password) throw new Error("All fields are required");
+    try {
+      const token = await TG.matchPasswordAndGenerateToken(tgId, password);
+      return res.cookie("token", token).redirect(`/tg/:${tgId}`);
     } catch (error) {
       return res.send({ error: error.message });
     }

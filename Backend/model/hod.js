@@ -51,7 +51,7 @@ const hodSchema = new Schema(
       type: Date,
       required: false,
     },
-    profileImg: {
+    profilePic: {
       type: String,
       required: false,
       url: true,

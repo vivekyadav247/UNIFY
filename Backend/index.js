@@ -1,18 +1,25 @@
 const express = require("express");
 const app = express();
-const mongoose = require("mongoose");
+const cors = require("cors");
 require("dotenv").config();
-const studetRouter = require("./router/student");
+const authRouter = require("./router/auth");
 const cookieParser = require("cookie-parser");
 const { cookieAuthenticate } = require("./middleware/cookieAuthenticate");
 const adminRouter = require("./router/admin");
-
-mongoose
-  .connect("mongodb://127.0.0.1:27017/UnifyDB")
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+const configDB = require("./config/configDB");
 
 const Port = process.env.PORT || 3000;
+
+configDB();
+
+const corsOptions = {
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
@@ -23,7 +30,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/student", studetRouter);
+app.use("/api/auth", authRouter);
 
 app.use("/api/admin", adminRouter);
 

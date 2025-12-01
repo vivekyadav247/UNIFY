@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const { createHmac, randomBytes } = require("crypto");
 const { createToken } = require("../services/authentication");
 
-const studentRegSchema = new Schema(
+const studentSchema = new Schema(
   {
     name: {
       type: String,
@@ -33,7 +33,7 @@ const studentRegSchema = new Schema(
     department: {
       type: String,
       required: true,
-      enum: ["CSE", "ECE", "ME", "CE", "EE", "BT", "MBA", "MCA"],
+      enum: ["CSE", "ECE", "ME", "CE", "EE", "BBA", "MBA", "MCA"],
     },
     branch: {
       type: String,
@@ -88,7 +88,6 @@ const studentRegSchema = new Schema(
       default: "student",
       immutable: true,
     },
-
     salt: {
       type: String,
     },
@@ -104,7 +103,7 @@ const studentRegSchema = new Schema(
   { timestamps: true }
 );
 
-studentRegSchema.pre("save", function (next) {
+studentSchema.pre("save", function (next) {
   const student = this;
   if (!student.isModified("password")) return next();
   const salt = randomBytes(16).toString("hex");
@@ -117,7 +116,7 @@ studentRegSchema.pre("save", function (next) {
   next();
 });
 
-studentRegSchema.static(
+studentSchema.static(
   "matchPasswordAndGenerateToken",
   async function (enrollmentNumber, password) {
     const student = await this.findOne({ enrollmentNumber });
@@ -130,4 +129,4 @@ studentRegSchema.static(
   }
 );
 
-module.exports = mongoose.model("Student", studentRegSchema);
+module.exports = mongoose.model("Student", studentSchema);

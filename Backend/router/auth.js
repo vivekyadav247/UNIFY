@@ -5,7 +5,7 @@ const {
   verifySignupOtp,
   handleSignin,
   handleLogout,
-} = require("../controller/student");
+} = require("../controller/auth");
 
 const {
   resetPassword,

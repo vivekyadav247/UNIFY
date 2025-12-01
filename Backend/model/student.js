@@ -99,6 +99,36 @@ const studentSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    cgpa: {
+      type: Number,
+      default: 0.0,
+      required: false,
+    },
+    sgpa: {
+      type: [Number],
+      default: [],
+      required: false,
+    },
+    assignTgId: {
+      type: String,
+      default: null,
+      required: false,
+    },
+    parentContact: {
+      type: String,
+      default: null,
+      required: false,
+    },
+    profilePic: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    resume: {
+      type: String,
+      default: "",
+      required: false,
+    },
   },
   { timestamps: true }
 );

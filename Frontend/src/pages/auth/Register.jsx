@@ -4,8 +4,8 @@ import { FiMail, FiPhone } from "react-icons/fi";
 
 const Register = () => {
   const navigate = useNavigate();
+  const API_URL = "http://localhost:5000/api/auth";
 
-  // Form data for student-only registration
   const [formData, setFormData] = useState({
     name: "",
     enrollmentNumber: "",
@@ -21,30 +21,29 @@ const Register = () => {
     password: "",
   });
 
-  // OTP system states
   const [otpSent, setOtpSent] = useState(false);
-  const [otp, setOtp] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [verified, setVerified] = useState(false);
   const [sendingOtp, setSendingOtp] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError("");
   };
 
-  // -----------------------------
-  // SEND OTP
-  // -----------------------------
   const sendOtp = async () => {
     if (!formData.email) {
-      alert("Please enter an email first.");
+      setError("Please enter an email first.");
       return;
     }
 
     setSendingOtp(true);
+    setError("");
 
     try {
-      const res = await fetch("http://localhost:5000/api/otp/send", {
+      const res = await fetch(`${API_URL}/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -55,87 +54,91 @@ const Register = () => {
 
       if (data.success) {
         setOtpSent(true);
-        alert("OTP sent to email");
+        setError("OTP sent to your email!");
       } else {
-        alert(data.message || "Failed to send OTP");
+        setError(data.message || "Failed to send OTP");
       }
     } catch (err) {
       setSendingOtp(false);
+      setError("Server error. Please try again.");
       console.error(err);
-      alert("Server error while sending OTP");
     }
   };
 
-  // -----------------------------
-  // VERIFY OTP
-  // -----------------------------
   const verifyOtp = async () => {
     if (!enteredOtp) {
-      alert("Enter OTP first");
+      setError("Enter OTP first");
       return;
     }
 
+    setSendingOtp(true);
+    setError("");
+
     try {
-      const res = await fetch("http://localhost:5000/api/otp/verify", {
+      const res = await fetch(`${API_URL}/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email, otp: enteredOtp }),
       });
 
       const data = await res.json();
+      setSendingOtp(false);
 
       if (data.success) {
         setVerified(true);
-        alert("Email verified successfully!");
+        setError("Email verified successfully!");
       } else {
-        alert(data.message || "Invalid OTP");
+        setError(data.message || "Invalid OTP");
       }
     } catch (err) {
+      setSendingOtp(false);
+      setError("Server error while verifying OTP");
       console.error(err);
-      alert("Server error while verifying OTP");
     }
   };
 
-  // -----------------------------
-  // REGISTER STUDENT
-  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!verified) {
-      alert("Please verify OTP before registering.");
+      setError("Please verify OTP before registering.");
       return;
     }
 
+    setLoading(true);
+    setError("");
+
     try {
-      const res = await fetch("http://localhost:5000/api/student/register", {
+      const res = await fetch(`${API_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
+      setLoading(false);
 
       if (data.success) {
-        alert("Registration Successful");
-        navigate("/login");
+        setError("Registration Successful! Redirecting...");
+        setTimeout(() => {
+          navigate(data.redirectUrl || "/student/dashboard");
+        }, 1500);
       } else {
-        alert(data.message || "Registration failed");
+        setError(data.message || "Registration failed");
       }
     } catch (err) {
+      setLoading(false);
+      setError("Error connecting to server");
       console.error(err);
-      alert("Error connecting to server");
     }
   };
 
   return (
     <div className="min-h-screen bg-white flex justify-center items-center relative overflow-hidden">
-      
-      {/* BACKGROUND GLOWS */}
       <div className="absolute w-72 h-72 bg-purple-400 opacity-20 blur-[100px] -top-10 left-10 -z-10"></div>
       <div className="absolute w-72 h-72 bg-blue-400 opacity-20 blur-[100px] bottom-0 right-0 -z-10"></div>
 
-      {/* CARD */}
       <div className="w-[950px] bg-white/80 backdrop-blur-md border border-gray-200 shadow-xl rounded-2xl p-10 animate-fadeInUp">
         <h1 className="text-4xl font-bold text-center mb-2">
           Student Registration
@@ -144,10 +147,19 @@ const Register = () => {
           Create your student account to continue.
         </p>
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
+        {error && (
+          <div
+            className={`mb-4 p-3 rounded-lg text-center font-semibold ${
+              error.includes("verified") || error.includes("Successful")
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {error}
+          </div>
+        )}
 
-          {/* NAME */}
+        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
           <div>
             <label className="font-medium">Full Name</label>
             <input
@@ -161,7 +173,6 @@ const Register = () => {
             />
           </div>
 
-          {/* EMAIL */}
           <div>
             <label className="font-medium">Email</label>
             <div className="flex items-center bg-gray-100 border border-gray-300 p-3 rounded-lg mt-1">
@@ -174,11 +185,11 @@ const Register = () => {
                 value={formData.email}
                 onChange={handleChange}
                 required
+                disabled={otpSent}
               />
             </div>
           </div>
 
-          {/* MOBILE */}
           <div>
             <label className="font-medium">Mobile Number</label>
             <div className="flex items-center bg-gray-100 border border-gray-300 p-3 rounded-lg mt-1">
@@ -195,7 +206,6 @@ const Register = () => {
             </div>
           </div>
 
-          {/* PASSWORD */}
           <div>
             <label className="font-medium">Password</label>
             <input
@@ -209,7 +219,6 @@ const Register = () => {
             />
           </div>
 
-          {/* ENROLLMENT NUMBER */}
           <div>
             <label className="font-medium">Enrollment Number</label>
             <input
@@ -223,7 +232,6 @@ const Register = () => {
             />
           </div>
 
-          {/* DOB */}
           <div>
             <label className="font-medium">Date of Birth</label>
             <input
@@ -236,7 +244,6 @@ const Register = () => {
             />
           </div>
 
-          {/* COURSE */}
           <div>
             <label className="font-medium">Course</label>
             <select
@@ -254,7 +261,6 @@ const Register = () => {
             </select>
           </div>
 
-          {/* DEPARTMENT */}
           <div>
             <label className="font-medium">Department</label>
             <select
@@ -271,12 +277,9 @@ const Register = () => {
               <option value="CE">CE</option>
               <option value="EE">EE</option>
               <option value="BT">BT</option>
-              <option value="MBA">MBA</option>
-              <option value="MCA">MCA</option>
             </select>
           </div>
 
-          {/* BRANCH */}
           <div>
             <label className="font-medium">Branch</label>
             <select
@@ -296,12 +299,9 @@ const Register = () => {
               <option value="CE">CE</option>
               <option value="EE">EE</option>
               <option value="BT">Biotech</option>
-              <option value="MBA">MBA</option>
-              <option value="MCA">MCA</option>
             </select>
           </div>
 
-          {/* SECTION */}
           <div>
             <label className="font-medium">Section</label>
             <select
@@ -321,7 +321,6 @@ const Register = () => {
             </select>
           </div>
 
-          {/* ACADEMIC YEAR */}
           <div>
             <label className="font-medium">Academic Year</label>
             <select
@@ -340,86 +339,94 @@ const Register = () => {
             </select>
           </div>
 
-          {/* ---------------- OTP SECTION ---------------- */}
-          <div className="col-span-2 flex gap-4 items-center mt-4">
+          <div>
+            <label className="font-medium">Gender</label>
+            <select
+              name="gender"
+              className="w-full bg-gray-100 border border-gray-300 p-3 rounded-lg mt-1 outline-none"
+              value={formData.gender}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
 
-            {/* Send OTP */}
+          <div className="col-span-2 flex gap-4 items-center mt-4 flex-wrap">
             {!otpSent && (
               <button
                 type="button"
                 onClick={sendOtp}
-                disabled={sendingOtp || !formData.email}
+                disabled={sendingOtp || !formData.email || verified}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-400"
               >
                 {sendingOtp ? "Sending..." : "Send OTP"}
               </button>
             )}
 
-            {/* Resend OTP */}
             {otpSent && (
               <button
                 type="button"
                 onClick={sendOtp}
-                className="bg-yellow-600 text-white px-4 py-2 rounded-lg"
+                disabled={sendingOtp || verified}
+                className="bg-yellow-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-400"
               >
-                Resend OTP
+                {sendingOtp ? "Sending..." : "Resend OTP"}
               </button>
             )}
 
-            {/* OTP Input */}
             {otpSent && (
               <input
                 type="text"
                 maxLength="6"
-                placeholder="Enter OTP"
+                placeholder="Enter 6-digit OTP"
                 className="p-3 border rounded-lg w-40"
                 value={enteredOtp}
                 onChange={(e) => setEnteredOtp(e.target.value)}
+                disabled={verified}
               />
             )}
 
-            {/* Verify OTP */}
             {otpSent && !verified && (
               <button
                 type="button"
                 onClick={verifyOtp}
-                className="bg-green-600 text-white px-4 py-2 rounded-lg"
+                disabled={sendingOtp || !enteredOtp}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-400"
               >
-                Verify
+                {sendingOtp ? "Verifying..." : "Verify"}
               </button>
             )}
 
-            {/* Verified badge */}
             {verified && (
-              <span className="text-green-600 font-semibold">✔ Verified</span>
+              <span className="text-green-600 font-semibold text-lg">
+                Verified
+              </span>
             )}
           </div>
 
-          {/* REGISTER BUTTON */}
           <div className="col-span-2 mt-6">
             <button
               type="submit"
-              disabled={!verified}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 
-              text-white py-3 rounded-lg font-semibold
-              hover:scale-105 transition-all
-              shadow-[0_0_20px_rgba(138,43,226,0.5)]
-              disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={!verified || loading}
+              className="w-full bg-linear-to-r from-purple-600 to-blue-600 text-white py-3 rounded-lg font-semibold hover:scale-105 transition-all shadow-[0_0_20px_rgba(138,43,226,0.5)] disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Register
+              {loading ? "Registering..." : "Register"}
             </button>
 
             <p className="text-center text-gray-600 text-sm mt-4">
-              Already have an account?{" "}
+              Already have an account?
               <span
-                className="text-blue-600 cursor-pointer hover:underline"
-                onClick={() => navigate("/login")}
+                className="text-blue-600 cursor-pointer hover:underline ml-1"
+                onClick={() => navigate("/signin")}
               >
-                Login
+                SignIn
               </span>
             </p>
           </div>
-
         </form>
       </div>
     </div>

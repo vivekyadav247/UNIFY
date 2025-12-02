@@ -80,6 +80,24 @@ export default function Login() {
               </p>
             </div>
 
+            {/* Role Select */}
+            <div>
+              <label className="font-medium">Select Role</label>
+              <div className="flex items-center bg-white/80 border border-white/20 p-3 rounded-2xl mt-1 shadow-md backdrop-blur-sm">
+                <FiUser className="text-gray-700 text-xl mr-2" />
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full bg-transparent outline-none text-black"
+                >
+                  <option value="hod">HOD</option>
+                  <option value="tg">Teacher Guardian</option>
+                  <option value="faculty">Faculty</option>
+                  <option value="student">Student</option>
+                </select>
+              </div>
+            </div>
+
             {/* Login Button */}
             <button
               type="submit"

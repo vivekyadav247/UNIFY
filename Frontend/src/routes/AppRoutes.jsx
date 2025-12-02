@@ -25,8 +25,8 @@ export default function AppRoutes({
       <Route path="/" element={<Welcome />} />
 
       {/* Authentication */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/signin" element={<Login />} />
+      <Route path="/signup" element={<Register />} />
 
       {/* STUDENT ROUTES */}
       <Route

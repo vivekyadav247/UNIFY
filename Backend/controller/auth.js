@@ -2,10 +2,77 @@ const Student = require("../model/student");
 const Hod = require("../model/hod");
 const TG = require("../model/tg");
 const Faculty = require("../model/faculty");
-const { saveOtp } = require("./generateOtp");
 const Otp = require("../model/otp");
 const { sendEmailOtp } = require("./sendMailOtp");
-const student = require("../model/student");
+const { createToken } = require("../services/authentication");
+
+async function sendOtp(req, res) {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email required" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    await Otp.findOneAndUpdate(
+      { email },
+      { email, otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) },
+      { upsert: true }
+    );
+
+    await sendEmailOtp(email, otp);
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to email",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
+
+async function verifyOtp(req, res) {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email and OTP required" });
+    }
+
+    const otpRecord = await Otp.findOne({ email });
+
+    if (!otpRecord) {
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP not sent or expired" });
+    }
+
+    if (new Date() > otpRecord.expiresAt) {
+      return res.status(400).json({ success: false, message: "OTP expired" });
+    }
+
+    if (otpRecord.otp !== otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+
+    await Otp.deleteOne({ email });
+
+    return res.status(200).json({
+      success: true,
+      message: "Email verified",
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
+  }
+}
 
 async function handleSignup(req, res) {
   try {
@@ -38,7 +105,9 @@ async function handleSignup(req, res) {
       !password ||
       !dob
     ) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields required" });
     }
 
     const existing = await Student.findOne({
@@ -47,138 +116,171 @@ async function handleSignup(req, res) {
 
     if (existing) {
       return res.status(409).json({
-        error: "HOD with this ID, email, or mobile number already exists",
+        success: false,
+        message: "Student with this email/enrollment already exists",
       });
-    }
-
-    const otp = await saveOtp(email);
-
-    await sendEmailOtp(email, otp);
-
-    return res.status(200).json({
-      message: "OTP sent to your email",
-      email,
-    });
-  } catch (err) {
-    return res.status(500).json({ error: err.message });
-  }
-}
-
-async function verifySignupOtp(req, res) {
-  try {
-    const {
-      email,
-      otp,
-      name,
-      mobileNumber,
-      branch,
-      course,
-      department,
-      section,
-      academicYear,
-      password,
-      gender,
-      dob,
-      enrollmentNumber,
-    } = req.body;
-
-    const otpRecord = await Otp.findOne({ email });
-
-    if (!otpRecord || otpRecord.otp !== otp) {
-      return res.status(400).json({ error: "Invalid OTP" });
-    }
-
-    if (otpRecord.expiresAt < new Date()) {
-      return res.status(400).json({ error: "OTP expired" });
     }
 
     const student = new Student({
       name,
       enrollmentNumber,
-      branch,
       course,
       department,
+      branch,
       section,
       academicYear,
       email,
       mobileNumber,
       gender,
       password,
-      dob,
-      isVerified: false,
+      dob: new Date(dob),
+      role: "student",
+      isVerified: true,
     });
 
     await student.save();
 
-    await Otp.deleteOne({ email });
+    const token = createToken(student);
 
-    return res.status(201).redirect("/login");
+    return res
+      .status(201)
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      })
+      .json({
+        success: true,
+        message: "Registration successful",
+        redirectUrl: "/student/dashboard",
+      });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 }
 
 async function handleSignin(req, res) {
   try {
-    const { role } = req.body;
-    if (!role) throw new Error("Role is required");
+    const { role, enrollmentNumber, password, hodId, facultyId, tgId } =
+      req.body;
+
+    if (!role) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Role is required" });
+    }
+
+    let token;
+    let redirectUrl;
+
     if (role === "student") {
-      const { enrollmentNumber, password } = req.body;
-      if (!enrollmentNumber || !password)
-        throw new Error("All fields are required");
+      if (!enrollmentNumber || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Enrollment and password required",
+        });
+      }
+
       try {
-        const token = await Student.matchPasswordAndGenerateToken(
+        token = await Student.matchPasswordAndGenerateToken(
           enrollmentNumber,
           password
         );
-        return res.cookie("token", token).redirect(`/student/:${student._id}`);
-      } catch (error) {
-        return res.send({ error: error.message });
+        redirectUrl = "/student/dashboard";
+      } catch (err) {
+        return res.status(401).json({
+          success: false,
+          message: err.message || "Invalid credentials",
+        });
       }
     } else if (role === "hod") {
-      const { hodId, password } = req.body;
-      if (!hodId || !password) throw new Error("All fields are required");
+      if (!hodId || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "HOD ID and password required",
+        });
+      }
+
       try {
-        const token = await Hod.matchPasswordAndGenerateToken(hodId, password);
-        return res.cookie("token", token).redirect(`/hod/:${hodId}`);
-      } catch (error) {
-        return res.send({ error: error.message });
+        token = await Hod.matchPasswordAndGenerateToken(hodId, password);
+        redirectUrl = "/hod/dashboard";
+      } catch (err) {
+        return res.status(401).json({
+          success: false,
+          message: err.message || "Invalid credentials",
+        });
       }
     } else if (role === "tg") {
-      const { tgId, password } = req.body;
-      if (!tgId || !password) throw new Error("All fields are required");
+      if (!tgId || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "TG ID and password required",
+        });
+      }
+
       try {
-        const token = await TG.matchPasswordAndGenerateToken(tgId, password);
-        return res.cookie("token", token).redirect(`/tg/:${tgId}`);
-      } catch (error) {
-        return res.send({ error: error.message });
+        token = await TG.matchPasswordAndGenerateToken(tgId, password);
+        redirectUrl = "/tg/dashboard";
+      } catch (err) {
+        return res.status(401).json({
+          success: false,
+          message: err.message || "Invalid credentials",
+        });
       }
     } else if (role === "faculty") {
-      const { facultyId, password } = req.body;
-      if (!facultyId || !password) throw new Error("All fields are required");
+      if (!facultyId || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Faculty ID and password required",
+        });
+      }
+
       try {
-        const token = await Faculty.matchPasswordAndGenerateToken(
+        token = await Faculty.matchPasswordAndGenerateToken(
           facultyId,
           password
         );
-        return res.cookie("token", token).redirect(`/faculty/:${facultyId}`);
-      } catch (error) {
-        return res.send({ error: error.message });
+        redirectUrl = "/faculty/dashboard";
+      } catch (err) {
+        return res.status(401).json({
+          success: false,
+          message: err.message || "Invalid credentials",
+        });
       }
+    } else {
+      return res.status(400).json({ success: false, message: "Invalid role" });
     }
+
+    return res
+      .status(200)
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      })
+      .json({
+        success: true,
+        message: "Login successful",
+        redirectUrl,
+      });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error(err);
+    return res.status(500).json({ success: false, message: err.message });
   }
 }
 
 async function handleLogout(req, res) {
-  res.clearCookie("token");
-  return res.redirect("/");
+  return res.clearCookie("token").status(200).json({
+    success: true,
+    message: "Logged out successfully",
+  });
 }
 
 module.exports = {
   handleSignup,
-  verifySignupOtp,
   handleSignin,
   handleLogout,
+  sendOtp,
+  verifyOtp,
 };

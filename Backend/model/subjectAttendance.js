@@ -11,6 +11,7 @@ const subjectAttendanceSchema = new Schema(
     academicYear: { type: String, required: true },
     branch: { type: String, required: true },
     section: { type: String, required: true },
+    semesterNumber: { type: Number, required: true },
   },
   { timestamps: true }
 );

@@ -109,11 +109,12 @@ const studentSchema = new Schema(
       default: [],
       required: false,
     },
-    assignTgId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "TG",
-      default: null,
+    semesterNumber: {
+      type: Number,
+      required: true,
+      default: 1,
     },
+    assignTgId: { type: mongoose.Schema.Types.ObjectId, ref: "TG" },
     parentContact: {
       type: String,
       default: null,

@@ -5,7 +5,12 @@ function createToken(user) {
     _id: user._id,
     name: user.name,
     role: user.role,
+    academicYear: user.academicYear,
+    branch: user.branch,
+    section: user.section,
+    semesterNumber: user.semesterNumber,
   };
+
   const token = JWT.sign(payload, process.env.SECRET_KEY, { expiresIn: "7d" });
   return token;
 }

@@ -1,9 +1,10 @@
 const Subject = require("../model/subject");
-const SemesterControl = require("../model/semesterController");
+const SemesterControl = require("../model/semester");
 const FacultyAssignment = require("../model/facultyAssign");
 const TG = require("../model/tg");
 const Student = require("../model/student");
 const Faculty = require("../model/faculty");
+const Hod = require("../model/hod");
 const { randomBytes, createHmac } = require("crypto");
 
 async function handleCreateTg(req, res) {
@@ -394,6 +395,116 @@ async function deleteFaculty(req, res) {
   }
 }
 
+async function getHodProfile(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id; // coming from token payload
+
+    const hod = await Hod.findById(hodId).select("-password -salt");
+    if (!hod) return res.status(404).json({ error: "HOD not found" });
+
+    return res.status(200).json({
+      message: "HOD profile fetched successfully",
+      hod,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function updateHodProfile(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+
+    // Allowed fields for update
+    const allowedFields = [
+      "name",
+      "email",
+      "mobileNumber",
+      "course",
+      "department",
+      "gender",
+      "dob",
+      "profilePic",
+    ];
+
+    const updates = {};
+
+    allowedFields.forEach((field) => {
+      if (req.body[field] !== undefined) updates[field] = req.body[field];
+    });
+
+    const updated = await Hod.findByIdAndUpdate(hodId, updates, {
+      new: true,
+    }).select("-password -salt");
+
+    if (!updated) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    return res.status(200).json({
+      message: "HOD profile updated successfully",
+      hod: updated,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function changeHodPassword(req, res) {
+  try {
+    // Authentication check
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const { oldPassword, newPassword } = req.body;
+
+    // Validation
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ error: "Both old and new passwords required" });
+    }
+
+    // Fetch HOD
+    const hod = await Hod.findById(hodId);
+    if (!hod) return res.status(404).json({ error: "HOD not found" });
+
+    // Verify old password
+    const oldHash = createHmac("sha256", hod.salt)
+      .update(oldPassword)
+      .digest("hex");
+
+    if (oldHash !== hod.password) {
+      return res.status(400).json({ error: "Old password is incorrect" });
+    }
+
+    // Hash new password
+    const newSalt = randomBytes(16).toString("hex");
+    const newHash = createHmac("sha256", newSalt)
+      .update(newPassword)
+      .digest("hex");
+
+    hod.salt = newSalt;
+    hod.password = newHash;
+
+    await hod.save();
+
+    return res.status(200).json({ message: "Password updated successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   handleCreateTg,
   handleCreateFaculty,
@@ -406,4 +517,7 @@ module.exports = {
   resetFacultyPassword,
   deleteTG,
   deleteFaculty,
+  getHodProfile,
+  updateHodProfile,
+  changeHodPassword,
 };

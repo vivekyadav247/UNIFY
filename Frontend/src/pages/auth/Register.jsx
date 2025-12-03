@@ -6,6 +6,7 @@ const Register = () => {
   const navigate = useNavigate();
   const API_URL = "http://localhost:5000/api/auth";
 
+  // Form data for student-only registration
   const [formData, setFormData] = useState({
     name: "",
     enrollmentNumber: "",
@@ -97,6 +98,73 @@ const Register = () => {
     }
   };
 
+  // -----------------------------
+  // SEND OTP
+  // -----------------------------
+  const sendOtp = async () => {
+    if (!formData.email) {
+      alert("Please enter an email first.");
+      return;
+    }
+
+    setSendingOtp(true);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await res.json();
+      setSendingOtp(false);
+
+      if (data.success) {
+        setOtpSent(true);
+        alert("OTP sent to email");
+      } else {
+        alert(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      setSendingOtp(false);
+      console.error(err);
+      alert("Server error while sending OTP");
+    }
+  };
+
+  // -----------------------------
+  // VERIFY OTP
+  // -----------------------------
+  const verifyOtp = async () => {
+    if (!enteredOtp) {
+      alert("Enter OTP first");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/api/otp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, otp: enteredOtp }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setVerified(true);
+        alert("Email verified successfully!");
+      } else {
+        alert(data.message || "Invalid OTP");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Server error while verifying OTP");
+    }
+  };
+
+  // -----------------------------
+  // REGISTER STUDENT
+  // -----------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -427,6 +495,7 @@ const Register = () => {
               </span>
             </p>
           </div>
+
         </form>
       </div>
     </div>

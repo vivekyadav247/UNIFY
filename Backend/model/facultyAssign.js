@@ -16,7 +16,14 @@ const facultyAssignSchema = new Schema(
 );
 
 facultyAssignSchema.index(
-  { facultyId: 1, subjectId: 1, branch: 1, section: 1, academicYear: 1 },
+  {
+    facultyId: 1,
+    subjectId: 1,
+    branch: 1,
+    section: 1,
+    academicYear: 1,
+    semesterNumber: 1,
+  },
   { unique: true }
 );
 

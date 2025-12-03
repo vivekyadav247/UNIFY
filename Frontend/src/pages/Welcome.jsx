@@ -95,7 +95,7 @@ export default function Welcome() {
 
         {/* Get Started Button */}
         <button
-          onClick={() => navigate("/login")}
+          onClick={() => navigate("/signin")}
           className="
       mt-10 px-8 py-3
       rounded-full font-semibold
@@ -243,7 +243,6 @@ export default function Welcome() {
                 transition-all duration-300
               "
               style={{ animationDelay: `${index * 200}ms` }}
-              
             >
               {/* Image */}
               <img

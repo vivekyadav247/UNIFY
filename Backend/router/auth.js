@@ -2,9 +2,10 @@ const router = require("express").Router();
 
 const {
   handleSignup,
-  verifySignupOtp,
   handleSignin,
   handleLogout,
+  sendOtp,
+  verifyOtp,
 } = require("../controller/auth");
 
 const {
@@ -14,26 +15,14 @@ const {
 
 const { resendOtp } = require("../controller/generateOtp");
 
-router.get("/signup", async (req, res) => {
-  return res.send("Signup Page");
-});
-
+router.post("/send-otp", sendOtp);
+router.post("/verify-otp", verifyOtp);
 router.post("/signup", handleSignup);
-
-router.post("/signup/verify", verifySignupOtp);
-
-router.post("/resend-otp", resendOtp);
-
-router.get("/signin", async (req, res) => {
-  return res.render("signin");
-});
-
 router.post("/signin", handleSignin);
-
 router.get("/logout", handleLogout);
 
+router.post("/resend-otp", resendOtp);
 router.post("/forgot-password", handleForgotPassword);
-
 router.post("/reset-password", resetPassword);
 
 module.exports = router;

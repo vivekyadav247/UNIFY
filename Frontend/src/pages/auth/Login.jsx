@@ -4,19 +4,83 @@ import { FiMail, FiLock, FiUser } from "react-icons/fi";
 
 export default function Login() {
   const navigate = useNavigate();
+  const API_URL =
+    process.env.BACKEND_API_URL || "http://localhost:5000/api/auth";
 
   const [role, setRole] = useState("student");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [credentials, setCredentials] = useState({
+    enrollmentNumber: "",
+    hodId: "",
+    tgId: "",
+    facultyId: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+    setError("");
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      alert("Please fill all fields");
-      return;
+    setLoading(true);
+    setError("");
+
+    const body = { role, password: credentials.password };
+
+    if (role === "student") {
+      body.enrollmentNumber = credentials.enrollmentNumber;
+      if (!credentials.enrollmentNumber || !credentials.password) {
+        setError("Please fill all fields");
+        setLoading(false);
+        return;
+      }
+    } else if (role === "hod") {
+      body.hodId = credentials.hodId;
+      if (!credentials.hodId || !credentials.password) {
+        setError("Please fill all fields");
+        setLoading(false);
+        return;
+      }
+    } else if (role === "tg") {
+      body.tgId = credentials.tgId;
+      if (!credentials.tgId || !credentials.password) {
+        setError("Please fill all fields");
+        setLoading(false);
+        return;
+      }
+    } else if (role === "faculty") {
+      body.facultyId = credentials.facultyId;
+      if (!credentials.facultyId || !credentials.password) {
+        setError("Please fill all fields");
+        setLoading(true);
+        return;
+      }
     }
-    // Redirect role-wise
-    navigate(`/${role}/dashboard`);
+
+    try {
+      const res = await fetch(`${API_URL}/signin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success) {
+        navigate(data.redirectUrl || "/dashboard");
+      } else {
+        setError(data.message || "Login failed");
+      }
+    } catch (err) {
+      setLoading(false);
+      setError("Server error. Please try again.");
+      console.error(err);
+    }
   };
 
   return (
@@ -41,23 +105,91 @@ export default function Login() {
 
         {/* Form Section */}
         <div className="w-1/2 max-md:w-full">
-          <h1 className="text-3xl font-bold text-center mb-2">Login</h1>
+          <h1 className="text-3xl font-bold text-center mb-2">Sign In</h1>
           <p className="text-center text-gray-700 mb-6">
-            Welcome back! Please login to continue.
+            Welcome back! Please sign in to continue.
           </p>
 
+          {error && (
+            <div className="mb-4 p-3 rounded-lg text-center font-semibold bg-red-100 text-red-700">
+              {error}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            {/* Email */}
+            {/* Role Select */}
             <div>
-              <label className="font-medium">Email</label>
+              <label className="font-medium">Select Role</label>
+              <div className="flex items-center bg-white/80 border border-white/20 p-3 rounded-2xl mt-1 shadow-md backdrop-blur-sm">
+                <FiUser className="text-gray-700 text-xl mr-2" />
+                <select
+                  value={role}
+                  onChange={(e) => {
+                    setRole(e.target.value);
+                    setCredentials({
+                      enrollmentNumber: "",
+                      hodId: "",
+                      tgId: "",
+                      facultyId: "",
+                      password: "",
+                    });
+                    setError("");
+                  }}
+                  className="w-full bg-transparent outline-none text-black"
+                >
+                  <option value="student">Student</option>
+                  <option value="hod">HOD</option>
+                  <option value="tg">Teacher Guardian</option>
+                  <option value="faculty">Faculty</option>
+                </select>
+              </div>
+            </div>
+
+            {/* ID/Enrollment Field */}
+            <div>
+              <label className="font-medium">
+                {role === "student"
+                  ? "Enrollment Number"
+                  : role === "hod"
+                  ? "HOD ID"
+                  : role === "tg"
+                  ? "TG ID"
+                  : "Faculty ID"}
+              </label>
               <div className="flex items-center bg-white/80 border border-white/20 p-3 rounded-2xl mt-1 shadow-md backdrop-blur-sm">
                 <FiMail className="text-gray-700 text-xl mr-2" />
                 <input
-                  type="email"
-                  placeholder="Enter email"
+                  type="text"
+                  name={
+                    role === "student"
+                      ? "enrollmentNumber"
+                      : role === "hod"
+                      ? "hodId"
+                      : role === "tg"
+                      ? "tgId"
+                      : "facultyId"
+                  }
+                  placeholder={`Enter ${
+                    role === "student"
+                      ? "enrollment number"
+                      : role === "hod"
+                      ? "HOD ID"
+                      : role === "tg"
+                      ? "TG ID"
+                      : "Faculty ID"
+                  }`}
                   className="w-full bg-transparent outline-none text-black"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={
+                    role === "student"
+                      ? credentials.enrollmentNumber
+                      : role === "hod"
+                      ? credentials.hodId
+                      : role === "tg"
+                      ? credentials.tgId
+                      : credentials.facultyId
+                  }
+                  onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -69,10 +201,12 @@ export default function Login() {
                 <FiLock className="text-gray-700 text-xl mr-2" />
                 <input
                   type="password"
+                  name="password"
                   placeholder="Enter password"
                   className="w-full bg-transparent outline-none text-black"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={credentials.password}
+                  onChange={handleChange}
+                  required
                 />
               </div>
               <p className="text-right text-blue-500 text-sm mt-1 cursor-pointer hover:underline">
@@ -83,19 +217,20 @@ export default function Login() {
             {/* Login Button */}
             <button
               type="submit"
-              className="bg-linear-to-r from-purple-400 to-blue-400 text-white py-3 rounded-2xl mt-2 hover:scale-105 transition-all shadow-lg"
+              disabled={loading}
+              className="bg-linear-to-r from-purple-400 to-blue-400 text-white py-3 rounded-2xl mt-2 hover:scale-105 transition-all shadow-lg disabled:opacity-50 font-semibold"
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
 
           <p className="text-center text-gray-700 text-sm mt-4">
-            Don’t have an account?{" "}
+            Don't have an account?
             <span
-              className="text-blue-600 cursor-pointer hover:underline"
-              onClick={() => navigate("/register")}
+              className="text-blue-600 cursor-pointer hover:underline ml-1"
+              onClick={() => navigate("/signup")}
             >
-              Register here
+              SignUp
             </span>
           </p>
         </div>

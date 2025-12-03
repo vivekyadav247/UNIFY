@@ -1,5 +1,6 @@
 const Student = require("../model/student");
 const TG = require("../model/tg");
+const { createHmac, randomBytes } = require("crypto");
 
 async function verifyStudentByTG(req, res) {
   try {
@@ -55,4 +56,93 @@ async function verifyStudentByTG(req, res) {
   }
 }
 
-module.exports = { verifyStudentByTG };
+async function getTgProfile(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+
+    const tg = await TG.findById(tgId).select("-password -salt");
+    if (!tg) return res.status(404).json({ error: "TG not found" });
+
+    return res.status(200).json({ tg });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function updateTgProfile(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+
+    const allowed = [
+      "name",
+      "email",
+      "mobileNumber",
+      "gender",
+      "dob",
+      "profilePic",
+    ];
+
+    const updates = {};
+    allowed.forEach((f) => {
+      if (req.body[f] !== undefined) updates[f] = req.body[f];
+    });
+
+    const updated = await TG.findByIdAndUpdate(tgId, updates, {
+      new: true,
+    }).select("-password -salt");
+
+    return res.status(200).json({ message: "TG updated", tg: updated });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function changeTgPassword(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+    const { oldPassword, newPassword } = req.body;
+
+    const tg = await TG.findById(tgId);
+    if (!tg) return res.status(404).json({ error: "TG not found" });
+
+    const oldHash = createHmac("sha256", tg.salt)
+      .update(oldPassword)
+      .digest("hex");
+
+    if (oldHash !== tg.password)
+      return res.status(400).json({ error: "Old password incorrect" });
+
+    const newSalt = randomBytes(16).toString("hex");
+    const newHash = createHmac("sha256", newSalt)
+      .update(newPassword)
+      .digest("hex");
+
+    tg.salt = newSalt;
+    tg.password = newHash;
+
+    await tg.save();
+
+    return res.status(200).json({ message: "Password updated" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+module.exports = {
+  getTgProfile,
+  updateTgProfile,
+  changeTgPassword,
+  verifyStudentByTG,
+};

@@ -1,113 +1,231 @@
 const ClassAttendance = require("../model/classAttendance");
 const SubjectAttendance = require("../model/subjectAttendance");
-const FacultyAssignment = require("../model/facultyAssign");
-const Subject = require("../model/subject");
 const Student = require("../model/student");
+const mongoose = require("mongoose");
 
-// TG takes class attendance (one entry per student per date)
+const VALID_STATUS = new Set(["present", "absent", "leave"]);
+
+function normalizeDate(dateInput) {
+  const d = new Date(dateInput);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 async function takeClassAttendance(req, res) {
-  if (!req.user || req.user.role !== "tg")
-    return res.status(401).send("Unauthorized: TG only");
+  if (!req.user || req.user.role !== "tg") {
+    return res.status(401).json({ error: "Unauthorized: TG only" });
+  }
 
   try {
-    const tgId = req.user.id || req.user._id; // depends on token payload
+    const tgId = req.user._id;
     const { date, records } = req.body;
-    // records = [{ studentId, status: 'present'|'absent' }, ...]
-    if (!date || !Array.isArray(records))
-      return res.status(400).json({ error: "Date and records required" });
 
-    const dt = new Date(date);
-    // upsert each student's attendance for that date
-    const ops = records.map((r) => ({
-      updateOne: {
-        filter: { studentId: r.studentId, date: dt },
-        update: {
-          $set: {
-            tgId,
-            studentId: r.studentId,
-            date: dt,
-            status: r.status,
-            academicYear: r.academicYear,
-            branch: r.branch,
-            section: r.section,
+    if (!date || !Array.isArray(records)) {
+      return res.status(400).json({ error: "Date and records required" });
+    }
+
+    const dt = normalizeDate(date);
+    const studentIds = records.map((r) => r.studentId);
+    const students = await Student.find({ _id: { $in: studentIds } }).lean();
+
+    const stuMap = {};
+    students.forEach((s) => (stuMap[s._id.toString()] = s));
+
+    const ops = [];
+    const errors = [];
+
+    for (const r of records) {
+      const sid = r.studentId;
+      const stu = stuMap[sid];
+
+      if (!stu) {
+        errors.push({ studentId: sid, error: "Student not found" });
+        continue;
+      }
+
+      const status = String(r.status).toLowerCase();
+      if (!VALID_STATUS.has(status)) {
+        errors.push({ studentId: sid, error: `Invalid status '${r.status}'` });
+        continue;
+      }
+
+      ops.push({
+        updateOne: {
+          filter: { studentId: stu._id, date: dt },
+          update: {
+            $set: {
+              tgId,
+              studentId: stu._id,
+              date: dt,
+              status,
+              academicYear: stu.academicYear,
+              branch: stu.branch,
+              section: stu.section,
+              semesterNumber: stu.semesterNumber,
+            },
           },
+          upsert: true,
         },
-        upsert: true,
-      },
-    }));
-    if (ops.length === 0) return res.status(400).json({ error: "No records" });
+      });
+    }
+
+    if (ops.length === 0) {
+      return res.status(400).json({ error: "No valid attendance", errors });
+    }
 
     await ClassAttendance.bulkWrite(ops);
-    return res.status(200).json({ message: "Class attendance saved" });
+
+    return res.status(200).json({
+      message: "Class attendance saved",
+      saved: ops.length,
+      errors,
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 }
 
-// Faculty takes subject attendance
 async function takeSubjectAttendance(req, res) {
-  if (!req.user || req.user.role !== "faculty")
-    return res.status(401).send("Unauthorized: Faculty only");
+  if (!req.user || req.user.role !== "faculty") {
+    return res.status(401).json({ error: "Unauthorized: Faculty only" });
+  }
 
   try {
-    const facultyId = req.user.id || req.user._id;
+    const facultyId = req.user._id;
     const { subjectId, date, records } = req.body;
-    if (!subjectId || !date || !Array.isArray(records))
+
+    if (!subjectId || !date || !Array.isArray(records)) {
       return res
         .status(400)
         .json({ error: "subjectId, date and records required" });
+    }
 
-    // Check that this faculty is assigned for this subject-section (optional safety)
-    // For simplicity we skip, but recommended: verify FacultyAssignment exists
+    const dt = normalizeDate(date);
+    const studentIds = records.map((r) => r.studentId);
+    const students = await Student.find({ _id: { $in: studentIds } }).lean();
 
-    const dt = new Date(date);
-    const ops = records.map((r) => ({
-      updateOne: {
-        filter: { facultyId, subjectId, studentId: r.studentId, date: dt },
-        update: {
-          $set: {
+    const stuMap = {};
+    students.forEach((s) => (stuMap[s._id.toString()] = s));
+
+    const ops = [];
+    const errors = [];
+
+    for (const r of records) {
+      const sid = r.studentId;
+      const stu = stuMap[sid];
+
+      if (!stu) {
+        errors.push({ studentId: sid, error: "Student not found" });
+        continue;
+      }
+
+      const status = String(r.status).toLowerCase();
+      if (!VALID_STATUS.has(status)) {
+        errors.push({ studentId: sid, error: `Invalid status '${r.status}'` });
+        continue;
+      }
+
+      ops.push({
+        updateOne: {
+          filter: {
             facultyId,
             subjectId,
-            studentId: r.studentId,
+            studentId: stu._id,
             date: dt,
-            status: r.status,
-            academicYear: r.academicYear,
-            branch: r.branch,
-            section: r.section,
           },
+          update: {
+            $set: {
+              facultyId,
+              subjectId,
+              studentId: stu._id,
+              date: dt,
+              status,
+              academicYear: stu.academicYear,
+              branch: stu.branch,
+              section: stu.section,
+              semesterNumber: stu.semesterNumber,
+            },
+          },
+          upsert: true,
         },
-        upsert: true,
-      },
-    }));
+      });
+    }
+
+    if (ops.length === 0) {
+      return res.status(400).json({ error: "No valid records", errors });
+    }
+
     await SubjectAttendance.bulkWrite(ops);
-    return res.status(200).json({ message: "Subject attendance saved" });
+
+    return res.status(200).json({
+      message: "Subject attendance saved",
+      saved: ops.length,
+      errors,
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 }
 
-// Student sees his attendance (both class + subject)
 async function getStudentAttendance(req, res) {
-  if (!req.user || req.user.role !== "student")
-    return res.status(401).send("Unauthorized: Student only");
+  if (!req.user || req.user.role !== "student") {
+    return res.status(401).json({ error: "Unauthorized: Student only" });
+  }
+
   try {
-    const studentId = req.user.id || req.user._id;
-    const { from, to } = req.query; // optional date range
-    const filter = { studentId };
+    const studentId = req.user._id;
+    const { semesterNumber, from, to } = req.query;
+
+    const filter = {
+      studentId,
+      semesterNumber: semesterNumber
+        ? parseInt(semesterNumber)
+        : req.user.semesterNumber,
+    };
+
     if (from || to) {
       filter.date = {};
-      if (from) filter.date.$gte = new Date(from);
-      if (to) filter.date.$lte = new Date(to);
+      if (from) filter.date.$gte = normalizeDate(from);
+      if (to) filter.date.$lte = normalizeDate(to);
     }
 
-    const classAtt = await ClassAttendance.find(filter).sort({ date: -1 });
-    const subjectAtt = await SubjectAttendance.find(filter)
+    const classAtt = await ClassAttendance.find(filter)
       .sort({ date: -1 })
-      .populate("subjectId", "subjectCode name");
+      .lean();
+    const subjectAtt = await SubjectAttendance.find(filter)
+      .populate("subjectId", "subjectCode name")
+      .sort({ date: -1 })
+      .lean();
 
-    return res
-      .status(200)
-      .json({ classAttendance: classAtt, subjectAttendance: subjectAtt });
+    const classTotal = classAtt.length;
+    const classPresent = classAtt.filter((x) => x.status === "present").length;
+
+    const subjectStats = {};
+    subjectAtt.forEach((att) => {
+      const code = att.subjectId?.subjectCode || "Unknown";
+      if (!subjectStats[code]) {
+        subjectStats[code] = { total: 0, present: 0 };
+      }
+      subjectStats[code].total++;
+      if (att.status === "present") subjectStats[code].present++;
+    });
+
+    Object.keys(subjectStats).forEach((code) => {
+      const s = subjectStats[code];
+      s.percentage = ((s.present / s.total) * 100).toFixed(2);
+    });
+
+    return res.status(200).json({
+      classAttendance: classAtt,
+      subjectAttendance: subjectAtt,
+      classStats: {
+        total: classTotal,
+        present: classPresent,
+        percentage:
+          classTotal > 0 ? ((classPresent / classTotal) * 100).toFixed(2) : "0",
+      },
+      subjectStats,
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }

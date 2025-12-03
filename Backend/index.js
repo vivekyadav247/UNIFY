@@ -10,6 +10,7 @@ const configDB = require("./config/configDB");
 const hodRouter = require("./router/hod");
 const tgRouter = require("./router/tg");
 const facultyRouter = require("./router/faculty");
+const studentRouter = require("./router/student");
 
 const Port = process.env.PORT || 3000;
 
@@ -27,7 +28,6 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
-app.use(cookieAuthenticate("token"));
 app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
@@ -37,11 +37,13 @@ app.use("/api/auth", authRouter);
 
 app.use("/api/admin", adminRouter);
 
-app.use("/api/hod", hodRouter);
+app.use("/api/hod", cookieAuthenticate, hodRouter);
 
-app.use("/api/tg", tgRouter);
+app.use("/api/tg", cookieAuthenticate, tgRouter);
 
-app.use("/api/faculty", facultyRouter);
+app.use("/api/faculty", cookieAuthenticate, facultyRouter);
+
+app.use("/api/student", cookieAuthenticate, studentRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Unify Backend");

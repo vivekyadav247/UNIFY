@@ -9,12 +9,16 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendEmailOtp(email, otp) {
-  await transporter.sendMail({
-    from: process.env.MAIL_ID,
-    to: email,
-    subject: "UNIFY OTP Verification",
-    text: `Your OTP is: ${otp}. Valid for 5 minutes.`,
-  });
+  try {
+    await transporter.sendMail({
+      from: process.env.MAIL_ID,
+      to: email,
+      subject: "UNIFY OTP Verification",
+      text: `Your OTP is: ${otp}. Valid for 5 minutes.`,
+    });
+  } catch (error) {
+    throw error;
+  }
 }
 
 module.exports = { sendEmailOtp };

@@ -4,7 +4,7 @@ import { FiMail, FiPhone } from "react-icons/fi";
 
 const Register = () => {
   const navigate = useNavigate();
-  const API_URL = "http://localhost:5000/api/auth";
+  const API_URL = "http://localhost:3000/api/auth";
 
   const [formData, setFormData] = useState({
     name: "",

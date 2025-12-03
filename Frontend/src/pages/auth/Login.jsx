@@ -4,8 +4,7 @@ import { FiMail, FiLock, FiUser } from "react-icons/fi";
 
 export default function Login() {
   const navigate = useNavigate();
-  const API_URL =
-    process.env.BACKEND_API_URL || "http://localhost:5000/api/auth";
+  const API_URL = "http://localhost:3000/api/auth";
 
   const [role, setRole] = useState("student");
   const [credentials, setCredentials] = useState({

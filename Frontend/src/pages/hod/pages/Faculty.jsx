@@ -1,8 +1,8 @@
 
 import React, { useState } from "react";
-import StatsCard from "../components/Assignments/StatsCard";
-import AssignmentTabs from "../components/Assignments/AssignmentsTabs";
-import AssignmentList from "../components/Assignments/AssignmentList";
+import StatsCard from "../../student/components/Assignments/StatsCard";
+import AssignmentTabs from "../../student/components/Assignments/AssignmentsTabs";
+import AssignmentList from "../../student/components/Assignments/AssignmentList";
 
 /* Dummy data (matches your screenshots) */
 const DUMMY = {

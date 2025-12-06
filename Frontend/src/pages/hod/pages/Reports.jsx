@@ -1,9 +1,9 @@
 
 import React, { useState } from "react";
-import StatsCard from "../components/Feedback/StatsCard";
-import FeedbackTabs from "../components/Feedback/FeedbackTabs";
-import FeedbackList from "../components/Feedback/FeedbackList";
-import SummaryCard from "../components/Feedback/SummaryCard";
+import StatsCard from "../../student/components/Feedback/StatsCard";
+import FeedbackTabs from "../../student/components/Feedback/FeedbackTabs";
+import FeedbackList from "../../student/components/Feedback/FeedbackList";
+import SummaryCard from "../../student/components/Feedback/SummaryCard";
 
 export default function Feedback() {
   const [active, setActive] = useState("all");

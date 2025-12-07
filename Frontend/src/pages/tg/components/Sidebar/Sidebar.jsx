@@ -2,23 +2,33 @@ import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   FiHome,
-  FiBook,
+  FiUsers,
   FiCheckSquare,
   FiBarChart2,
+  FiBook,
   FiMessageSquare,
   FiLogOut,
   FiSettings,
+  FiUserCheck,
+  FiFileText,
+  FiClock,
+  FiBell,
 } from "react-icons/fi";
 
 const Sidebar = ({ darkMode }) => {
   const navigate = useNavigate();
 
   const menu = [
-    { name: "Dashboard", icon: <FiHome />, path: "/student/dashboard" },
-    { name: "Attendance", icon: <FiCheckSquare />, path: "/student/attendance" },
-    { name: "Marks", icon: <FiBarChart2 />, path: "/student/marks" },
-    { name: "Assignments", icon: <FiBook />, path: "/student/assignments" },
-    { name: "Feedback", icon: <FiMessageSquare />, path: "/student/feedback" },
+    { name: "Dashboard", icon: <FiHome />, path: "/tg/dashboard" },
+    { name: "My Students", icon: <FiUsers />, path: "/tg/my-students" },
+    { name: "Attendance", icon: <FiCheckSquare />, path: "/tg/attendance" },
+    { name: "Marks", icon: <FiBarChart2 />, path: "/tg/marks" },
+    { name: "Assignments", icon: <FiBook />, path: "/tg/assignments" },
+    { name: "Feedback", icon: <FiMessageSquare />, path: "/tg/feedback" },
+    { name: "Reports", icon: <FiFileText />, path: "/tg/reports" },
+    { name: "Schedule", icon: <FiClock />, path: "/tg/schedule" },
+    { name: "Announcements", icon: <FiBell />, path: "/tg/announcements" },
+    { name: "Verify Users", icon: <FiUserCheck />, path: "/tg/verify-users" },
   ];
 
   const handleLogout = () => {
@@ -38,7 +48,6 @@ const Sidebar = ({ darkMode }) => {
         }
       `}
     >
-
       {/* BRAND SECTION */}
       <div
         className={`
@@ -70,13 +79,12 @@ const Sidebar = ({ darkMode }) => {
             }
           `}
         >
-          STUDENT PORTAL
+          TEACHER GUARDIAN
         </p>
       </div>
 
       {/* NAVIGATION */}
       <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
-
         {menu.map((item) => (
           <NavLink
             key={item.name}
@@ -121,7 +129,7 @@ const Sidebar = ({ darkMode }) => {
 
         {/* SETTINGS */}
         <NavLink
-          to="/student/settings"
+          to="/tg/settings"
           className={({ isActive }) =>
             `
             group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-medium
@@ -144,7 +152,6 @@ const Sidebar = ({ darkMode }) => {
           </span>
           <span className="tracking-wide flex-1">Settings</span>
         </NavLink>
-
       </nav>
 
       {/* USER INFO SECTION */}
@@ -194,7 +201,7 @@ const Sidebar = ({ darkMode }) => {
               }
             `}
           >
-            {localStorage.getItem("username") || "Student"}
+            {localStorage.getItem("username") || "Teacher"}
           </p>
         </div>
 

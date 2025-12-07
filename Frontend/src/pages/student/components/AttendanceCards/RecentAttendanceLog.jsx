@@ -1,35 +1,90 @@
 import React from "react";
+import { FiCheckCircle, FiXCircle, FiCalendar } from "react-icons/fi";
 
-export default function RecentAttendanceLog({ logs }) {
+export default function RecentAttendanceLog({ logs, darkMode }) {
   return (
-    <div className="bg-white p-6 rounded-xl shadow space-y-6">
-      <h3 className="text-xl font-bold">Recent Logs</h3>
-
-      {logs.map((log, i) => (
-        <div key={i}>
-          <p className="font-semibold mb-2">{log.date}</p>
-
-          <div className="grid gap-3">
-            {log.entries.map((entry, index) => (
-              <div
-                key={index}
-                className="flex justify-between bg-gray-100 p-3 rounded-lg"
+    <div
+      className={`p-6 rounded-2xl transition-colors duration-300 ${
+        darkMode
+          ? "bg-gray-800/50 border border-gray-700"
+          : "bg-white border border-gray-200"
+      }`}
+    >
+      <div className="space-y-6">
+        {logs.map((log, logIndex) => (
+          <div key={logIndex}>
+            {/* DATE HEADER */}
+            <div className="flex items-center gap-2 mb-4">
+              <FiCalendar
+                className={darkMode ? "text-blue-400" : "text-blue-600"}
+              />
+              <h4
+                className={`font-semibold ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
               >
-                <span>{entry.subject}</span>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm font-bold ${
-                    entry.status === "Present"
-                      ? "bg-green-200 text-green-700"
-                      : "bg-red-200 text-red-700"
+                {log.date}
+              </h4>
+            </div>
+
+            {/* ATTENDANCE ENTRIES */}
+            <div className="space-y-2 ml-6">
+              {log.entries.map((entry, entryIndex) => (
+                <div
+                  key={entryIndex}
+                  className={`p-3 rounded-lg flex items-center gap-3 transition-colors duration-300 ${
+                    darkMode
+                      ? "bg-gray-700/30 border border-gray-600"
+                      : "bg-slate-50 border border-gray-200"
                   }`}
                 >
-                  {entry.status}
-                </span>
-              </div>
-            ))}
+                  {/* STATUS ICON */}
+                  {entry.status === "Present" ? (
+                    <FiCheckCircle className="text-green-500 text-lg flex-shrink-0" />
+                  ) : (
+                    <FiXCircle className="text-red-500 text-lg flex-shrink-0" />
+                  )}
+
+                  {/* CONTENT */}
+                  <div className="flex-1">
+                    <p
+                      className={`font-medium ${
+                        darkMode ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {entry.subject}
+                    </p>
+                  </div>
+
+                  {/* STATUS BADGE */}
+                  <span
+                    className={`text-sm font-semibold px-3 py-1 rounded transition-colors duration-300 ${
+                      entry.status === "Present"
+                        ? darkMode
+                          ? "bg-green-900/50 text-green-300"
+                          : "bg-green-100 text-green-700"
+                        : darkMode
+                        ? "bg-red-900/50 text-red-300"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {entry.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* DIVIDER */}
+            {logIndex < logs.length - 1 && (
+              <div
+                className={`my-6 border-t ${
+                  darkMode ? "border-gray-600" : "border-gray-200"
+                }`}
+              />
+            )}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

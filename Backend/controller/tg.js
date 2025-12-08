@@ -20,7 +20,7 @@ async function verifyStudentByTG(req, res) {
     const student = await Student.findById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
 
-    // Check if student belongs to this TG’s class
+    // Check if student belongs to this TG's class
     if (
       student.branch !== tg.branch ||
       student.section !== tg.section ||
@@ -44,12 +44,89 @@ async function verifyStudentByTG(req, res) {
     await student.save();
 
     return res.status(200).json({
+      success: true,
       message: "Student verified successfully",
       student: {
         name: student.name,
         enrollment: student.enrollmentNumber,
         isVerified: student.isVerified,
       },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// ⭐ NEW: Get unverified students for TG dashboard
+async function getUnverifiedStudents(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+    const { department, branch, section, academicYear } = req.user;
+
+    // Get all unverified students of this TG's class
+    const unverifiedStudents = await Student.find({
+      department,
+      branch,
+      section,
+      academicYear,
+      isVerified: false,
+      assignTgId: tgId,
+    })
+      .select(
+        "name enrollmentNumber email mobileNumber dob gender profilePic course department branch section academicYear semesterNumber createdAt"
+      )
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      success: true,
+      count: unverifiedStudents.length,
+      students: unverifiedStudents,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// ⭐ NEW: Get all students (verified + unverified) for TG
+async function getAllMyStudents(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+    const { department, branch, section, academicYear } = req.user;
+
+    // Get all students of this TG's class
+    const allStudents = await Student.find({
+      department,
+      branch,
+      section,
+      academicYear,
+      assignTgId: tgId,
+    })
+      .select(
+        "name enrollmentNumber email mobileNumber dob gender profilePic isVerified course department branch section academicYear semesterNumber createdAt"
+      )
+      .sort({ enrollmentNumber: 1 })
+      .lean();
+
+    // Separate verified and unverified
+    const verified = allStudents.filter((s) => s.isVerified === true);
+    const unverified = allStudents.filter((s) => s.isVerified === false);
+
+    return res.status(200).json({
+      success: true,
+      total: allStudents.length,
+      verifiedCount: verified.length,
+      unverifiedCount: unverified.length,
+      verified,
+      unverified,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -145,4 +222,6 @@ module.exports = {
   updateTgProfile,
   changeTgPassword,
   verifyStudentByTG,
+  getUnverifiedStudents,
+  getAllMyStudents,
 };

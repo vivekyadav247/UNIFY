@@ -15,6 +15,8 @@ const {
   updateTgProfile,
   changeTgPassword,
   verifyStudentByTG,
+  getUnverifiedStudents,
+  getAllMyStudents,
 } = require("../controller/tg");
 
 const { approveLeave, rejectLeave } = require("../controller/leave");
@@ -34,7 +36,9 @@ router.post("/attendance/send-email", sendLowAttendanceEmail);
 router.post("/attendance/send-whatsapp", sendLowAttendanceWhatsApp);
 
 // Student verification
+router.get("/students/unverified", getUnverifiedStudents);
 router.put("/verify-student/:studentId", verifyStudentByTG);
+router.get("/students/all", getAllMyStudents);
 
 // Leave management
 router.post("/leave/approve", approveLeave);

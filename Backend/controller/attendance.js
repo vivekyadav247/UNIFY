@@ -453,8 +453,15 @@ async function getDetailedAttendance(req, res) {
 
   try {
     const facultyId = req.user._id;
-    const { department, branch, academicYear, section, subjectId, from, to } =
-      req.query;
+    const {
+      department,
+      branch,
+      academicYear,
+      section,
+      subjectId,
+      from,
+      to,
+    } = req.query;
 
     if (!department || !branch || !academicYear || !section || !subjectId) {
       return res.status(400).json({
@@ -927,9 +934,7 @@ async function sendLowAttendanceEmail(req, res) {
             <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
               <h2 style="color: #d32f2f;">⚠️ Low Attendance Alert</h2>
               <p>Dear <strong>${student.name}</strong>,</p>
-              <p>Enrollment Number: <strong>${
-                student.enrollmentNumber
-              }</strong></p>
+              <p>Enrollment Number: <strong>${student.enrollmentNumber}</strong></p>
               <br/>
               <p>${
                 message ||
@@ -962,7 +967,7 @@ async function sendLowAttendanceEmail(req, res) {
   }
 }
 
-// Send WhatsApp notification (using Twilio)
+// ✅ UPDATED: Send WhatsApp notification (Direct WhatsApp Web Link - NO TWILIO NEEDED)
 async function sendLowAttendanceWhatsApp(req, res) {
   if (!req.user || req.user.role !== "tg") {
     return res.status(401).json({ error: "Unauthorized: TG only" });
@@ -979,49 +984,41 @@ async function sendLowAttendanceWhatsApp(req, res) {
       .select("name mobileNumber enrollmentNumber")
       .lean();
 
-    // WhatsApp integration using Twilio (requires Twilio setup)
-    if (
-      !process.env.TWILIO_ACCOUNT_SID ||
-      !process.env.TWILIO_AUTH_TOKEN ||
-      !process.env.TWILIO_WHATSAPP_NUMBER
-    ) {
-      return res.status(400).json({
-        error:
-          "WhatsApp service not configured. Please set up Twilio credentials.",
-      });
-    }
-
-    const twilio = require("twilio");
-    const client = twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN
-    );
-
-    const whatsappPromises = students.map((student) => {
-      return client.messages.create({
-        from: `whatsapp:${process.env.TWILIO_WHATSAPP_NUMBER}`,
-        to: `whatsapp:+91${student.mobileNumber}`,
-        body: `Dear ${student.name},
+    // Generate WhatsApp links for each student
+    const whatsappLinks = students.map((student) => {
+      // Pre-filled message
+      const message = `Dear ${student.name},
 
 Your attendance is critically low. Please meet me tomorrow to discuss this matter.
 
 - Your Teacher Guardian
-UNIFY College ERP`,
-      });
-    });
+UNIFY College ERP`;
 
-    await Promise.all(whatsappPromises);
+      // Encode message for URL
+      const encodedMessage = encodeURIComponent(message);
+
+      // Create WhatsApp Web link
+      // Format: https://wa.me/91XXXXXXXXXX?text=YOUR_MESSAGE
+      const whatsappLink = `https://wa.me/91${student.mobileNumber}?text=${encodedMessage}`;
+
+      return {
+        studentId: student._id,
+        name: student.name,
+        enrollmentNumber: student.enrollmentNumber,
+        mobileNumber: student.mobileNumber,
+        whatsappLink,
+      };
+    });
 
     return res.status(200).json({
       success: true,
-      message: `WhatsApp messages sent to ${students.length} students successfully`,
-      sentTo: students.map((s) => `+91${s.mobileNumber}`),
+      message: `WhatsApp links generated for ${students.length} students`,
+      students: whatsappLinks,
     });
   } catch (err) {
     console.error(err);
     return res.status(500).json({
       error: err.message,
-      note: "Make sure Twilio is properly configured with: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER",
     });
   }
 }

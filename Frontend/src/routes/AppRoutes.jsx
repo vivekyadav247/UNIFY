@@ -13,6 +13,7 @@ import Assignments from "../pages/student/pages/Assignments";
 import Marks from "../pages/student/pages/Marks";
 import Feedback from "../pages/student/pages/Feedback";
 import Settings from "../pages/student/pages/Settings";
+import Profile from "../pages/student/pages/Profile";
 
 // HOD Pages
 import HodLayout from "../pages/hod/layouts/HodLayout";
@@ -24,6 +25,20 @@ import HodReports from "../pages/hod/pages/Reports";
 import HodEvents from "../pages/hod/pages/Events";
 import HodSettings from "../pages/hod/pages/Settings";
 
+// TG Pages
+import TgLayout from "../pages/tg/layouts/TgLayout";
+import TGDashboard from "../pages/tg/pages/Dashboard";
+import TGMyStudents from "../pages/tg/pages/MyStudents";
+import TGAttendance from "../pages/tg/pages/Attendance";
+import TGMarks from "../pages/tg/pages/Marks";
+import TGAssignments from "../pages/tg/pages/Assignments";
+import TGFeedback from "../pages/tg/pages/Feedback";
+import TGReports from "../pages/tg/pages/Reports";
+import TGSchedule from "../pages/tg/pages/Schedule";
+import TGAnnouncements from "../pages/tg/pages/Announcements";
+import TGVerifyUsers from "../pages/tg/pages/VerifyUsers";
+import TGSettings from "../pages/tg/pages/Settings";
+
 export default function AppRoutes({
   toggleTheme,
   currentTheme,
@@ -32,14 +47,10 @@ export default function AppRoutes({
 }) {
   return (
     <Routes>
-      {/* Landing Page */}
       <Route path="/" element={<Welcome />} />
-
-      {/* Authentication */}
       <Route path="/signin" element={<Login />} />
       <Route path="/signup" element={<Register />} />
 
-      {/* STUDENT ROUTES */}
       <Route
         path="/student"
         element={
@@ -57,9 +68,9 @@ export default function AppRoutes({
         <Route path="marks" element={<Marks />} />
         <Route path="feedback" element={<Feedback />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="profile" element={<Profile />} />
       </Route>
 
-      {/* HOD ROUTES */}
       <Route
         path="/hod"
         element={
@@ -78,6 +89,20 @@ export default function AppRoutes({
         <Route path="reports" element={<HodReports />} />
         <Route path="events" element={<HodEvents />} />
         <Route path="settings" element={<HodSettings />} />
+      </Route>
+
+      <Route path="/tg" element={<TgLayout />}>
+        <Route path="dashboard" element={<TGDashboard />} />
+        <Route path="my-students" element={<TGMyStudents />} />
+        <Route path="attendance" element={<TGAttendance />} />
+        <Route path="marks" element={<TGMarks />} />
+        <Route path="assignments" element={<TGAssignments />} />
+        <Route path="feedback" element={<TGFeedback />} />
+        <Route path="reports" element={<TGReports />} />
+        <Route path="schedule" element={<TGSchedule />} />
+        <Route path="announcements" element={<TGAnnouncements />} />
+        <Route path="verify-users" element={<TGVerifyUsers />} />
+        <Route path="settings" element={<TGSettings />} />
       </Route>
     </Routes>
   );

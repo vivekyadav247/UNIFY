@@ -1,3 +1,4 @@
+
 import { Routes, Route } from "react-router-dom";
 
 // Public Pages
@@ -8,11 +9,21 @@ import Register from "../pages/auth/Register";
 // Student Pages
 import StudentLayout from "../pages/student/layouts/StudentLayout";
 import Dashboard from "../pages/student/pages/Dashboard";
-import Attendance from "../pages/student/pages/Attendance";
 import Assignments from "../pages/student/pages/Assignments";
+import Attendance from "../pages/student/pages/Attendance";
 import Marks from "../pages/student/pages/Marks";
 import Feedback from "../pages/student/pages/Feedback";
 import Profile from "../pages/student/pages/Profile";
+
+
+// HOD Pages
+import HodLayout from "../pages/hod/layouts/HodLayout";
+import HodDashboard from "../pages/hod/pages/Dashboard";
+import HodFaculty from "../pages/hod/pages/Faculty";
+import HodStudents from "../pages/hod/pages/Students";
+import HodSettings from "../pages/hod/pages/Settings";
+import HodReports from "../pages/hod/pages/Reports";
+import HodEvents from "../pages/hod/pages/Events";
 
 // TG Pages
 import TgLayout from "../pages/tg/layouts/TgLayout";
@@ -62,6 +73,30 @@ export default function AppRoutes({
         <Route path="feedback" element={<Feedback />} />
         <Route path="profile" element={<Profile />} />
       </Route>
+
+
+      {/* ------------------------ HOD ROUTES ------------------------ */}
+<Route
+  path="/hod"
+  element={
+    <HodLayout
+      toggleTheme={toggleTheme}
+      currentTheme={currentTheme}
+      notifications={notifications}
+      setNotifications={setNotifications}
+    />
+  }
+>
+  <Route path="dashboard" element={<HodDashboard />} />
+  <Route path="faculty" element={<HodFaculty />} />
+  <Route path="students" element={<HodStudents />} />
+  <Route path="reports" element={<HodReports />} />
+  <Route path="events" element={<HodEvents />} />
+  <Route path="settings" element={<HodSettings />} />
+</Route>
+
+     
+
 
       {/* ------------------------ TG ROUTES ------------------------ */}
       <Route path="/tg" element={<TgLayout />}>

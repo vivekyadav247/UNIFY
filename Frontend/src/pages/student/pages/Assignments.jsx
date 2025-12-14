@@ -62,8 +62,6 @@ export default function Assignments() {
           submissionDate: null,
           status: "pending",
           marks: null,
-          maxMarks: 80,
-          file: null,
         },
         {
           id: 5,
@@ -244,7 +242,6 @@ export default function Assignments() {
           ))}
         </div>
       </div>
-
     </div>
   );
 }

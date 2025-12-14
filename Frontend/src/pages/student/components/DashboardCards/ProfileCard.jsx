@@ -9,42 +9,39 @@ export default function ProfileCard({ student, darkMode }) {
 
   return (
     <div className={`p-6 rounded-xl transition-colors duration-300 flex items-center justify-between ${
-      darkMode 
-        ? "bg-gray-800/50 border border-gray-700 shadow-lg" 
-        : "bg-white border border-gray-200 shadow"
+      darkMode ? "bg-gray-800/50 border border-gray-700 shadow-lg" : "bg-white border border-gray-200 shadow"
     }`}>
 
-      {/* LEFT SIDE — PROPER VERTICAL ARRANGEMENT */}
-      <div className="flex flex-col space-y-1">
-        
-        {/* Name */}
+      <div className="flex-1">
         <h2 className={`font-semibold text-2xl ${darkMode ? "text-white" : "text-gray-800"}`}>
           {data.name}
         </h2>
 
-        {/* Email */}
-        <p className={darkMode ? "text-gray-300" : "text-gray-600"}>
-          {data.email}
-        </p>
+        <p className={darkMode ? "text-gray-300" : "text-gray-600"}>{data.email}</p>
 
-        {/* Course */}
-        <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-700"}`}>
-          {data.course}
-        </p>
-
-        {/* Enrollment / Roll */}
-        <p className={`text-sm ${darkMode ? "text-gray-500" : "text-gray-500"}`}>
-          Enrollment No: {data.roll}
-        </p>
+        <div className="mt-3 flex gap-4 text-sm text-gray-600">
+          <div>
+            <div className="text-xs text-gray-500">Course</div>
+            <div className="font-medium">{data.course}</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500">Roll</div>
+            <div className="font-medium">{data.roll}</div>
+          </div>
+        </div>
       </div>
 
-      {/* RIGHT — AVATAR */}
-      <img
-        src={data.avatar}
-        className={`w-24 h-24 rounded-full object-cover border-2 border-purple-500 shadow transition-all duration-300 ${
-          darkMode ? "ring-2 ring-purple-500/50" : ""
-        }`}
-      />
+      <div className="flex flex-col items-center gap-3">
+        <img
+          src={data.avatar}
+          alt="avatar"
+          className="w-24 h-24 rounded-full object-cover border-2 border-purple-500 shadow"
+        />
+        <div className="flex gap-2">
+          <button className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm">Edit</button>
+          <button className="px-3 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">View</button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,55 +1,104 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { FiSearch, FiCheck, FiX, FiAlertCircle } from "react-icons/fi";
+import { FiSearch, FiCheck, FiX, FiLoader, FiAlertCircle } from "react-icons/fi";
 
 export default function VerifyUsers() {
   const { darkMode } = useOutletContext();
   const [unverifiedStudents, setUnverifiedStudents] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [error, setError] = useState(null);
+  const [verifying, setVerifying] = useState(null);
 
-  // Mock data for testing
   useEffect(() => {
-    setUnverifiedStudents([
-      {
-        _id: "1",
-        name: "John Doe",
-        email: "john@example.com",
-        rollNo: "21001",
-        branch: "CSE",
-        course: "Data Structures",
-        createdAt: new Date(),
-      },
-      {
-        _id: "2",
-        name: "Jane Smith",
-        email: "jane@example.com",
-        rollNo: "21002",
-        branch: "CSE",
-        course: "Data Structures",
-        createdAt: new Date(),
-      },
-    ]);
+    fetchUnverifiedStudents();
   }, []);
 
-  const handleVerifyStudent = (studentId) => {
-    setUnverifiedStudents(
-      unverifiedStudents.filter((s) => s._id !== studentId)
-    );
-    alert("Student verified successfully!");
+  const fetchUnverifiedStudents = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/tg/students/unverified`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setUnverifiedStudents(data.students ? data.students : []);
+      setError(null);
+    } catch (err) {
+      setError(err.message ? err.message : "Failed to fetch unverified students");
+      console.error("Error fetching students:", err);
+      setUnverifiedStudents([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRejectStudent = (studentId) => {
-    if (window.confirm("Are you sure you want to reject this student?")) {
+  const handleVerifyStudent = async (studentId) => {
+    try {
+      setVerifying(studentId);
+      const token = localStorage.getItem("token");
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/tg/verify-student/${studentId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to verify student");
+      }
+
+      setUnverifiedStudents(
+        unverifiedStudents.filter((s) => s._id !== studentId)
+      );
+      alert("Student verified successfully!");
+    } catch (err) {
+      alert("Error verifying student: " + (err.message ? err.message : "Unknown error"));
+    } finally {
+      setVerifying(null);
+    }
+  };
+
+  const handleRejectStudent = async (studentId) => {
+    if (!window.confirm("Are you sure you want to reject this student?")) {
+      return;
+    }
+
+    try {
+      setVerifying(studentId);
       setUnverifiedStudents(
         unverifiedStudents.filter((s) => s._id !== studentId)
       );
       alert("Student rejected!");
+    } catch (err) {
+      alert("Error rejecting student: " + (err.message ? err.message : "Unknown error"));
+    } finally {
+      setVerifying(null);
     }
   };
 
   const filteredStudents = unverifiedStudents.filter((student) =>
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase())
+    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (student.enrollmentNumber ? student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) : false)
   );
 
   return (
@@ -87,7 +136,7 @@ export default function VerifyUsers() {
         <FiSearch className="absolute left-3 top-3 text-gray-400" />
         <input
           type="text"
-          placeholder="Search by name, email, or roll no..."
+          placeholder="Search by name, email, or enrollment number..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className={`w-full pl-10 pr-4 py-2 rounded-lg border transition-colors ${
@@ -98,12 +147,36 @@ export default function VerifyUsers() {
         />
       </div>
 
-      {filteredStudents.length === 0 ? (
+      {/* ERROR MESSAGE */}
+      {error && (
+        <div className="mb-6 p-4 rounded-lg bg-red-100 text-red-700 border border-red-200 flex items-start gap-3">
+          <FiAlertCircle className="mt-1 flex-shrink-0" />
+          <div>
+            <p className="font-semibold">Error</p>
+            <p className="text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* LOADING STATE */}
+      {loading ? (
+        <div
+          className={`p-12 rounded-2xl border flex items-center justify-center ${
+            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+          }`}
+        >
+          <FiLoader className="animate-spin text-2xl mr-3" />
+          <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+            Loading unverified students...
+          </p>
+        </div>
+      ) : filteredStudents.length === 0 ? (
         <div
           className={`p-12 rounded-2xl border text-center ${
             darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
           }`}
         >
+          <FiCheck className="text-4xl mx-auto mb-3 text-green-500" />
           <p
             className={`text-lg font-semibold ${
               darkMode ? "text-gray-300" : "text-gray-700"
@@ -111,16 +184,23 @@ export default function VerifyUsers() {
           >
             All students verified
           </p>
+          <p
+            className={`text-sm mt-1 ${
+              darkMode ? "text-gray-500" : "text-gray-500"
+            }`}
+          >
+            No pending verifications
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
           {filteredStudents.map((student) => (
             <div
               key={student._id}
-              className={`p-6 rounded-2xl border ${
+              className={`p-6 rounded-2xl border transition-all ${
                 darkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                  ? "bg-gray-800 border-gray-700 hover:border-gray-600"
+                  : "bg-white border-gray-200 hover:border-gray-300"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -147,14 +227,14 @@ export default function VerifyUsers() {
                           darkMode ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
-                        ROLL NO
+                        ENROLLMENT NO
                       </p>
                       <p
                         className={`text-sm font-medium mt-1 ${
                           darkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
-                        {student.rollNo}
+                        {student.enrollmentNumber ? student.enrollmentNumber : "N/A"}
                       </p>
                     </div>
 
@@ -191,6 +271,23 @@ export default function VerifyUsers() {
                         {student.course}
                       </p>
                     </div>
+
+                    <div>
+                      <p
+                        className={`text-xs font-semibold ${
+                          darkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        REGISTERED
+                      </p>
+                      <p
+                        className={`text-sm font-medium mt-1 ${
+                          darkMode ? "text-white" : "text-gray-900"
+                        }`}
+                      >
+                        {student.createdAt ? new Date(student.createdAt).toLocaleDateString() : "N/A"}
+                      </p>
+                    </div>
                   </div>
                 </div>
 
@@ -198,17 +295,35 @@ export default function VerifyUsers() {
                 <div className="flex gap-2 flex-shrink-0">
                   <button
                     onClick={() => handleVerifyStudent(student._id)}
-                    className="px-4 py-2 rounded-lg font-semibold flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    disabled={verifying === student._id}
+                    className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all ${
+                      verifying === student._id
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:scale-105"
+                    } bg-green-600 hover:bg-green-700 text-white`}
                   >
-                    <FiCheck />
+                    {verifying === student._id ? (
+                      <FiLoader className="animate-spin" />
+                    ) : (
+                      <FiCheck />
+                    )}
                     Verify
                   </button>
 
                   <button
                     onClick={() => handleRejectStudent(student._id)}
-                    className="px-4 py-2 rounded-lg font-semibold flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
+                    disabled={verifying === student._id}
+                    className={`px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all ${
+                      verifying === student._id
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:scale-105"
+                    } bg-red-600 hover:bg-red-700 text-white`}
                   >
-                    <FiX />
+                    {verifying === student._id ? (
+                      <FiLoader className="animate-spin" />
+                    ) : (
+                      <FiX />
+                    )}
                     Reject
                   </button>
                 </div>

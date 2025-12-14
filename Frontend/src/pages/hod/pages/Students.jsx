@@ -1,72 +1,36 @@
-
 import React from "react";
-import AttendanceOverviewCard from "../../student/components/AttendanceCards/AttendanceOverviewCard";
-import MonthlyAttendanceChart from "../../student/components/AttendanceCards/MonthlyAttendanceChart";
-import AttendanceDistributionChart from "../../student/components/AttendanceCards/AttendanceDistributionChart";
-import SubjectWiseAttendanceList from "../../student/components/AttendanceCards/SubjectWiseAttendanceList";
-import RecentAttendanceLog from "../../student/components/AttendanceCards/RecentAttendanceLog";
 
-export default function Attendance() {
+// IMPORT STUDENT COMPONENTS
+import StatCard from "../components/StudentCards/StatCard";
+import SearchBar from "../components/StudentCards/SearchBar";
+import StudentTable from "../components/StudentCards/StudentTable";
 
-  // --- MOCK DATA (YE BADME BACKEND SE AA JAYEGA) ---
-  const attendanceData = {
-    overall: 88,
-    totalClasses: 276,
-    attended: 243,
-    missed: 33,
-
-    trend: [80, 85, 78, 90, 88, 87],  // line graph
-
-    distribution: {
-      present: 88,
-      absent: 12,
-    },
-
-    subjects: [
-      { name: "Mathematics", present: 42, absent: 6, total: 48 },
-      { name: "Physics", present: 38, absent: 7, total: 45 },
-      { name: "DBMS", present: 36, absent: 8, total: 44 },
-      { name: "Operating Systems", present: 40, absent: 5, total: 45 },
-      { name: "Computer Networks", present: 42, absent: 4, total: 46 },
-    ],
-
-    logs: [
-      {
-        date: "Saturday, January 18, 2025",
-        entries: [
-          { subject: "Mathematics", status: "Present" },
-          { subject: "Data Structures", status: "Present" },
-          { subject: "DBMS", status: "Absent" },
-        ]
-      },
-      {
-        date: "Friday, January 17, 2025",
-        entries: [
-          { subject: "Physics", status: "Present" },
-          { subject: "Operating Systems", status: "Present" },
-          { subject: "Computer Networks", status: "Present" },
-        ]
-      }
-    ]
-  };
-
+export default function Students() {
   return (
     <div className="p-6 space-y-6">
 
-      {/* --- TOP OVERVIEW CARDS --- */}
-      <AttendanceOverviewCard data={attendanceData} />
-
-      {/* --- CHARTS ROW --- */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MonthlyAttendanceChart trend={attendanceData.trend} />
-        <AttendanceDistributionChart distribution={attendanceData.distribution} />
+      {/* PAGE HEADING */}
+      <div>
+        <h1 className="text-2xl font-semibold">Students</h1>
+        <p className="text-gray-500">Manage all students information here</p>
       </div>
 
-      {/* --- SUBJECT WISE DETAILS --- */}
-      <SubjectWiseAttendanceList subjects={attendanceData.subjects} />
+      {/* TOP CARDS */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard title="Total Students" value="245" />
+        <StatCard title="Active Students" value="230" />
+        <StatCard title="On Leave" value="15" />
+        <StatCard title="Avg Attendance" value="92%" />
+      </div>
 
-      {/* --- RECENT LOGS SECTION --- */}
-      <RecentAttendanceLog logs={attendanceData.logs} />
+      {/* SEARCH BAR */}
+      <SearchBar placeholder="Search students by name, email, ID..." />
+
+      {/* STUDENTS TABLE */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border">
+        <StudentTable />
+      </div>
+
     </div>
   );
 }

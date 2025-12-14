@@ -1,57 +1,104 @@
 
-import React from "react";
-import StatsCard from "../../faculty/components/MarksCards/StatsCard";
-import SubjectBarChart from "../../faculty/components/MarksCards/SubjectBarChart";
-import RadarChart from "../../faculty/components/MarksCards/RadarChart";
-import SemesterProgress from "../../faculty/components/MarksCards/SemesterProgress";
-import MarksBreakdown from "../../faculty/components/MarksCards/MarksBreakdown";
-import SummaryCard from "../../faculty/components/MarksCards/SummaryCard";
+import EventsStats from "../components/EventCards/EventsStats";
+import UpcomingEventsGrid from "../components/EventCards/UpcomingEventsGrid";
+import PastEventsList from "../components/EventCards/PastEventsList";
 
-export default function Marks() {
-  // mock (replace with API)
-  const stats = { 
-    overall: "82.2%", 
-    total: "737 / 900", 
-    highest: "88.7% (DSA)", 
-    rank: "8 / 120" 
-  };
+export default function Events() {
+  // 🔥 UPCOMING EVENTS – ORDER CONTROLS UI
+  const upcomingEvents = [
+    // ROW 1 – LEFT
+    {
+      title: "Mid-Sem Examination",
+      type: "exam",
+      tagColor: "bg-red-100 text-red-600",
+      description: "Mid semester examinations for all semesters",
+      date: "Monday, February 3, 2025",
+      time: "9:00 AM - 1:00 PM",
+      location: "All Examination Halls",
+      attendees: 480,
+    },
 
-  const labels = ["Math", "Physics", "DSA", "DBMS", "OS"];
-  const internal = [42, 38, 46, 36, 43];
-  const external = [85, 78, 90, 82, 80];
-  const radarVals = [84, 76, 88, 82, 79, 86];
+    // ROW 1 – RIGHT
+    {
+      title: "Internal Assessment Test",
+      type: "test",
+      tagColor: "bg-orange-100 text-orange-600",
+      description: "Internal assessment test for core subjects",
+      date: "Friday, February 7, 2025",
+      time: "10:00 AM - 12:00 PM",
+      location: "Respective Classrooms",
+      attendees: 420,
+    },
 
-  const semesterLabels = ["Internal 1", "Internal 2", "Internal 3", "Prelims"];
-  const semesterVals = [88, 90, 92, 91];
+    // ROW 2 – LEFT
+    {
+      title: "Faculty Meeting",
+      type: "meeting",
+      tagColor: "bg-purple-100 text-purple-600",
+      description: "Monthly department faculty meeting",
+      date: "Wednesday, January 22, 2025",
+      time: "3:00 PM - 5:00 PM",
+      location: "Conference Room A",
+      attendees: 32,
+    },
 
-  const subjects = [
-    { name: "Mathematics", internalObtained: 42, internalMax: 50, externalObtained: 85, externalMax: 100, totalObtained: 127, totalMax: 150, grade: "A" },
-    { name: "Physics", internalObtained: 38, internalMax: 50, externalObtained: 78, externalMax: 100, totalObtained: 116, totalMax: 150, grade: "B+" },
-    { name: "Data Structures", internalObtained: 45, internalMax: 50, externalObtained: 90, externalMax: 100, totalObtained: 135, totalMax: 150, grade: "A+" },
-    { name: "Operating Systems", internalObtained: 43, internalMax: 50, externalObtained: 80, externalMax: 100, totalObtained: 123, totalMax: 150, grade: "A" },
-    { name: "Computer Networks", internalObtained: 44, internalMax: 50, externalObtained: 82, externalMax: 100, totalObtained: 126, totalMax: 150, grade: "A" },
+    // ROW 2 – RIGHT
+    {
+      title: "Parent-Teacher Meeting",
+      type: "meeting",
+      tagColor: "bg-purple-100 text-purple-600",
+      description: "Semester progress discussion with parents",
+      date: "Tuesday, January 28, 2025",
+      time: "10:00 AM - 4:00 PM",
+      location: "CS Department",
+      attendees: 200,
+    },
+
+    // ROW 3 – LEFT
+    {
+      title: "Workshop: AI & Machine Learning",
+      type: "workshop",
+      tagColor: "bg-green-100 text-green-600",
+      description: "Hands-on workshop on ML fundamentals",
+      date: "Monday, February 10, 2025",
+      time: "2:00 PM - 5:00 PM",
+      location: "Lab 3",
+      attendees: 60,
+    },
+  ];
+
+  // 🔹 PAST EVENTS
+  const pastEvents = [
+    {
+      title: "Alumni Meet 2025",
+      date: "January 10, 2025",
+      type: "event",
+      attended: 150,
+    },
+    {
+      title: "Hackathon 24 Hours",
+      date: "December 15, 2024",
+      type: "event",
+      attended: 80,
+    },
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-8">
+      {/* STATS CARDS */}
+      <EventsStats />
 
-      {/* Stats Cards */}
-      <StatsCard stats={stats} />
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <SubjectBarChart labels={labels} internal={internal} external={external} />
-        <RadarChart labels={["Math", "Physics", "Data", "DBMS", "OS"]} values={radarVals} />
+      {/* UPCOMING EVENTS */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Upcoming Events</h2>
+        <UpcomingEventsGrid events={upcomingEvents} />
       </div>
 
-      {/* Semester Progress */}
-      <SemesterProgress labels={semesterLabels} values={semesterVals} />
-
-      {/* Marks Breakdown */}
-      <MarksBreakdown subjects={subjects} />
-
-      {/* Summary */}
-      <SummaryCard />
+      {/* PAST EVENTS */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Past Events</h2>
+        <PastEventsList events={pastEvents} />
+      </div>
     </div>
   );
 }

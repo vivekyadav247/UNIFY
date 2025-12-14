@@ -1,3 +1,4 @@
+
 import { Routes, Route } from "react-router-dom";
 
 // Public Pages
@@ -8,22 +9,21 @@ import Register from "../pages/auth/Register";
 // Student Pages
 import StudentLayout from "../pages/student/layouts/StudentLayout";
 import Dashboard from "../pages/student/pages/Dashboard";
-import Attendance from "../pages/student/pages/Attendance";
 import Assignments from "../pages/student/pages/Assignments";
+import Attendance from "../pages/student/pages/Attendance";
 import Marks from "../pages/student/pages/Marks";
 import Feedback from "../pages/student/pages/Feedback";
-import Settings from "../pages/student/pages/Settings";
 import Profile from "../pages/student/pages/Profile";
+
 
 // HOD Pages
 import HodLayout from "../pages/hod/layouts/HodLayout";
 import HodDashboard from "../pages/hod/pages/Dashboard";
 import HodFaculty from "../pages/hod/pages/Faculty";
 import HodStudents from "../pages/hod/pages/Students";
-import HodAttendance from "../pages/hod/pages/Attendance";
+import HodSettings from "../pages/hod/pages/Settings";
 import HodReports from "../pages/hod/pages/Reports";
 import HodEvents from "../pages/hod/pages/Events";
-import HodSettings from "../pages/hod/pages/Settings";
 
 // TG Pages
 import TgLayout from "../pages/tg/layouts/TgLayout";
@@ -47,10 +47,14 @@ export default function AppRoutes({
 }) {
   return (
     <Routes>
+      {/* Landing Page */}
       <Route path="/" element={<Welcome />} />
+
+      {/* Authentication */}
       <Route path="/signin" element={<Login />} />
       <Route path="/signup" element={<Register />} />
 
+      {/* ------------------------ STUDENT ROUTES ------------------------ */}
       <Route
         path="/student"
         element={
@@ -67,30 +71,34 @@ export default function AppRoutes({
         <Route path="assignments" element={<Assignments />} />
         <Route path="marks" element={<Marks />} />
         <Route path="feedback" element={<Feedback />} />
-        <Route path="settings" element={<Settings />} />
         <Route path="profile" element={<Profile />} />
       </Route>
 
-      <Route
-        path="/hod"
-        element={
-          <HodLayout
-            toggleTheme={toggleTheme}
-            currentTheme={currentTheme}
-            notifications={notifications}
-            setNotifications={setNotifications}
-          />
-        }
-      >
-        <Route path="dashboard" element={<HodDashboard />} />
-        <Route path="faculty" element={<HodFaculty />} />
-        <Route path="students" element={<HodStudents />} />
-        <Route path="attendance" element={<HodAttendance />} />
-        <Route path="reports" element={<HodReports />} />
-        <Route path="events" element={<HodEvents />} />
-        <Route path="settings" element={<HodSettings />} />
-      </Route>
 
+      {/* ------------------------ HOD ROUTES ------------------------ */}
+<Route
+  path="/hod"
+  element={
+    <HodLayout
+      toggleTheme={toggleTheme}
+      currentTheme={currentTheme}
+      notifications={notifications}
+      setNotifications={setNotifications}
+    />
+  }
+>
+  <Route path="dashboard" element={<HodDashboard />} />
+  <Route path="faculty" element={<HodFaculty />} />
+  <Route path="students" element={<HodStudents />} />
+  <Route path="reports" element={<HodReports />} />
+  <Route path="events" element={<HodEvents />} />
+  <Route path="settings" element={<HodSettings />} />
+</Route>
+
+     
+
+
+      {/* ------------------------ TG ROUTES ------------------------ */}
       <Route path="/tg" element={<TgLayout />}>
         <Route path="dashboard" element={<TGDashboard />} />
         <Route path="my-students" element={<TGMyStudents />} />

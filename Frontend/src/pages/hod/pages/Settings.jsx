@@ -1,20 +1,21 @@
-import ProfileCard from "../components/Settings/ProfileCard";
-import SecurityCard from "../components/Settings/SecurityCard";
-import NotificationsCard from "../components/Settings/NotificationsCard";
-import AppearanceCard from "../components/Settings/AppearanceCard";
-import DangerZoneCard from "../components/Settings/DangerZoneCard";
+import { useOutletContext } from "react-router-dom";
 
 export default function Settings() {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-1">Settings</h1>
-      <p className="text-gray-600 mb-6">Welcome back, Emma Williams</p>
+  const { darkMode } = useOutletContext();
 
-      <ProfileCard />
-      <SecurityCard />
-      <NotificationsCard />
-      <AppearanceCard />
-      <DangerZoneCard />
+  return (
+    <div>
+      <h1 className={`text-3xl font-bold mb-6 ${darkMode ? "text-white" : "text-gray-900"}`}>
+        Settings
+      </h1>
+
+      <div className={`p-6 rounded-2xl border ${
+        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      }`}>
+        <p className={darkMode ? "text-gray-400" : "text-gray-600"}>
+          Settings feature coming soon...
+        </p>
+      </div>
     </div>
   );
 }

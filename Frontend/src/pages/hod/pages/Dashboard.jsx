@@ -1,81 +1,136 @@
 
-// pages/hod/HODDashboard.jsx
+import React from "react";
+import {
+  FiUsers,
+  FiUserCheck,
+  FiTrendingUp,
+  FiAlertCircle,
+} from "react-icons/fi";
 
-import StatsCard from "../components/Dashboard/StatsCard";
-import LineChartCard from "../components/Dashboard/LineChartCard";
-import BarChartCard from "../components/Dashboard/BarChartCard";
-import TeacherCard from "../components/Dashboard/TeacherCard";
-import ApprovalCard from "../components/Dashboard/ApprovalCard";
+import StatCard from "../components/DashboardCards/StatsCard";
+import GraphCard from "../components/DashboardCards/GraphCard";
+import TGActivityCard from "../components/DashboardCards/TGActivityCard";
+import ApprovalCard from "../components/DashboardCards/ApprovalCard";
+import AnnouncementCard from "../components/DashboardCards/AnnouncementCard";
+import QuickActionsCard from "../components/DashboardCards/QuickActionCard";
 
-import { Users, UserCheck, TrendingUp, AlertCircle } from "lucide-react";
+import AttendanceChart from "../components/DashboardCards/AttendanceChart";
+import PerformanceChart from "../components/DashboardCards/PerformanceChart";
 
-export default function HODDashboard() {
+export default function HodDashboard() {
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-6 space-y-8">
 
-      <h2 className="text-3xl font-bold">Dashboard</h2>
-      <p className="text-gray-600 mb-6">Welcome back, Dr. Sarah Johnson</p>
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <p className="text-gray-500">Welcome back, Dr. Sarah Johnson</p>
+      </div>
 
       {/* TOP STATS */}
-      <div className="grid grid-cols-4 gap-6">
-        <StatsCard
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <StatCard
           title="Total Students"
           value="485"
-          icon={<Users />}
           change="+12 this month"
-          isPositive={true}
+          changeColor="text-green-600"
+          icon={<FiUsers size={26} />}
+          iconBg="bg-blue-600"
         />
-        <StatsCard
+
+        <StatCard
           title="Faculty Members"
           value="32"
-          icon={<UserCheck />}
           change="+2 this month"
-          isPositive={true}
+          changeColor="text-green-600"
+          icon={<FiUserCheck size={26} />}
+          iconBg="bg-green-600"
         />
-        <StatsCard
+
+        <StatCard
           title="Avg Attendance"
           value="84%"
-          icon={<TrendingUp />}
           change="+3% from last month"
-          isPositive={true}
+          changeColor="text-green-600"
+          icon={<FiTrendingUp size={26} />}
+          iconBg="bg-purple-600"
         />
-        <StatsCard
+
+        <StatCard
           title="Pending Tasks"
           value="8"
-          icon={<AlertCircle />}
           change="3 urgent"
-          isPositive={false}
+          changeColor="text-red-600"
+          icon={<FiAlertCircle size={26} />}
+          iconBg="bg-red-600"
         />
       </div>
 
-      {/* CHARTS */}
-      <div className="grid grid-cols-2 gap-6 mt-8">
-        <LineChartCard
-          title="Department Attendance Trend"
-          labels={["Aug","Sep","Oct","Nov","Dec","Jan"]}
-          dataSet={[78, 82, 76, 85, 88, 83]}
-        />
-        <BarChartCard
-          title="Average Performance by Year"
-          labels={["1st","2nd","3rd","4th"]}
-          values={[74, 81, 85, 90]}
-        />
+      {/* GRAPH SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* Attendance Chart */}
+        <GraphCard title="Department Attendance Trend">
+          <AttendanceChart />
+        </GraphCard>
+
+        {/* Performance Chart */}
+        <GraphCard title="Average Performance by Year">
+          <PerformanceChart />
+        </GraphCard>
+
       </div>
 
-      {/* TEACHERS + APPROVALS */}
-      <div className="grid grid-cols-2 gap-6 mt-8">
-        <div className="space-y-4">
-          <TeacherCard name="Prof. Michael Chen" students={25} reports={18} attendance={92} />
-          <TeacherCard name="Dr. Sarah Miller" students={28} reports={22} attendance={88} />
-          <TeacherCard name="Prof. James Wilson" students={23} reports={20} attendance={95} />
+      {/* TG ACTIVITY + APPROVALS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        {/* TG ACTIVITY */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border">
+          <h3 className="text-lg font-semibold mb-4">Teacher Guardian Activity</h3>
+
+          <TGActivityCard name="Prof. Michael Chen" students="25" reports="18" attendance="92%" />
+          <TGActivityCard name="Dr. Sarah Miller" students="28" reports="22" attendance="88%" />
+          <TGActivityCard name="Prof. James Wilson" students="23" reports="20" attendance="95%" />
         </div>
 
-        <div>
-          <ApprovalCard title="Leave Request" by="Prof. Michael Chen" date="Jan 15–17" />
-          <ApprovalCard title="Report Submission" by="Dr. Sarah Miller" date="Jan 10" />
-          <ApprovalCard title="Budget Request" by="Prof. James Wilson" date="Jan 12" />
+        {/* APPROVALS */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border">
+          <h3 className="text-lg font-semibold mb-4">Pending Approvals</h3>
+
+          <ApprovalCard title="Leave Request" name="Prof. Michael Chen" date="Jan 15-17" />
+          <ApprovalCard title="Report Submission" name="Dr. Sarah Miller" date="Jan 10" />
+          <ApprovalCard title="Budget Request" name="Prof. James Wilson" date="Jan 12" />
         </div>
+
       </div>
+
+      {/* ANNOUNCEMENTS + QUICK ACTIONS */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        {/* Announcements */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border">
+          <h3 className="text-lg font-semibold mb-4">Department Announcements</h3>
+
+          <AnnouncementCard
+            color="bg-blue-50"
+            heading="Faculty Meeting - Jan 20, 2025"
+            text="All faculty members are requested to attend the monthly review meeting at 3 PM."
+          />
+
+          <AnnouncementCard
+            color="bg-green-50"
+            heading="Exam Schedule Released"
+            text="End semester examination schedule has been published on the portal."
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <QuickActionsCard />
+
+        <div></div>
+      </div>
+
     </div>
   );
 }

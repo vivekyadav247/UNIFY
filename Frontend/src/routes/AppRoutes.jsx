@@ -39,6 +39,16 @@ import TGAnnouncements from "../pages/tg/pages/Announcements";
 import TGVerifyUsers from "../pages/tg/pages/VerifyUsers";
 import TGSettings from "../pages/tg/pages/Settings";
 
+// FACULTY Pages
+import FacultyLayout from "../pages/faculty/layouts/FacultyLayout";
+import FacultyDashboard from "../pages/faculty/pages/Dashboard";
+import FacultyAttendance from "../pages/faculty/pages/Attendance";
+import FacultyAssignments from "../pages/faculty/pages/Assignments";
+import FacultyLeaveManagement from "../pages/faculty/pages/LeaveManagement";
+import FacultyReport from "../pages/faculty/pages/Report";
+import FacultySchedule from "../pages/faculty/pages/Schedule";
+import FacultyAnnouncements from "../pages/faculty/pages/Announcements";
+
 export default function AppRoutes({
   toggleTheme,
   currentTheme,
@@ -112,6 +122,30 @@ export default function AppRoutes({
         <Route path="verify-users" element={<TGVerifyUsers />} />
         <Route path="settings" element={<TGSettings />} />
       </Route>
+      {/* ------------------------ FACULTY ROUTES ------------------------ */}
+
+{/* ------------------------ FACULTY ROUTES ------------------------ */}
+<Route
+  path="/faculty"
+  element={
+    <FacultyLayout
+      toggleTheme={toggleTheme}
+      currentTheme={currentTheme}
+      notifications={notifications}
+      setNotifications={setNotifications}
+    />
+  }
+>
+  <Route path="dashboard" element={<FacultyDashboard />} />
+  <Route path="attendance" element={<FacultyAttendance />} />
+  <Route path="assignments" element={<FacultyAssignments />} />
+  <Route path="leave-management" element={<FacultyLeaveManagement />} />
+  <Route path="report" element={<FacultyReport />} />
+  <Route path="schedule" element={<FacultySchedule />} />
+  <Route path="announcements" element={<FacultyAnnouncements />} />
+</Route>
+
+
     </Routes>
   );
 }

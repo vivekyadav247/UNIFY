@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
+import { authAPI } from "../../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
-  const API_URL = "http://localhost:3000/api/auth";
 
   const [role, setRole] = useState("student");
   const [credentials, setCredentials] = useState({
@@ -54,30 +54,33 @@ export default function Login() {
       body.facultyId = credentials.facultyId;
       if (!credentials.facultyId || !credentials.password) {
         setError("Please fill all fields");
-        setLoading(true);
+        setLoading(false);
         return;
       }
     }
 
     try {
-      const res = await fetch(`${API_URL}/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(body),
-      });
-
-      const data = await res.json();
+      const res = await authAPI.login(body);
       setLoading(false);
 
-      if (data.success) {
-        navigate(data.redirectUrl || "/dashboard");
+      if (res.success) {
+        // For student, use enrollment number in URL
+        if (role === "student") {
+          const enrollmentNumber = credentials.enrollmentNumber;
+          navigate(`/${enrollmentNumber}`);
+        } else if (role === "faculty") navigate("/faculty/dashboard");
+        else if (role === "hod") navigate("/hod/dashboard");
+        else if (role === "tg") navigate("/tg/dashboard");
       } else {
-        setError(data.message || "Login failed");
+        setError(res.message || "Login failed");
       }
     } catch (err) {
       setLoading(false);
-      setError("Server error. Please try again.");
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "Server error. Please try again."
+      );
       console.error(err);
     }
   };
@@ -208,7 +211,10 @@ export default function Login() {
                   required
                 />
               </div>
-              <p className="text-right text-blue-500 text-sm mt-1 cursor-pointer hover:underline">
+              <p
+                className="text-right text-blue-500 text-sm mt-1 cursor-pointer hover:underline"
+                onClick={() => navigate("/forgot-password")}
+              >
                 Forgot Password?
               </p>
             </div>

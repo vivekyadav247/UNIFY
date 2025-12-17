@@ -71,6 +71,12 @@ const studentSchema = new Schema(
       type: Date,
       required: true,
     },
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+      required: false,
+      default: null,
+    },
     email: {
       type: String,
       required: true,
@@ -130,6 +136,69 @@ const studentSchema = new Schema(
       default: "",
       required: false,
     },
+    profileComplete: {
+      type: Boolean,
+      default: false,
+    },
+    marks: [
+      {
+        subjectId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Subject",
+          required: false,
+        },
+        subject: {
+          type: String,
+          required: true,
+        },
+        marks: {
+          type: Number,
+          required: true,
+        },
+        maxMarks: {
+          type: Number,
+          required: true,
+          default: 100,
+        },
+        semester: {
+          type: Number,
+          required: false,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+        feedback: {
+          type: String,
+          default: "",
+        },
+      },
+    ],
+    midSemMarks: [
+      {
+        subject: {
+          type: String,
+          required: true,
+        },
+        internalMarks: {
+          type: Number,
+          required: true,
+        },
+        maxInternalMarks: {
+          type: Number,
+          required: true,
+          default: 20,
+        },
+        semester: {
+          type: Number,
+          required: true,
+        },
+        date: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

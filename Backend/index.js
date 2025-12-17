@@ -11,6 +11,8 @@ const hodRouter = require("./router/hod");
 const tgRouter = require("./router/tg");
 const facultyRouter = require("./router/faculty");
 const studentRouter = require("./router/student");
+const logger = require("./utils/logger");
+const requestLogger = require("./middleware/requestLogger");
 
 const Port = process.env.PORT || 3000;
 
@@ -28,27 +30,43 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// ✅ LOGGING MIDDLEWARE
+app.use(requestLogger);
 app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
 
+// Public routes
 app.use("/api/auth", authRouter);
 
-app.use("/api/admin", adminRouter);
-
+// Protected routes
+app.use("/api/admin", cookieAuthenticate, adminRouter);
 app.use("/api/hod", cookieAuthenticate, hodRouter);
-
 app.use("/api/tg", cookieAuthenticate, tgRouter);
-
 app.use("/api/faculty", cookieAuthenticate, facultyRouter);
-
-app.use("/api/student", cookieAuthenticate, studentRouter);
+app.use("/api/:enrollmentNumber", cookieAuthenticate, studentRouter);
 
 app.get("/", (req, res) => {
   res.send("Welcome to Unify Backend");
 });
 
+// 404 - Not Found Handler
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: "Route not found",
+    message: `The endpoint ${req.method} ${req.path} does not exist`,
+    path: req.path,
+    method: req.method,
+  });
+});
+
 app.listen(Port, () => {
-  console.log(`Server is running on port ${Port}`);
+  logger.server(`Server running successfully`, "SERVER_START", {
+    port: Port,
+    environment: process.env.NODE_ENV || "development",
+    corsOrigin: process.env.FRONTEND_URL || "http://localhost:5173",
+  });
 });

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiMail, FiPhone } from "react-icons/fi";
+import { authAPI } from "../../services/api";
 
 const Register = () => {
   const navigate = useNavigate();
-  const API_URL = "http://localhost:3000/api/auth";
 
   const [formData, setFormData] = useState({
     name: "",
@@ -43,24 +43,20 @@ const Register = () => {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/send-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      const data = await res.json();
+      const res = await authAPI.sendOtp({ email: formData.email });
       setSendingOtp(false);
 
-      if (data.success) {
+      if (res.success) {
         setOtpSent(true);
         setError("OTP sent to your email!");
       } else {
-        setError(data.message || "Failed to send OTP");
+        setError(res.message || "Failed to send OTP");
       }
     } catch (err) {
       setSendingOtp(false);
-      setError("Server error. Please try again.");
+      setError(
+        err.response?.data?.message || "Server error. Please try again."
+      );
       console.error(err);
     }
   };
@@ -75,24 +71,23 @@ const Register = () => {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: formData.email, otp: enteredOtp }),
+      const res = await authAPI.verifyOtp({
+        email: formData.email,
+        otp: enteredOtp,
       });
-
-      const data = await res.json();
       setSendingOtp(false);
 
-      if (data.success) {
+      if (res.success) {
         setVerified(true);
         setError("Email verified successfully!");
       } else {
-        setError(data.message || "Invalid OTP");
+        setError(res.message || "Invalid OTP");
       }
     } catch (err) {
       setSendingOtp(false);
-      setError("Server error while verifying OTP");
+      setError(
+        err.response?.data?.message || "Server error while verifying OTP"
+      );
       console.error(err);
     }
   };
@@ -109,27 +104,21 @@ const Register = () => {
     setError("");
 
     try {
-      const res = await fetch(`${API_URL}/signup`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
+      const res = await authAPI.register(formData);
       setLoading(false);
 
-      if (data.success) {
+      if (res.success) {
         setError("Registration Successful! Redirecting...");
+        const enrollmentNumber = formData.enrollmentNumber;
         setTimeout(() => {
-          navigate(data.redirectUrl || "/student/dashboard");
+          navigate(res.redirectUrl || `/${enrollmentNumber}`);
         }, 1500);
       } else {
-        setError(data.message || "Registration failed");
+        setError(res.message || "Registration failed");
       }
     } catch (err) {
       setLoading(false);
-      setError("Error connecting to server");
+      setError(err.response?.data?.message || "Error connecting to server");
       console.error(err);
     }
   };

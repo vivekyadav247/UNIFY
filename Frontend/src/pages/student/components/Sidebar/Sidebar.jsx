@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   FiHome,
   FiBook,
@@ -8,17 +8,44 @@ import {
   FiMessageSquare,
   FiLogOut,
   FiSettings,
+  FiFileText,
 } from "react-icons/fi";
 
 const Sidebar = ({ darkMode }) => {
   const navigate = useNavigate();
+  const { enrollmentNumber } = useParams();
 
   const menu = [
-    { name: "Dashboard", icon: <FiHome />, path: "/student/dashboard" },
-    { name: "Attendance", icon: <FiCheckSquare />, path: "/student/attendance" },
-    { name: "Marks", icon: <FiBarChart2 />, path: "/student/marks" },
-    { name: "Assignments", icon: <FiBook />, path: "/student/assignments" },
-    { name: "Feedback", icon: <FiMessageSquare />, path: "/student/feedback" },
+    {
+      name: "Dashboard",
+      icon: <FiHome />,
+      path: `/${enrollmentNumber}`,
+    },
+    {
+      name: "Attendance",
+      icon: <FiCheckSquare />,
+      path: `/${enrollmentNumber}/attendance`,
+    },
+    {
+      name: "Marks",
+      icon: <FiBarChart2 />,
+      path: `/${enrollmentNumber}/marks`,
+    },
+    {
+      name: "Assignments",
+      icon: <FiBook />,
+      path: `/${enrollmentNumber}/assignments`,
+    },
+    {
+      name: "Announcements",
+      icon: <FiMessageSquare />,
+      path: `/${enrollmentNumber}/announcements`,
+    },
+    {
+      name: "Leave Request",
+      icon: <FiFileText />,
+      path: `/${enrollmentNumber}/leave-request`,
+    },
   ];
 
   const handleLogout = () => {
@@ -31,14 +58,9 @@ const Sidebar = ({ darkMode }) => {
       className={`
         h-screen w-72 border-r flex flex-col shadow-lg sticky top-0
         transition-colors duration-300
-        ${
-          darkMode
-            ? "bg-gray-900 border-gray-800"
-            : "bg-white border-gray-200"
-        }
+        ${darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"}
       `}
     >
-
       {/* BRAND SECTION */}
       <div
         className={`
@@ -63,11 +85,7 @@ const Sidebar = ({ darkMode }) => {
           className={`
             text-[12px] font-medium tracking-wide mt-1
             transition-colors duration-300
-            ${
-              darkMode
-                ? "text-gray-400"
-                : "text-gray-600"
-            }
+            ${darkMode ? "text-gray-400" : "text-gray-600"}
           `}
         >
           STUDENT PORTAL
@@ -76,7 +94,6 @@ const Sidebar = ({ darkMode }) => {
 
       {/* NAVIGATION */}
       <nav className="flex-1 px-3 py-6 space-y-2 overflow-y-auto">
-
         {menu.map((item) => (
           <NavLink
             key={item.name}
@@ -111,12 +128,9 @@ const Sidebar = ({ darkMode }) => {
             className={`
               h-px
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "bg-gray-700/50"
-                  : "bg-gray-200"
-              }
-            `}></div>
+              ${darkMode ? "bg-gray-700/50" : "bg-gray-200"}
+            `}
+          ></div>
         </div>
 
         {/* SETTINGS */}
@@ -144,7 +158,6 @@ const Sidebar = ({ darkMode }) => {
           </span>
           <span className="tracking-wide flex-1">Settings</span>
         </NavLink>
-
       </nav>
 
       {/* USER INFO SECTION */}
@@ -174,11 +187,7 @@ const Sidebar = ({ darkMode }) => {
             className={`
               text-xs font-medium
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "text-gray-400"
-                  : "text-gray-600"
-              }
+              ${darkMode ? "text-gray-400" : "text-gray-600"}
             `}
           >
             Logged in as
@@ -187,11 +196,7 @@ const Sidebar = ({ darkMode }) => {
             className={`
               text-sm font-semibold mt-1 truncate
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "text-white"
-                  : "text-gray-900"
-              }
+              ${darkMode ? "text-white" : "text-gray-900"}
             `}
           >
             {localStorage.getItem("username") || "Student"}

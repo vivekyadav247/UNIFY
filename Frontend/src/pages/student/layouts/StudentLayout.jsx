@@ -1,6 +1,6 @@
-
 import { useState, useEffect, useRef } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
+import { studentAPI } from "../../../services/api";
 
 import ProfileCard from "../components/DashboardCards/ProfileCard";
 import Sidebar from "../components/Sidebar/Sidebar";
@@ -12,20 +12,33 @@ export default function StudentLayout({
   notifications,
   setNotifications,
 }) {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [student, setStudent] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const profileBtnRef = useRef();
   const profileCardRef = useRef();
 
-  // Fake student data
-  const student = {
-    name: "Sakshi Bhadoriya",
-    roll: "STU2025",
-    email: "sakshi.bhadoriya@example.com",
-    course: "B.Sc. Computer Science",
-    avatar: "https://ui-avatars.com/api/?name=S+B&background=3b82f6&color=fff",
-  };
+  // Fetch student profile on mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await studentAPI.getProfile();
+        if (res.student) {
+          setStudent(res.student);
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+        navigate("/signin");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
 
   // Apply Theme
   useEffect(() => {
@@ -60,6 +73,17 @@ export default function StudentLayout({
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading student dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen">
       {/* SIDEBAR COMPONENT */}
@@ -72,11 +96,15 @@ export default function StudentLayout({
         }`}
       >
         {/* NAVBAR COMPONENT */}
-        <Navbar darkMode={darkMode} />
+        <Navbar
+          darkMode={darkMode}
+          student={student}
+          notifications={notifications}
+        />
 
         {/* ROUTES OUTLET WITH TOP PADDING */}
         <main className="pt-20 p-6 flex-1 overflow-y-auto">
-          <Outlet context={{ darkMode }} />
+          <Outlet context={{ darkMode, student }} />
         </main>
       </div>
     </div>

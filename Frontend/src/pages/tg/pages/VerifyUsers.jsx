@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import { FiSearch, FiCheck, FiX, FiLoader, FiAlertCircle } from "react-icons/fi";
+import {
+  FiSearch,
+  FiCheck,
+  FiX,
+  FiLoader,
+  FiAlertCircle,
+} from "react-icons/fi";
+import { tgAPI } from "../../../services/api";
+import { showSuccess, showError } from "../../../utils/notifications";
 
 export default function VerifyUsers() {
   const { darkMode } = useOutletContext();
@@ -17,28 +25,11 @@ export default function VerifyUsers() {
   const fetchUnverifiedStudents = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:3000"}/api/tg/students/unverified`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setUnverifiedStudents(data.students ? data.students : []);
+      const data = await tgAPI.getUnverifiedStudents();
+      setUnverifiedStudents(data.students || []);
       setError(null);
     } catch (err) {
-      setError(err.message ? err.message : "Failed to fetch unverified students");
+      setError(err.message || "Failed to fetch unverified students");
       console.error("Error fetching students:", err);
       setUnverifiedStudents([]);
     } finally {
@@ -49,29 +40,14 @@ export default function VerifyUsers() {
   const handleVerifyStudent = async (studentId) => {
     try {
       setVerifying(studentId);
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL || "http://localhost:5000"}/api/tg/verify-student/${studentId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to verify student");
-      }
-
+      await tgAPI.verifyStudent(studentId, {});
       setUnverifiedStudents(
         unverifiedStudents.filter((s) => s._id !== studentId)
       );
-      alert("Student verified successfully!");
+      showSuccess("Student verified successfully!");
     } catch (err) {
-      alert("Error verifying student: " + (err.message ? err.message : "Unknown error"));
+      showError("Failed to verify student");
+      console.error(err);
     } finally {
       setVerifying(null);
     }
@@ -87,18 +63,24 @@ export default function VerifyUsers() {
       setUnverifiedStudents(
         unverifiedStudents.filter((s) => s._id !== studentId)
       );
-      alert("Student rejected!");
+      showSuccess("Student rejected!");
     } catch (err) {
-      alert("Error rejecting student: " + (err.message ? err.message : "Unknown error"));
+      showError("Failed to reject student");
+      console.error(err);
     } finally {
       setVerifying(null);
     }
   };
 
-  const filteredStudents = unverifiedStudents.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (student.enrollmentNumber ? student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) : false)
+  const filteredStudents = unverifiedStudents.filter(
+    (student) =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.enrollmentNumber
+        ? student.enrollmentNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        : false)
   );
 
   return (
@@ -162,7 +144,9 @@ export default function VerifyUsers() {
       {loading ? (
         <div
           className={`p-12 rounded-2xl border flex items-center justify-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <FiLoader className="animate-spin text-2xl mr-3" />
@@ -173,7 +157,9 @@ export default function VerifyUsers() {
       ) : filteredStudents.length === 0 ? (
         <div
           className={`p-12 rounded-2xl border text-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <FiCheck className="text-4xl mx-auto mb-3 text-green-500" />
@@ -234,7 +220,9 @@ export default function VerifyUsers() {
                           darkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
-                        {student.enrollmentNumber ? student.enrollmentNumber : "N/A"}
+                        {student.enrollmentNumber
+                          ? student.enrollmentNumber
+                          : "N/A"}
                       </p>
                     </div>
 
@@ -285,7 +273,9 @@ export default function VerifyUsers() {
                           darkMode ? "text-white" : "text-gray-900"
                         }`}
                       >
-                        {student.createdAt ? new Date(student.createdAt).toLocaleDateString() : "N/A"}
+                        {student.createdAt
+                          ? new Date(student.createdAt).toLocaleDateString()
+                          : "N/A"}
                       </p>
                     </div>
                   </div>

@@ -16,8 +16,8 @@ export default function TgLayout() {
     const fetchTgProfile = async () => {
       try {
         const response = await tgAPI.getProfile();
-        if (response.success) {
-          setTg(response.data);
+        if (response.tg) {
+          setTg(response.tg);
         } else {
           navigate("/signin");
         }

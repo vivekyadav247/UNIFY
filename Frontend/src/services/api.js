@@ -189,13 +189,36 @@ export const tgAPI = {
   verifyStudent: (studentId, data) =>
     axiosInstance.put(`/tg/verify-student/${studentId}`, data),
   getAllStudents: () => axiosInstance.get("/tg/students/all"),
+  getStudentDetail: (studentId) =>
+    axiosInstance.get(`/tg/students/${studentId}/detail`),
   getStudentMarks: (id) => axiosInstance.get(`/tg/students/${id}/marks`),
   getStudentAttendance: (id) =>
     axiosInstance.get(`/tg/students/${id}/attendance`),
 
   // Leave Management
-  approveLeave: (data) => axiosInstance.post("/tg/leave/approve", data),
-  rejectLeave: (data) => axiosInstance.post("/tg/leave/reject", data),
+  getLeaveRequests: () => axiosInstance.get("/tg/leave/requests"),
+  approveLeave: (leaveId, data) =>
+    axiosInstance.post(`/tg/leave/approve/${leaveId}`, data),
+  rejectLeave: (leaveId, data) =>
+    axiosInstance.post(`/tg/leave/reject/${leaveId}`, data),
+
+  // Announcements
+  getAnnouncements: () => axiosInstance.get("/tg/announcements"),
+
+  // Marks
+  getMarks: () => axiosInstance.get("/tg/marks"),
+
+  // Assignments
+  getAssignments: () => axiosInstance.get("/tg/assignments"),
+
+  // Feedback
+  getFeedback: () => axiosInstance.get("/tg/feedback"),
+
+  // Reports
+  getReports: () => axiosInstance.get("/tg/reports"),
+
+  // Schedule
+  getSchedule: () => axiosInstance.get("/tg/schedule"),
 };
 
 // ============ ADMIN API ============

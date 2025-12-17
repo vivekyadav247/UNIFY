@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
-import { useOutletContext } from "react-router-dom";
-import { FiSearch, FiMoreVertical, FiLoader } from "react-icons/fi";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import { FiSearch, FiEye, FiLoader } from "react-icons/fi";
+import { tgAPI } from "../../../services/api";
+import { showError } from "../../../utils/notifications";
 
 export default function MyStudents() {
   const { darkMode } = useOutletContext();
+  const navigate = useNavigate();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,53 +19,35 @@ export default function MyStudents() {
   const fetchMyStudents = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+      const data = await tgAPI.getAllStudents();
 
-      console.log("Fetching from:", `${apiUrl}/api/tg/students/all`);
-
-      const response = await fetch(
-        `${apiUrl}/api/tg/students/all`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          credentials: "include",
-        }
-      );
-
-      console.log("Response status:", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Error response:", errorData);
-        throw new Error(`HTTP ${response.status}: ${errorData}`);
-      }
-
-      const data = await response.json();
-      console.log("Students data:", data);
-      
-      // Only show verified students
-      setStudents(data.verified ? data.verified : data.students ? data.students : []);
+      // Get all verified students
+      const verifiedStudents = data.verified || data.students || [];
+      setStudents(verifiedStudents);
       setError(null);
     } catch (err) {
-      setError(
-        err.message || 
-        "Failed to fetch students. Make sure backend is running on http://localhost:3000"
-      );
+      setError(err.message || "Failed to fetch students");
       console.error("Error fetching students:", err);
+      showError("Failed to load students");
       setStudents([]);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredStudents = students.filter((student) =>
-    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (student.enrollmentNumber ? student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) : false)
+  const handleViewStudent = (studentId) => {
+    navigate(`/tg/students/${studentId}`);
+  };
+
+  const filteredStudents = students.filter(
+    (student) =>
+      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (student.enrollmentNumber
+        ? student.enrollmentNumber
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+        : false)
   );
 
   return (
@@ -116,9 +101,6 @@ export default function MyStudents() {
         <div className="mb-6 p-4 rounded-lg bg-red-100 text-red-700 border border-red-200">
           <p className="font-semibold">Error loading students</p>
           <p className="text-sm">{error}</p>
-          <p className="text-xs mt-2 font-mono bg-red-50 p-2 rounded">
-            Backend URL: http://localhost:3000
-          </p>
         </div>
       )}
 
@@ -126,7 +108,9 @@ export default function MyStudents() {
       {loading ? (
         <div
           className={`p-12 rounded-2xl border flex items-center justify-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <FiLoader className="animate-spin text-2xl mr-3" />
@@ -137,7 +121,9 @@ export default function MyStudents() {
       ) : filteredStudents.length === 0 ? (
         <div
           className={`p-12 rounded-2xl border text-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <p
@@ -158,7 +144,9 @@ export default function MyStudents() {
       ) : (
         <div
           className={`rounded-2xl border overflow-hidden ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <table className="w-full">
@@ -197,7 +185,9 @@ export default function MyStudents() {
                   <td className="px-6 py-4 font-medium">{student.name}</td>
                   <td className="px-6 py-4">{student.email}</td>
                   <td className="px-6 py-4">
-                    {student.enrollmentNumber ? student.enrollmentNumber : "N/A"}
+                    {student.enrollmentNumber
+                      ? student.enrollmentNumber
+                      : "N/A"}
                   </td>
                   <td className="px-6 py-4 text-sm">
                     <span
@@ -223,13 +213,15 @@ export default function MyStudents() {
                   </td>
                   <td className="px-6 py-4">
                     <button
-                      className={`p-2 rounded-lg transition-colors ${
+                      onClick={() => handleViewStudent(student._id)}
+                      className={`px-3 py-1.5 rounded-lg font-medium flex items-center gap-2 transition-all hover:scale-105 ${
                         darkMode
-                          ? "hover:bg-gray-700 text-gray-400 hover:text-white"
-                          : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
+                          ? "bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 hover:text-blue-300"
+                          : "bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-900"
                       }`}
                     >
-                      <FiMoreVertical />
+                      <FiEye size={16} />
+                      View
                     </button>
                   </td>
                 </tr>

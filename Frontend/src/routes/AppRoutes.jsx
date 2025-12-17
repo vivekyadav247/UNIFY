@@ -1,4 +1,3 @@
-
 import { Routes, Route } from "react-router-dom";
 
 // Public Pages
@@ -38,6 +37,7 @@ import TGSchedule from "../pages/tg/pages/Schedule";
 import TGAnnouncements from "../pages/tg/pages/Announcements";
 import TGVerifyUsers from "../pages/tg/pages/VerifyUsers";
 import TGSettings from "../pages/tg/pages/Settings";
+import TGManagement from "../pages/hod/pages/TGManagement";
 
 // FACULTY Pages
 import FacultyLayout from "../pages/faculty/layouts/FacultyLayout";
@@ -121,6 +121,7 @@ export default function AppRoutes({
         <Route path="announcements" element={<TGAnnouncements />} />
         <Route path="verify-users" element={<TGVerifyUsers />} />
         <Route path="settings" element={<TGSettings />} />
+        <Route path="tg-management" element={<TGManagement />} />
       </Route>
       {/* ------------------------ FACULTY ROUTES ------------------------ */}
 

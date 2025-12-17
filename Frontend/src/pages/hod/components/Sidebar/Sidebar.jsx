@@ -148,6 +148,24 @@ const Sidebar = ({ darkMode }) => {
           </span>
           <span className="tracking-wide flex-1">Settings</span>
         </NavLink>
+
+        <NavLink
+          to="/hod/tg-management"
+          className={({ isActive }) =>
+            `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              isActive
+                ? darkMode
+                  ? "bg-blue-900/30 text-blue-300"
+                  : "bg-blue-100 text-blue-700"
+                : darkMode
+                ? "text-gray-400 hover:bg-gray-800"
+                : "text-gray-600 hover:bg-gray-100"
+            }`
+          }
+        >
+          <FiUsers className="text-xl" />
+          <span>TG Management</span>
+        </NavLink>
       </nav>
 
       {/* USER INFO SECTION */}

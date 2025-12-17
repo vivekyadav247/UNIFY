@@ -1,9 +1,12 @@
 import { Routes, Route } from "react-router-dom";
+import ProtectedRoute from "../components/ProtectedRoute";
 
 // Public Pages
 import Welcome from "../pages/Welcome";
 import Login from "../pages/auth/Login";
 import Register from "../pages/auth/Register";
+import ForgotPassword from "../pages/auth/ForgotPassword";
+import NotFound from "../pages/NotFound";
 
 // Student Pages
 import StudentLayout from "../pages/student/layouts/StudentLayout";
@@ -12,8 +15,10 @@ import Assignments from "../pages/student/pages/Assignments";
 import Attendance from "../pages/student/pages/Attendance";
 import Marks from "../pages/student/pages/Marks";
 import Feedback from "../pages/student/pages/Feedback";
+import Announcements from "../pages/student/pages/Announcements";
 import Profile from "../pages/student/pages/Profile";
-
+import Settings from "../pages/student/pages/Settings";
+import LeaveRequest from "../pages/student/pages/LeaveRequest";
 
 // HOD Pages
 import HodLayout from "../pages/hod/layouts/HodLayout";
@@ -63,53 +68,64 @@ export default function AppRoutes({
       {/* Authentication */}
       <Route path="/signin" element={<Login />} />
       <Route path="/signup" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* ------------------------ STUDENT ROUTES ------------------------ */}
       <Route
-        path="/student"
+        path="/:enrollmentNumber"
         element={
-          <StudentLayout
-            toggleTheme={toggleTheme}
-            currentTheme={currentTheme}
-            notifications={notifications}
-            setNotifications={setNotifications}
-          />
+          <ProtectedRoute requiredRole="student">
+            <StudentLayout
+              toggleTheme={toggleTheme}
+              currentTheme={currentTheme}
+              notifications={notifications}
+              setNotifications={setNotifications}
+            />
+          </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route index element={<Dashboard />} />
         <Route path="attendance" element={<Attendance />} />
         <Route path="assignments" element={<Assignments />} />
         <Route path="marks" element={<Marks />} />
+        <Route path="announcements" element={<Announcements />} />
         <Route path="feedback" element={<Feedback />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="leave-request" element={<LeaveRequest />} />
       </Route>
 
-
       {/* ------------------------ HOD ROUTES ------------------------ */}
-<Route
-  path="/hod"
-  element={
-    <HodLayout
-      toggleTheme={toggleTheme}
-      currentTheme={currentTheme}
-      notifications={notifications}
-      setNotifications={setNotifications}
-    />
-  }
->
-  <Route path="dashboard" element={<HodDashboard />} />
-  <Route path="faculty" element={<HodFaculty />} />
-  <Route path="students" element={<HodStudents />} />
-  <Route path="reports" element={<HodReports />} />
-  <Route path="events" element={<HodEvents />} />
-  <Route path="settings" element={<HodSettings />} />
-</Route>
-
-     
-
+      <Route
+        path="/hod"
+        element={
+          <ProtectedRoute requiredRole="hod">
+            <HodLayout
+              toggleTheme={toggleTheme}
+              currentTheme={currentTheme}
+              notifications={notifications}
+              setNotifications={setNotifications}
+            />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<HodDashboard />} />
+        <Route path="faculty" element={<HodFaculty />} />
+        <Route path="students" element={<HodStudents />} />
+        <Route path="reports" element={<HodReports />} />
+        <Route path="events" element={<HodEvents />} />
+        <Route path="settings" element={<HodSettings />} />
+      </Route>
 
       {/* ------------------------ TG ROUTES ------------------------ */}
-      <Route path="/tg" element={<TgLayout />}>
+      <Route
+        path="/tg"
+        element={
+          <ProtectedRoute requiredRole="tg">
+            <TgLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route path="dashboard" element={<TGDashboard />} />
         <Route path="my-students" element={<TGMyStudents />} />
         <Route path="attendance" element={<TGAttendance />} />
@@ -125,28 +141,31 @@ export default function AppRoutes({
       </Route>
       {/* ------------------------ FACULTY ROUTES ------------------------ */}
 
-{/* ------------------------ FACULTY ROUTES ------------------------ */}
-<Route
-  path="/faculty"
-  element={
-    <FacultyLayout
-      toggleTheme={toggleTheme}
-      currentTheme={currentTheme}
-      notifications={notifications}
-      setNotifications={setNotifications}
-    />
-  }
->
-  <Route path="dashboard" element={<FacultyDashboard />} />
-  <Route path="attendance" element={<FacultyAttendance />} />
-  <Route path="assignments" element={<FacultyAssignments />} />
-  <Route path="leave-management" element={<FacultyLeaveManagement />} />
-  <Route path="report" element={<FacultyReport />} />
-  <Route path="schedule" element={<FacultySchedule />} />
-  <Route path="announcements" element={<FacultyAnnouncements />} />
-</Route>
+      {/* ------------------------ FACULTY ROUTES ------------------------ */}
+      <Route
+        path="/faculty"
+        element={
+          <ProtectedRoute requiredRole="faculty">
+            <FacultyLayout
+              toggleTheme={toggleTheme}
+              currentTheme={currentTheme}
+              notifications={notifications}
+              setNotifications={setNotifications}
+            />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="dashboard" element={<FacultyDashboard />} />
+        <Route path="attendance" element={<FacultyAttendance />} />
+        <Route path="assignments" element={<FacultyAssignments />} />
+        <Route path="leave-management" element={<FacultyLeaveManagement />} />
+        <Route path="report" element={<FacultyReport />} />
+        <Route path="schedule" element={<FacultySchedule />} />
+        <Route path="announcements" element={<FacultyAnnouncements />} />
+      </Route>
 
-
+      {/* 404 Not Found - Catch all route */}
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

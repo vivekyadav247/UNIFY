@@ -10,6 +10,17 @@ const leaveSchema = new Schema(
 
     reason: { type: String, required: true },
 
+    leaveType: {
+      type: String,
+      enum: ["sick", "personal", "medical", "emergency", "other"],
+      default: "personal",
+    },
+
+    attachment: {
+      type: String,
+      default: null,
+    },
+
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

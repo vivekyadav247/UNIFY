@@ -5,10 +5,22 @@ const { sendEmailOtp } = require("./sendMailOtp");
 
 async function handleForgotPassword(req, res) {
   try {
-    const { email } = req.body;
+    const { email, enrollmentNumber } = req.body;
 
-    const student = await Student.findOne({ email });
-    if (!student) return res.status(404).json({ error: "No user found." });
+    if (!email || !enrollmentNumber) {
+      return res
+        .status(400)
+        .json({ error: "Email and enrollment number are required" });
+    }
+
+    const student = await Student.findOne({
+      email,
+      enrollmentNumber: enrollmentNumber.toUpperCase(),
+    });
+    if (!student)
+      return res
+        .status(404)
+        .json({ error: "No user found with these details." });
 
     const otp = await saveOtp(email);
     await sendEmailOtp(email, otp);

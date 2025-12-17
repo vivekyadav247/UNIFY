@@ -1,6 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
@@ -37,6 +39,18 @@ function App() {
           currentTheme={theme}
           notifications={notifications}
           setNotifications={setNotifications}
+        />
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={true}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme={theme === "dark" ? "dark" : "light"}
         />
       </BrowserRouter>
     </div>

@@ -5,6 +5,7 @@ const Faculty = require("../model/faculty");
 const Otp = require("../model/otp");
 const { sendEmailOtp } = require("./sendMailOtp");
 const { createToken } = require("../services/authentication");
+const logger = require("../utils/logger");
 
 async function sendOtp(req, res) {
   try {
@@ -152,7 +153,7 @@ async function handleSignup(req, res) {
       .json({
         success: true,
         message: "Registration successful",
-        redirectUrl: "/student/dashboard",
+        redirectUrl: `/${enrollmentNumber}`,
       });
   } catch (err) {
     console.error(err);
@@ -173,9 +174,14 @@ async function handleSignin(req, res) {
 
     let token;
     let redirectUrl;
+    let userId;
 
     if (role === "student") {
       if (!enrollmentNumber || !password) {
+        logger.warn(`Signup attempt without credentials`, "SIGNIN_ATTEMPT", {
+          role: "student",
+          enrollmentNumber,
+        });
         return res.status(400).json({
           success: false,
           message: "Enrollment and password required",
@@ -187,8 +193,21 @@ async function handleSignin(req, res) {
           enrollmentNumber,
           password
         );
-        redirectUrl = "/student/dashboard";
+        userId = enrollmentNumber;
+        redirectUrl = `/${enrollmentNumber}`;
+        logger.auth(`Student signed in successfully`, "SIGNIN_SUCCESS", {
+          enrollmentNumber,
+          timestamp: new Date(),
+        });
       } catch (err) {
+        logger.auth(
+          `Failed signin attempt for student ${enrollmentNumber}`,
+          "SIGNIN_FAILED",
+          {
+            enrollmentNumber,
+            error: err.message,
+          }
+        );
         return res.status(401).json({
           success: false,
           message: err.message || "Invalid credentials",

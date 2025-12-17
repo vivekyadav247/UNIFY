@@ -147,10 +147,51 @@ async function getMyLeaves(req, res) {
   }
 }
 
+async function submitLeaveRequest(req, res) {
+  if (!req.user || req.user.role !== "student")
+    return res.status(401).json({ error: "Unauthorized: Student only" });
+
+  try {
+    const studentId = req.user._id;
+    const { leaveType, startDate, endDate, reason } = req.body;
+
+    if (!leaveType || !startDate || !endDate || !reason) {
+      return res.status(400).json({ error: "All fields required" });
+    }
+
+    const stu = await Student.findById(studentId);
+    if (!stu) return res.status(404).json({ error: "Student not found" });
+
+    const attachmentPath = req.file ? req.file.path : null;
+
+    const leave = await Leave.create({
+      studentId,
+      leaveType,
+      fromDate: norm(startDate),
+      toDate: norm(endDate),
+      reason,
+      attachment: attachmentPath,
+      academicYear: stu.academicYear,
+      branch: stu.branch,
+      section: stu.section,
+      semesterNumber: stu.semesterNumber,
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Leave request submitted successfully",
+      leave,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   applyLeave,
   approveLeave,
   rejectLeave,
   autoMarkLeaveAttendance,
   getMyLeaves,
+  submitLeaveRequest,
 };

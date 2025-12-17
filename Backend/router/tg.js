@@ -17,6 +17,16 @@ const {
   verifyStudentByTG,
   getUnverifiedStudents,
   getAllMyStudents,
+  getTgLeaveRequests,
+  approveTgLeaveRequest,
+  rejectTgLeaveRequest,
+  getStudentDetail,
+  getTgAnnouncements,
+  getTgMarks,
+  getTgAssignments,
+  getTgFeedback,
+  getTgReports,
+  getTgSchedule,
 } = require("../controller/tg");
 
 const { approveLeave, rejectLeave } = require("../controller/leave");
@@ -39,9 +49,29 @@ router.post("/attendance/send-whatsapp", sendLowAttendanceWhatsApp);
 router.get("/students/unverified", getUnverifiedStudents);
 router.put("/verify-student/:studentId", verifyStudentByTG);
 router.get("/students/all", getAllMyStudents);
+router.get("/students/:studentId/detail", getStudentDetail);
 
 // Leave management
-router.post("/leave/approve", approveLeave);
-router.post("/leave/reject", rejectLeave);
+router.get("/leave/requests", getTgLeaveRequests);
+router.post("/leave/approve/:leaveId", approveTgLeaveRequest);
+router.post("/leave/reject/:leaveId", rejectTgLeaveRequest);
+
+// Announcements
+router.get("/announcements", getTgAnnouncements);
+
+// Marks
+router.get("/marks", getTgMarks);
+
+// Assignments
+router.get("/assignments", getTgAssignments);
+
+// Feedback
+router.get("/feedback", getTgFeedback);
+
+// Reports
+router.get("/reports", getTgReports);
+
+// Schedule
+router.get("/schedule", getTgSchedule);
 
 module.exports = router;

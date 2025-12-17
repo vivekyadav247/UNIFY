@@ -36,6 +36,11 @@ const tgSchema = new Schema(
       type: String,
       required: true,
     },
+    semester: {
+      type: String,
+      default: "1",
+      required: false,
+    },
     password: {
       type: String,
       required: true,

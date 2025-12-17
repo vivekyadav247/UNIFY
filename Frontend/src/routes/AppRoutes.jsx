@@ -33,6 +33,8 @@ import HodEvents from "../pages/hod/pages/Events";
 import TgLayout from "../pages/tg/layouts/TgLayout";
 import TGDashboard from "../pages/tg/pages/Dashboard";
 import TGMyStudents from "../pages/tg/pages/MyStudents";
+import TGStudentDetail from "../pages/tg/pages/StudentDetail";
+import TGLeaveRequest from "../pages/tg/pages/LeaveRequest";
 import TGAttendance from "../pages/tg/pages/Attendance";
 import TGMarks from "../pages/tg/pages/Marks";
 import TGAssignments from "../pages/tg/pages/Assignments";
@@ -128,6 +130,8 @@ export default function AppRoutes({
       >
         <Route path="dashboard" element={<TGDashboard />} />
         <Route path="my-students" element={<TGMyStudents />} />
+        <Route path="students/:studentId" element={<TGStudentDetail />} />
+        <Route path="leave-request" element={<TGLeaveRequest />} />
         <Route path="attendance" element={<TGAttendance />} />
         <Route path="marks" element={<TGMarks />} />
         <Route path="assignments" element={<TGAssignments />} />

@@ -24,16 +24,7 @@ export default function Dashboard() {
   });
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [approving, setApproving] = useState(null);
-
-  // Monthly attendance data (simulated)
-  const [monthlyAttendance] = useState([
-    { month: "Jan", percentage: 82 },
-    { month: "Feb", percentage: 85 },
-    { month: "Mar", percentage: 88 },
-    { month: "Apr", percentage: 84 },
-    { month: "May", percentage: 87 },
-    { month: "Jun", percentage: 90 },
-  ]);
+  const [monthlyAttendance, setMonthlyAttendance] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -43,25 +34,21 @@ export default function Dashboard() {
     try {
       setLoading(true);
 
+      // Get dashboard stats (includes monthly attendance)
+      const dashboardRes = await tgAPI.getDashboardStats();
+      setStats(
+        dashboardRes.stats || {
+          totalStudents: 0,
+          avgAttendance: 0,
+          avgMarks: 0,
+          pendingLeaves: 0,
+        }
+      );
+      setMonthlyAttendance(dashboardRes.monthlyAttendance || []);
+
       // Get leave requests
       const leaveRes = await tgAPI.getLeaveRequests();
       setLeaveRequests(leaveRes.leaveRequests || []);
-
-      // Get students
-      const studentsRes = await tgAPI.getAllStudents();
-      const students = studentsRes.students || [];
-
-      // Calculate stats
-      const pendingLeaves =
-        leaveRes.leaveRequests?.filter((l) => l.status === "pending").length ||
-        0;
-
-      setStats({
-        totalStudents: students.length,
-        avgAttendance: 85, // Will be calculated from real data
-        avgMarks: 78.5,
-        pendingLeaves,
-      });
 
       setLoading(false);
     } catch (err) {
@@ -356,7 +343,10 @@ export default function Dashboard() {
                   darkMode ? "text-green-400" : "text-green-600"
                 }`}
               >
-                90%
+                {monthlyAttendance.length > 0
+                  ? Math.max(...monthlyAttendance.map((m) => m.percentage))
+                  : 0}
+                %
               </p>
             </div>
             <div>
@@ -372,7 +362,7 @@ export default function Dashboard() {
                   darkMode ? "text-blue-400" : "text-blue-600"
                 }`}
               >
-                86.3%
+                {stats.avgAttendance}%
               </p>
             </div>
             <div>
@@ -388,7 +378,10 @@ export default function Dashboard() {
                   darkMode ? "text-orange-400" : "text-orange-600"
                 }`}
               >
-                82%
+                {monthlyAttendance.length > 0
+                  ? Math.min(...monthlyAttendance.map((m) => m.percentage))
+                  : 0}
+                %
               </p>
             </div>
           </div>

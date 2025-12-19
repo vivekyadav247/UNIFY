@@ -3,6 +3,72 @@ const TG = require("../model/tg");
 const Leave = require("../model/leave");
 const { createHmac, randomBytes } = require("crypto");
 
+// DEBUG: Check TG and Students data match
+async function debugTgStudents(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+    const tg = await TG.findById(tgId);
+    if (!tg) return res.status(404).json({ error: "TG not found" });
+
+    // TG ka data
+    const tgData = {
+      department: tg.department,
+      branch: tg.branch,
+      section: tg.section,
+      academicYear: tg.academicYear,
+      course: tg.course,
+    };
+
+    // All students in database
+    const allStudents = await Student.find({})
+      .select(
+        "name enrollmentNumber department branch section academicYear course isVerified"
+      )
+      .lean();
+
+    // Students that should match
+    const matchingStudents = allStudents.filter(
+      (s) =>
+        s.department === tg.department &&
+        s.branch === tg.branch &&
+        s.section === tg.section &&
+        s.academicYear === tg.academicYear &&
+        s.course === tg.course
+    );
+
+    // Students with partial match (for debugging)
+    const partialMatch = allStudents.filter(
+      (s) => s.branch === tg.branch || s.section === tg.section
+    );
+
+    // Unique values in students
+    const uniqueValues = {
+      departments: [...new Set(allStudents.map((s) => s.department))],
+      branches: [...new Set(allStudents.map((s) => s.branch))],
+      sections: [...new Set(allStudents.map((s) => s.section))],
+      academicYears: [...new Set(allStudents.map((s) => s.academicYear))],
+      courses: [...new Set(allStudents.map((s) => s.course))],
+    };
+
+    return res.status(200).json({
+      success: true,
+      tgData,
+      totalStudentsInDB: allStudents.length,
+      matchingStudentsCount: matchingStudents.length,
+      matchingStudents: matchingStudents.slice(0, 5), // first 5
+      partialMatchCount: partialMatch.length,
+      uniqueValuesInStudents: uniqueValues,
+      sampleStudents: allStudents.slice(0, 3), // first 3 students for comparison
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 async function verifyStudentByTG(req, res) {
   try {
     // TG Authentication Check
@@ -21,14 +87,13 @@ async function verifyStudentByTG(req, res) {
     const student = await Student.findById(studentId);
     if (!student) return res.status(404).json({ error: "Student not found" });
 
-    // Check if student belongs to this TG's class
+    // Check if student belongs to this TG's class (by class match)
     if (
       student.branch !== tg.branch ||
       student.section !== tg.section ||
       student.department !== tg.department ||
       student.course !== tg.course ||
-      student.academicYear !== tg.academicYear ||
-      student.assignTgId?.toString() !== tgId.toString()
+      student.academicYear !== tg.academicYear
     ) {
       return res.status(403).json({
         error: "You are not authorized to verify this student",
@@ -40,8 +105,11 @@ async function verifyStudentByTG(req, res) {
       return res.status(400).json({ error: "Student already verified" });
     }
 
-    // Verify student
+    // Verify student and assign TG if not already assigned
     student.isVerified = true;
+    if (!student.assignTgId) {
+      student.assignTgId = tgId;
+    }
     await student.save();
 
     return res.status(200).json({
@@ -66,27 +134,43 @@ async function getUnverifiedStudents(req, res) {
     }
 
     const tgId = req.user._id;
-    const { department, branch, section, academicYear } = req.user;
+    const tg = await TG.findById(tgId);
+    if (!tg) return res.status(404).json({ error: "TG not found" });
 
-    // Get all unverified students of this TG's class
+    const { department, branch, section, academicYear, course } = tg;
+
+    // Get all unverified students of this TG's class (by class match)
     const unverifiedStudents = await Student.find({
       department,
       branch,
       section,
       academicYear,
+      course,
       isVerified: false,
-      assignTgId: tgId,
     })
       .select(
-        "name enrollmentNumber email mobileNumber dob gender profilePic course department branch section academicYear semesterNumber createdAt"
+        "name enrollmentNumber email mobileNumber dob gender profilePic course department branch section academicYear semesterNumber createdAt assignTgId"
       )
       .sort({ createdAt: -1 })
       .lean();
+
+    // Auto-assign TG to students without assignTgId
+    const unassignedIds = unverifiedStudents
+      .filter((s) => !s.assignTgId)
+      .map((s) => s._id);
+
+    if (unassignedIds.length > 0) {
+      await Student.updateMany(
+        { _id: { $in: unassignedIds } },
+        { assignTgId: tgId }
+      );
+    }
 
     return res.status(200).json({
       success: true,
       count: unverifiedStudents.length,
       students: unverifiedStudents,
+      autoAssigned: unassignedIds.length,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -101,21 +185,36 @@ async function getAllMyStudents(req, res) {
     }
 
     const tgId = req.user._id;
-    const { department, branch, section, academicYear } = req.user;
+    const tg = await TG.findById(tgId);
+    if (!tg) return res.status(404).json({ error: "TG not found" });
 
-    // Get all students of this TG's class
+    const { department, branch, section, academicYear, course } = tg;
+
+    // Get all students of this TG's class (by class match OR assignTgId)
     const allStudents = await Student.find({
       department,
       branch,
       section,
       academicYear,
-      assignTgId: tgId,
+      course,
     })
       .select(
-        "name enrollmentNumber email mobileNumber dob gender profilePic isVerified course department branch section academicYear semesterNumber createdAt"
+        "name enrollmentNumber email mobileNumber dob gender profilePic isVerified course department branch section academicYear semesterNumber createdAt cgpa sgpa assignTgId parentContact"
       )
       .sort({ enrollmentNumber: 1 })
       .lean();
+
+    // Auto-assign TG to students without assignTgId
+    const unassignedIds = allStudents
+      .filter((s) => !s.assignTgId)
+      .map((s) => s._id);
+
+    if (unassignedIds.length > 0) {
+      await Student.updateMany(
+        { _id: { $in: unassignedIds } },
+        { assignTgId: tgId }
+      );
+    }
 
     // Separate verified and unverified
     const verified = allStudents.filter((s) => s.isVerified === true);
@@ -128,6 +227,16 @@ async function getAllMyStudents(req, res) {
       unverifiedCount: unverified.length,
       verified,
       unverified,
+      students: allStudents,
+      autoAssigned: unassignedIds.length,
+      tgInfo: {
+        name: tg.name,
+        tgId: tg.tgId,
+        email: tg.email,
+        mobileNumber: tg.mobileNumber,
+        branch: tg.branch,
+        section: tg.section,
+      },
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -225,12 +334,11 @@ async function getTgLeaveRequests(req, res) {
       return res.status(401).json({ error: "Unauthorized: TG only" });
     }
 
-    const tgId = req.user._id;
-    const { department, branch, section, academicYear } = req.user;
+    const { branch, section, academicYear } = req.user;
     const { status } = req.query; // pending, approved, rejected, all
 
+    // Only filter by fields that exist in Leave model
     let query = {
-      department,
       branch,
       section,
       academicYear,
@@ -329,19 +437,60 @@ async function getStudentDetail(req, res) {
     }
 
     const { studentId } = req.params;
+    const tgId = req.user._id;
+    const tg = await TG.findById(tgId);
+    if (!tg) return res.status(404).json({ error: "TG not found" });
 
     const student = await Student.findById(studentId)
       .select("-password -salt")
-      .populate("marks")
-      .populate("feedbacks");
+      .lean();
 
     if (!student) {
       return res.status(404).json({ error: "Student not found" });
     }
 
+    // Get student's attendance data
+    const ClassAttendance = require("../model/classAttendance");
+    const attendanceRecords = await ClassAttendance.find({
+      students: studentId,
+    })
+      .sort({ date: -1 })
+      .limit(30)
+      .lean();
+
+    // Calculate attendance percentage
+    let totalClasses = attendanceRecords.length;
+    let presentCount = 0;
+    attendanceRecords.forEach((record) => {
+      const studentRecord = record.attendance?.find(
+        (a) => a.student?.toString() === studentId
+      );
+      if (studentRecord?.status === "present") presentCount++;
+    });
+    const attendancePercentage =
+      totalClasses > 0 ? ((presentCount / totalClasses) * 100).toFixed(2) : 0;
+
+    // Get leave history
+    const leaves = await Leave.find({ studentId: studentId })
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .lean();
+
     return res.status(200).json({
       success: true,
       student,
+      attendance: {
+        total: totalClasses,
+        present: presentCount,
+        absent: totalClasses - presentCount,
+        percentage: parseFloat(attendancePercentage),
+        recentRecords: attendanceRecords.slice(0, 10),
+      },
+      leaves,
+      marks: student.marks || [],
+      midSemMarks: student.midSemMarks || [],
+      cgpa: student.cgpa || 0,
+      sgpa: student.sgpa || [],
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -383,7 +532,7 @@ async function getTgAnnouncements(req, res) {
   }
 }
 
-// Get Marks for TG's class
+// Get Marks for TG's class - with CGPA/SGPA
 async function getTgMarks(req, res) {
   try {
     if (!req.user || req.user.role !== "tg") {
@@ -395,18 +544,49 @@ async function getTgMarks(req, res) {
     if (!tg) return res.status(404).json({ error: "TG not found" });
 
     const Marks = require("../model/marks");
-    const marks = await Marks.find({
+
+    // Get all students' marks from the Marks model
+    const marksData = await Marks.find({
       branch: tg.branch,
       section: tg.section,
       academicYear: tg.academicYear,
     })
-      .populate("studentId", "name enrollmentNumber email")
-      .populate("subjectId", "subjectCode subjectName")
-      .sort({ createdAt: -1 });
+      .populate("studentId", "name enrollmentNumber email profilePic")
+      .sort({ cgpa: -1 });
+
+    // Also get students with embedded marks (for compatibility)
+    const students = await Student.find({
+      branch: tg.branch,
+      section: tg.section,
+      academicYear: tg.academicYear,
+      assignTgId: tgId,
+    })
+      .select(
+        "name enrollmentNumber email cgpa sgpa marks semesterNumber profilePic"
+      )
+      .sort({ cgpa: -1 })
+      .lean();
+
+    // Calculate class statistics
+    const cgpaList = students.filter((s) => s.cgpa > 0).map((s) => s.cgpa);
+    const avgCGPA =
+      cgpaList.length > 0
+        ? (cgpaList.reduce((a, b) => a + b, 0) / cgpaList.length).toFixed(2)
+        : 0;
+    const highestCGPA = cgpaList.length > 0 ? Math.max(...cgpaList) : 0;
+    const lowestCGPA = cgpaList.length > 0 ? Math.min(...cgpaList) : 0;
 
     return res.status(200).json({
       success: true,
-      marks: marks || [],
+      marksData: marksData || [],
+      students: students || [], // Students with embedded marks
+      statistics: {
+        totalStudents: students.length,
+        avgCGPA,
+        highestCGPA,
+        lowestCGPA,
+        studentsWithCGPA: cgpaList.length,
+      },
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -546,6 +726,124 @@ async function getTgSchedule(req, res) {
   }
 }
 
+// Get Dashboard Stats for TG
+async function getTgDashboardStats(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const tgId = req.user.id || req.user._id;
+    const tg = await TG.findById(tgId);
+    if (!tg) return res.status(404).json({ error: "TG not found" });
+
+    // Get total students by class match (not assignTgId)
+    const totalStudents = await Student.countDocuments({
+      branch: tg.branch,
+      section: tg.section,
+      academicYear: tg.academicYear,
+      department: tg.department,
+      course: tg.course,
+      isVerified: true,
+    });
+
+    // Get pending leaves
+    const pendingLeaves = await Leave.countDocuments({
+      branch: tg.branch,
+      section: tg.section,
+      academicYear: tg.academicYear,
+      status: "pending",
+    });
+
+    // Get all students of this class
+    const classStudents = await Student.find({
+      branch: tg.branch,
+      section: tg.section,
+      academicYear: tg.academicYear,
+      department: tg.department,
+      course: tg.course,
+    })
+      .select("_id cgpa")
+      .lean();
+
+    // Calculate average CGPA
+    const studentsWithCgpa = classStudents.filter((s) => s.cgpa > 0);
+    const avgMarks =
+      studentsWithCgpa.length > 0
+        ? (
+            studentsWithCgpa.reduce((sum, s) => sum + s.cgpa, 0) /
+            studentsWithCgpa.length
+          ).toFixed(2)
+        : 0;
+
+    // Get attendance data - last 6 months
+    const ClassAttendance = require("../model/classAttendance");
+
+    const monthlyAttendance = [];
+    for (let i = 5; i >= 0; i--) {
+      const monthDate = new Date();
+      monthDate.setMonth(monthDate.getMonth() - i);
+      const monthStart = new Date(
+        monthDate.getFullYear(),
+        monthDate.getMonth(),
+        1
+      );
+      const monthEnd = new Date(
+        monthDate.getFullYear(),
+        monthDate.getMonth() + 1,
+        0
+      );
+
+      // Get attendance for all students in this class
+      const studentIds = classStudents.map((s) => s._id);
+
+      const presentCount = await ClassAttendance.countDocuments({
+        studentId: { $in: studentIds },
+        status: "present",
+        date: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      const totalCount = await ClassAttendance.countDocuments({
+        studentId: { $in: studentIds },
+        date: { $gte: monthStart, $lte: monthEnd },
+      });
+
+      const percentage =
+        totalCount > 0 ? Math.round((presentCount / totalCount) * 100) : 0;
+
+      monthlyAttendance.push({
+        month: monthStart.toLocaleString("default", { month: "short" }),
+        percentage,
+        present: presentCount,
+        total: totalCount,
+      });
+    }
+
+    // Calculate average attendance
+    const monthsWithData = monthlyAttendance.filter((m) => m.total > 0);
+    const avgAttendance =
+      monthsWithData.length > 0
+        ? Math.round(
+            monthsWithData.reduce((sum, m) => sum + m.percentage, 0) /
+              monthsWithData.length
+          )
+        : 0;
+
+    return res.status(200).json({
+      success: true,
+      stats: {
+        totalStudents,
+        avgAttendance,
+        avgMarks: parseFloat(avgMarks) || 0,
+        pendingLeaves,
+      },
+      monthlyAttendance,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   getTgProfile,
   updateTgProfile,
@@ -563,4 +861,6 @@ module.exports = {
   getTgFeedback,
   getTgReports,
   getTgSchedule,
+  getTgDashboardStats,
+  debugTgStudents,
 };

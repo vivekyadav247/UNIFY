@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import { FiMoon, FiSun, FiBell } from "react-icons/fi";
+import { FiMoon, FiSun, FiBell, FiX } from "react-icons/fi";
 import Sidebar from "../components/Sidebar/Sidebar";
 import { tgAPI } from "../../../services/api";
 
@@ -8,6 +8,8 @@ export default function TgLayout() {
   const [darkMode, setDarkMode] = useState(false);
   const [tg, setTg] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
   const toggleTheme = () => setDarkMode(!darkMode);
@@ -31,6 +33,28 @@ export default function TgLayout() {
 
     fetchTgProfile();
   }, [navigate]);
+
+  // Fetch leave requests to show as notifications
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const data = await tgAPI.getLeaveRequests();
+        const pendingLeaves = (data.leaveRequests || []).filter(
+          (leave) => leave.status === "pending"
+        );
+        setNotifications(pendingLeaves);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
+    if (tg) {
+      fetchNotifications();
+      // Refresh every 30 seconds
+      const interval = setInterval(fetchNotifications, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [tg]);
 
   if (loading) {
     return (
@@ -95,11 +119,111 @@ export default function TgLayout() {
               {darkMode ? <FiSun size={22} /> : <FiMoon size={22} />}
             </div>
 
-            <div className="relative cursor-pointer">
-              <FiBell size={22} />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-                4
-              </span>
+            <div className="relative">
+              <div
+                onClick={() => setShowNotifications(!showNotifications)}
+                className="cursor-pointer hover:text-blue-500 transition-colors relative"
+              >
+                <FiBell size={22} />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+                    {notifications.length > 9 ? "9+" : notifications.length}
+                  </span>
+                )}
+              </div>
+
+              {/* Notifications Dropdown */}
+              {showNotifications && (
+                <div
+                  className={`absolute right-0 mt-2 w-80 rounded-lg border shadow-lg z-50 ${
+                    darkMode
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  <div
+                    className={`p-4 border-b flex items-center justify-between ${
+                      darkMode ? "border-gray-700" : "border-gray-200"
+                    }`}
+                  >
+                    <h3
+                      className={`font-bold ${
+                        darkMode ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      Notifications
+                    </h3>
+                    <button
+                      onClick={() => setShowNotifications(false)}
+                      className="hover:bg-gray-400 rounded p-1"
+                    >
+                      <FiX />
+                    </button>
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div
+                        className={`p-4 text-center ${
+                          darkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        No pending notifications
+                      </div>
+                    ) : (
+                      notifications.map((notif) => (
+                        <div
+                          key={notif._id}
+                          className={`p-4 border-b ${
+                            darkMode
+                              ? "border-gray-700 hover:bg-gray-700"
+                              : "border-gray-200 hover:bg-gray-50"
+                          } cursor-pointer transition-colors`}
+                        >
+                          <p
+                            className={`font-semibold text-sm ${
+                              darkMode ? "text-white" : "text-gray-900"
+                            }`}
+                          >
+                            New Leave Request
+                          </p>
+                          <p
+                            className={`text-xs mt-1 ${
+                              darkMode ? "text-gray-400" : "text-gray-600"
+                            }`}
+                          >
+                            {notif.studentId?.name || "Student"} -{" "}
+                            {notif.leaveType}
+                          </p>
+                          <p
+                            className={`text-xs mt-1 ${
+                              darkMode ? "text-gray-500" : "text-gray-500"
+                            }`}
+                          >
+                            {new Date(notif.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  <div
+                    className={`p-3 border-t text-center ${
+                      darkMode ? "border-gray-700" : "border-gray-200"
+                    }`}
+                  >
+                    <button
+                      onClick={() => {
+                        navigate("/tg/leave-request");
+                        setShowNotifications(false);
+                      }}
+                      className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+                    >
+                      View All Leave Requests
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <img

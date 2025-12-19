@@ -122,6 +122,15 @@ async function handleSignup(req, res) {
       });
     }
 
+    // Find TG for this class (branch, section, academicYear)
+    const assignedTG = await TG.findOne({
+      branch,
+      section,
+      academicYear,
+      course,
+      department,
+    });
+
     const student = new Student({
       name,
       enrollmentNumber,
@@ -136,7 +145,8 @@ async function handleSignup(req, res) {
       password,
       dob: new Date(dob),
       role: "student",
-      isVerified: true,
+      isVerified: false, // TG will verify
+      assignTgId: assignedTG ? assignedTG._id : null, // Auto-assign TG
     });
 
     await student.save();

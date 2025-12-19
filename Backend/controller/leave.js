@@ -155,18 +155,28 @@ async function submitLeaveRequest(req, res) {
     const studentId = req.user._id;
     const { leaveType, startDate, endDate, reason } = req.body;
 
-    if (!leaveType || !startDate || !endDate || !reason) {
-      return res.status(400).json({ error: "All fields required" });
+    if (!startDate || !endDate || !reason) {
+      return res
+        .status(400)
+        .json({ error: "Start date, end date and reason are required" });
     }
 
     const stu = await Student.findById(studentId);
     if (!stu) return res.status(404).json({ error: "Student not found" });
 
+    // Validate required fields exist on student
+    if (!stu.academicYear || !stu.branch || !stu.section) {
+      return res.status(400).json({
+        error:
+          "Please complete your profile (academicYear, branch, section) before applying for leave",
+      });
+    }
+
     const attachmentPath = req.file ? req.file.path : null;
 
     const leave = await Leave.create({
       studentId,
-      leaveType,
+      leaveType: leaveType || "personal",
       fromDate: norm(startDate),
       toDate: norm(endDate),
       reason,
@@ -174,7 +184,7 @@ async function submitLeaveRequest(req, res) {
       academicYear: stu.academicYear,
       branch: stu.branch,
       section: stu.section,
-      semesterNumber: stu.semesterNumber,
+      semesterNumber: stu.semesterNumber || 1,
     });
 
     return res.status(201).json({
@@ -183,6 +193,7 @@ async function submitLeaveRequest(req, res) {
       leave,
     });
   } catch (err) {
+    console.error("Leave request error:", err);
     return res.status(500).json({ error: err.message });
   }
 }

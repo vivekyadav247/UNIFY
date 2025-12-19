@@ -4,6 +4,7 @@ const {
   updateStudentProfile,
   changeStudentPassword,
   completeStudentProfile,
+  getMyClassTeacher,
 } = require("../controller/student");
 const { getStudentAttendance } = require("../controller/attendance");
 const { attendanceBySemester } = require("../controller/semester");
@@ -37,6 +38,9 @@ router.get("/profile", getStudentProfile);
 router.put("/profile/update", updateStudentProfile);
 router.put("/profile/complete", completeStudentProfile);
 router.put("/profile/change-password", changeStudentPassword);
+
+// Class Teacher (TG) info
+router.get("/class-teacher", getMyClassTeacher);
 
 // Attendance routes
 router.get("/attendance", getStudentAttendance);

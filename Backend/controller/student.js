@@ -1,4 +1,5 @@
 const Student = require("../model/student");
+const TG = require("../model/tg");
 const { createHmac, randomBytes } = require("crypto");
 
 async function getStudentProfile(req, res) {
@@ -9,10 +10,77 @@ async function getStudentProfile(req, res) {
 
     const studentId = req.user._id;
 
-    const student = await Student.findById(studentId).select("-password -salt");
+    const student = await Student.findById(studentId)
+      .select("-password -salt")
+      .populate("assignTgId", "name tgId email mobileNumber profilePic");
+
     if (!student) return res.status(404).json({ error: "Student not found" });
 
     return res.status(200).json({ student });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get student's class teacher (TG) info
+async function getMyClassTeacher(req, res) {
+  try {
+    if (!req.user || req.user.role !== "student") {
+      return res.status(401).json({ error: "Unauthorized: Student only" });
+    }
+
+    const studentId = req.user._id;
+    const student = await Student.findById(studentId);
+
+    if (!student) return res.status(404).json({ error: "Student not found" });
+
+    let tg = null;
+
+    // If TG is assigned, get their info
+    if (student.assignTgId) {
+      tg = await TG.findById(student.assignTgId).select(
+        "name tgId email mobileNumber profilePic branch section academicYear"
+      );
+    }
+
+    // If no TG assigned, try to find one for this class
+    if (!tg) {
+      tg = await TG.findOne({
+        branch: student.branch,
+        section: student.section,
+        academicYear: student.academicYear,
+        course: student.course,
+        department: student.department,
+      }).select(
+        "name tgId email mobileNumber profilePic branch section academicYear"
+      );
+
+      // Auto-assign if found
+      if (tg) {
+        student.assignTgId = tg._id;
+        await student.save();
+      }
+    }
+
+    if (!tg) {
+      return res.status(404).json({
+        error: "No class teacher assigned yet",
+        message: "Your class teacher will be assigned soon by HOD",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      classTeacher: {
+        name: tg.name,
+        tgId: tg.tgId,
+        email: tg.email,
+        mobileNumber: tg.mobileNumber,
+        profilePic: tg.profilePic,
+        class: `${tg.branch} - ${tg.section}`,
+        academicYear: tg.academicYear,
+      },
+    });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -147,4 +215,5 @@ module.exports = {
   updateStudentProfile,
   changeStudentPassword,
   completeStudentProfile,
+  getMyClassTeacher,
 };

@@ -34,6 +34,9 @@ export const studentAPI = {
   changePassword: (data) =>
     axiosInstance.put("/student/profile/change-password", data),
 
+  // Class Teacher (TG)
+  getClassTeacher: () => axiosInstance.get("/student/class-teacher"),
+
   // Attendance
   getAttendance: (filters = {}) =>
     axiosInstance.get("/student/attendance", { params: filters }),
@@ -42,9 +45,7 @@ export const studentAPI = {
   applyLeave: (data) => axiosInstance.post("/student/leave/apply", data),
   getLeaves: () => axiosInstance.get("/student/leave"),
   submitLeaveRequest: (data) =>
-    axiosInstance.post("/student/leave/request", data, {
-      headers: { "Content-Type": "multipart/form-data" },
-    }),
+    axiosInstance.post("/student/leave/request", data),
 
   // Assignments
   getAssignments: (filters = {}) =>
@@ -195,6 +196,9 @@ export const tgAPI = {
   getStudentAttendance: (id) =>
     axiosInstance.get(`/tg/students/${id}/attendance`),
 
+  // Dashboard
+  getDashboardStats: () => axiosInstance.get("/tg/dashboard/stats"),
+
   // Leave Management
   getLeaveRequests: () => axiosInstance.get("/tg/leave/requests"),
   approveLeave: (leaveId, data) =>
@@ -207,6 +211,15 @@ export const tgAPI = {
 
   // Marks
   getMarks: () => axiosInstance.get("/tg/marks"),
+
+  // CGPA/SGPA Management
+  getStudentGrades: (studentId) =>
+    axiosInstance.get(`/tg/students/${studentId}/grades`),
+  updateStudentSGPA: (studentId, data) =>
+    axiosInstance.put(`/tg/students/${studentId}/sgpa`, data),
+  updateStudentCGPA: (studentId, data) =>
+    axiosInstance.put(`/tg/students/${studentId}/cgpa`, data),
+  bulkUpdateSGPA: (data) => axiosInstance.post("/tg/students/bulk-sgpa", data),
 
   // Assignments
   getAssignments: () => axiosInstance.get("/tg/assignments"),

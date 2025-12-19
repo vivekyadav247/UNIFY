@@ -66,15 +66,13 @@ export default function LeaveRequest() {
     try {
       setLoading(true);
 
-      const data = new FormData();
-      data.append("leaveType", formData.leaveType);
-      data.append("startDate", formData.startDate);
-      data.append("endDate", formData.endDate);
-      data.append("reason", formData.reason);
-
-      if (formData.attachment) {
-        data.append("attachment", formData.attachment);
-      }
+      // Send as JSON object
+      const data = {
+        leaveType: formData.leaveType,
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        reason: formData.reason,
+      };
 
       const response = await studentAPI.submitLeaveRequest(data);
 

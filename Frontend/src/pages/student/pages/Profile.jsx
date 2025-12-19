@@ -8,6 +8,7 @@ import {
   FiMapPin,
   FiCalendar,
   FiRefreshCw,
+  FiAward,
 } from "react-icons/fi";
 import { studentAPI } from "../../../services/api";
 import { showSuccess, showError } from "../../../utils/notifications";
@@ -15,16 +16,27 @@ import { showSuccess, showError } from "../../../utils/notifications";
 export default function Profile() {
   const { darkMode } = useOutletContext();
   const [student, setStudent] = useState(null);
+  const [classTeacher, setClassTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     fetchProfile();
+    fetchClassTeacher();
     // Auto-refresh every 5 minutes
     const interval = setInterval(fetchProfile, 300000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchClassTeacher = async () => {
+    try {
+      const data = await studentAPI.getClassTeacher();
+      setClassTeacher(data.classTeacher);
+    } catch (err) {
+      setClassTeacher(null);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -212,6 +224,91 @@ export default function Profile() {
           </div>
         </div>
       </div>
+
+      {/* CLASS TEACHER (TG) INFO */}
+      {classTeacher && (
+        <div
+          className={`p-6 rounded-2xl transition-colors duration-300 ${
+            darkMode
+              ? "bg-gradient-to-r from-indigo-900/30 to-purple-900/30 border border-indigo-700/50"
+              : "bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200"
+          }`}
+        >
+          <h3
+            className={`text-2xl font-bold mb-6 flex items-center gap-2 ${
+              darkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            <FiAward className="text-indigo-500" />
+            Your Class Teacher (TG)
+          </h3>
+
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {classTeacher.profilePic ? (
+              <img
+                src={classTeacher.profilePic}
+                alt={classTeacher.name}
+                className="w-20 h-20 rounded-full object-cover border-3 border-indigo-500"
+              />
+            ) : (
+              <div
+                className={`w-20 h-20 rounded-full flex items-center justify-center ${
+                  darkMode ? "bg-indigo-700" : "bg-indigo-500"
+                }`}
+              >
+                <FiUser className="text-white text-3xl" />
+              </div>
+            )}
+
+            <div className="flex-1 text-center sm:text-left">
+              <h4
+                className={`text-xl font-bold ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {classTeacher.name}
+              </h4>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                TG ID: {classTeacher.tgId}
+              </p>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-indigo-300" : "text-indigo-600"
+                }`}
+              >
+                {classTeacher.class} • {classTeacher.academicYear}
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <a
+                href={`mailto:${classTeacher.email}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  darkMode
+                    ? "bg-indigo-700/50 hover:bg-indigo-600 text-indigo-200"
+                    : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                }`}
+              >
+                <FiMail /> {classTeacher.email}
+              </a>
+              <a
+                href={`tel:${classTeacher.mobileNumber}`}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                  darkMode
+                    ? "bg-green-700/50 hover:bg-green-600 text-green-200"
+                    : "bg-green-100 hover:bg-green-200 text-green-700"
+                }`}
+              >
+                <FiPhone /> {classTeacher.mobileNumber}
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CONTACT INFORMATION */}
       <div

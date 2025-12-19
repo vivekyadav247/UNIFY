@@ -1,5 +1,7 @@
 const express = require("express");
 const app = express();
+const http = require("http");
+const { Server } = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
 const authRouter = require("./router/auth");
@@ -22,7 +24,7 @@ const corsOptions = {
   origin: [
     process.env.FRONTEND_URL || "http://localhost:5173",
     "http://localhost:5174",
-    "http://localhost:5175"
+    "http://localhost:5175",
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
@@ -31,9 +33,37 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Create HTTP server
+const server = http.createServer(app);
+
+// Setup Socket.io with CORS
+const io = new Server(server, {
+  cors: corsOptions,
+});
+
+// Make io accessible to routes
+app.set("io", io);
+
+// Socket.io connection handler
+io.on("connection", (socket) => {
+  // Join room based on role and department
+  socket.on("join", ({ role, department, userId }) => {
+    const room = `${role}_${department}`;
+    socket.join(room);
+    socket.join(userId); // Personal room for direct notifications
+  });
+
+  socket.on("disconnect", () => {
+    // User disconnected
+  });
+});
+
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// Serve static files from uploads directory
+app.use("/uploads", express.static("uploads"));
 
 // ✅ LOGGING MIDDLEWARE
 app.use(requestLogger);
@@ -67,7 +97,7 @@ app.use((req, res) => {
   });
 });
 
-app.listen(Port, () => {
+server.listen(Port, () => {
   logger.server(`Server running successfully`, "SERVER_START", {
     port: Port,
     environment: process.env.NODE_ENV || "development",

@@ -1,6 +1,5 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_URL || "http://localhost:3000/api";
@@ -14,42 +13,50 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
   useEffect(() => {
     const verifyAuth = async () => {
       try {
-        // Extract role from current route path
         const pathRole = extractRoleFromPath(location.pathname);
 
         if (pathRole) {
           try {
-            // Try to verify with specific role endpoint based on URL path
-            const response = await axios.get(
-              `${API_BASE_URL}/${pathRole}/profile`,
-              {
-                withCredentials: true,
-                timeout: 3000,
-              }
-            );
+            // Get token from localStorage as backup
+            const token = localStorage.getItem("token");
 
-            // Check if successful response (role data exists)
-            if (response.data.success || response.data[pathRole]) {
-              setIsAuthenticated(true);
-              setUserRole(pathRole);
-              setLoading(false);
-              return;
+            // Try to verify with specific role endpoint based on URL path
+            const url = `${API_BASE_URL}/${pathRole}/profile`;
+
+            const response = await fetch(url, {
+              credentials: "include",
+              headers: {
+                "Content-Type": "application/json",
+                ...(token && { Authorization: `Bearer ${token}` }),
+              },
+            });
+
+            if (response.ok) {
+              const data = await response.json();
+
+              if (
+                data &&
+                (data.hod ||
+                  data.student ||
+                  data.faculty ||
+                  data.tg ||
+                  data.admin)
+              ) {
+                setIsAuthenticated(true);
+                setUserRole(pathRole);
+                setLoading(false);
+                return;
+              }
             }
           } catch (err) {
-            // If path-based check fails, user is not authenticated for this role
-            setIsAuthenticated(false);
-            setUserRole(null);
-            setLoading(false);
-            return;
+            // Auth verification failed
           }
         }
 
-        // No role in path - user is not on a protected route or role couldn't be detected
-        // Just mark as not authenticated - let the route handle redirect
         setIsAuthenticated(false);
         setUserRole(null);
       } catch (error) {
-        console.error("Auth verification failed:", error);
+        console.error("❌ Auth error:", error);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);

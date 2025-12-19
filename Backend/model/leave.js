@@ -3,7 +3,16 @@ const Schema = mongoose.Schema;
 
 const leaveSchema = new Schema(
   {
-    studentId: { type: Schema.Types.ObjectId, ref: "Student", required: true },
+    // For students
+    studentId: { type: Schema.Types.ObjectId, ref: "Student", required: false },
+
+    // For faculty - generic user reference
+    userId: { type: Schema.Types.ObjectId, required: false },
+    userType: {
+      type: String,
+      enum: ["student", "faculty"],
+      default: "student",
+    },
 
     fromDate: { type: Date, required: true },
     toDate: { type: Date, required: true },
@@ -12,7 +21,16 @@ const leaveSchema = new Schema(
 
     leaveType: {
       type: String,
-      enum: ["sick", "personal", "medical", "emergency", "other"],
+      enum: [
+        "sick",
+        "personal",
+        "medical",
+        "emergency",
+        "other",
+        "Casual",
+        "Sick",
+        "Earned",
+      ],
       default: "personal",
     },
 
@@ -29,12 +47,16 @@ const leaveSchema = new Schema(
 
     appliedDate: { type: Date, default: Date.now },
 
-    approvedBy: { type: Schema.Types.ObjectId, ref: "TG", default: null },
+    approvedBy: { type: Schema.Types.ObjectId, default: null },
 
-    academicYear: { type: String, required: true },
-    branch: { type: String, required: true },
-    section: { type: String, required: true },
-    semesterNumber: { type: Number, required: true },
+    // Student specific fields
+    academicYear: { type: String, required: false },
+    branch: { type: String, required: false },
+    section: { type: String, required: false },
+    semesterNumber: { type: Number, required: false },
+
+    // Faculty specific fields
+    department: { type: String, required: false },
   },
   { timestamps: true }
 );

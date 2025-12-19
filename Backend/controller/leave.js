@@ -198,6 +198,66 @@ async function submitLeaveRequest(req, res) {
   }
 }
 
+// Faculty leave request functions
+async function submitFacultyLeaveRequest(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const facultyId = req.user._id;
+    const { startDate, endDate, reason, leaveType } = req.body;
+
+    if (!startDate || !endDate || !reason) {
+      return res.status(400).json({ error: "All fields required" });
+    }
+
+    const Faculty = require("../model/faculty");
+    const faculty = await Faculty.findById(facultyId);
+
+    const leave = await Leave.create({
+      userId: facultyId,
+      userType: "faculty",
+      fromDate: norm(startDate),
+      toDate: norm(endDate),
+      reason,
+      leaveType: leaveType || "Casual",
+      department: faculty.department,
+      status: "pending",
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Leave request submitted successfully",
+      leave,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function getFacultyLeaves(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const facultyId = req.user._id;
+
+    const leaves = await Leave.find({
+      userId: facultyId,
+      userType: "faculty",
+    }).sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      leaves,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   applyLeave,
   approveLeave,
@@ -205,4 +265,6 @@ module.exports = {
   autoMarkLeaveAttendance,
   getMyLeaves,
   submitLeaveRequest,
+  submitFacultyLeaveRequest,
+  getFacultyLeaves,
 };

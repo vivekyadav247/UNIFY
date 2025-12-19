@@ -1,4 +1,3 @@
-
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   FiHome,
@@ -10,6 +9,7 @@ import {
   FiCalendar,
   FiBell,
   FiPieChart,
+  FiUser,
 } from "react-icons/fi";
 
 const Sidebar = ({ darkMode }) => {
@@ -17,10 +17,14 @@ const Sidebar = ({ darkMode }) => {
 
   const menuItems = [
     { name: "Dashboard", icon: <FiHome />, path: "/faculty/dashboard" },
-    { name: "Attendance", icon: <FiCheckSquare />, path: "/faculty/attendance" },
+    {
+      name: "Attendance",
+      icon: <FiCheckSquare />,
+      path: "/faculty/attendance",
+    },
     { name: "Assignments", icon: <FiBookOpen />, path: "/faculty/assignments" },
     {
-      name: "Leave Management",
+      name: "Leave Request",
       icon: <FiLogOut />,
       path: "/faculty/leave-management",
     },
@@ -30,8 +34,8 @@ const Sidebar = ({ darkMode }) => {
       path: "/faculty/announcements",
     },
     { name: "Schedule", icon: <FiCalendar />, path: "/faculty/schedule" },
-   // { name: "Reports", icon: <FiBarChart2 />, path: "/faculty/reports" },
-    { name: "Report", icon: <FiPieChart />, path: "/faculty/report" },
+    { name: "Profile", icon: <FiUser />, path: "/faculty/profile" },
+    { name: "Settings", icon: <FiSettings />, path: "/faculty/settings" },
   ];
 
   const handleLogout = () => {
@@ -42,9 +46,7 @@ const Sidebar = ({ darkMode }) => {
   return (
     <div
       className={`h-screen w-72 border-r flex flex-col ${
-        darkMode
-          ? "bg-gray-900 border-gray-800"
-          : "bg-white border-gray-200"
+        darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"
       }`}
     >
       {/* BRAND */}
@@ -82,11 +84,11 @@ const Sidebar = ({ darkMode }) => {
           </NavLink>
         ))}
       </nav>
-    
-     {/* LOGOUT BUTTON */}
-            <button
-              onClick={handleLogout}
-              className={`
+
+      {/* LOGOUT BUTTON */}
+      <button
+        onClick={handleLogout}
+        className={`
                 w-full flex items-center gap-3 px-4 py-3
                 rounded-lg transition-all duration-300 font-medium text-[14px]
                 ${
@@ -95,11 +97,11 @@ const Sidebar = ({ darkMode }) => {
                     : "bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 border border-red-200 hover:border-red-300"
                 }
               `}
-            >
-              <FiLogOut className="text-lg" />
-              <span>Logout</span>
-            </button>
-          </div>
+      >
+        <FiLogOut className="text-lg" />
+        <span>Logout</span>
+      </button>
+    </div>
   );
 };
 

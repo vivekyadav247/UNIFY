@@ -12,27 +12,30 @@ const assignmentSchema = new Schema(
       type: String,
       required: true,
     },
-    subjectId: {
-      type: Schema.Types.ObjectId,
-      ref: "Subject",
+    subject: {
+      type: String,
       required: true,
     },
-    facultyId: {
+    createdBy: {
       type: Schema.Types.ObjectId,
       ref: "Faculty",
+      required: true,
+    },
+    branch: {
+      type: String,
+      required: true,
+    },
+    section: {
+      type: String,
       required: true,
     },
     dueDate: {
       type: Date,
       required: true,
     },
-    maxMarks: {
+    totalMarks: {
       type: Number,
       default: 100,
-    },
-    instructions: {
-      type: String,
-      required: false,
     },
     attachmentUrl: {
       type: String,

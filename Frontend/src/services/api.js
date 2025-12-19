@@ -17,8 +17,7 @@ axiosInstance.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized - redirect to login if needed
-      window.location.href = "/login";
+      window.location.href = "/signin";
     }
     throw error;
   }
@@ -77,6 +76,9 @@ export const studentAPI = {
 
 // ============ FACULTY API ============
 export const facultyAPI = {
+  // Dashboard
+  getDashboardStats: () => axiosInstance.get("/faculty/dashboard/stats"),
+
   // Profile
   getProfile: () => axiosInstance.get("/faculty/profile"),
   updateProfile: (data) => axiosInstance.put("/faculty/profile/update", data),
@@ -84,8 +86,9 @@ export const facultyAPI = {
     axiosInstance.put("/faculty/profile/change-password", data),
 
   // Attendance
-  getStudentsForAttendance: () =>
-    axiosInstance.get("/faculty/attendance/students"),
+  getFacultyClasses: () => axiosInstance.get("/faculty/attendance/classes"),
+  getStudentsForAttendance: (params) =>
+    axiosInstance.get("/faculty/attendance/students", { params }),
   takeAttendance: (data) =>
     axiosInstance.post("/faculty/attendance/take", data),
   showAttendance: () => axiosInstance.get("/faculty/attendance/show"),
@@ -117,28 +120,48 @@ export const facultyAPI = {
     }),
   updateStudentMarks: (studentId, data) =>
     axiosInstance.put(`/faculty/marks/${studentId}`, data),
+
+  // Leave
+  submitLeaveRequest: (data) =>
+    axiosInstance.post("/faculty/leave/request", data),
+  getLeaves: () => axiosInstance.get("/faculty/leave"),
+
+  // Schedule
+  getSchedule: () => axiosInstance.get("/faculty/schedule"),
 };
 
 // ============ HOD API ============
 export const hodAPI = {
+  // Dashboard
+  getDashboard: () => axiosInstance.get("/hod/dashboard"),
+
   // Profile
   getProfile: () => axiosInstance.get("/hod/profile"),
   updateProfile: (data) => axiosInstance.put("/hod/profile", data),
   changePassword: (data) => axiosInstance.put("/hod/change-password", data),
 
-  // TG Management
-  createTG: (data) => axiosInstance.post("/hod/create-tg", data),
-  editTG: (tgId, data) => axiosInstance.put(`/hod/edit-tg/${tgId}`, data),
-  resetTGPassword: (tgId, data) =>
-    axiosInstance.put(`/hod/reset-tg-password/${tgId}`, data),
-  deleteTG: (tgId) => axiosInstance.delete(`/hod/delete-tg/${tgId}`),
+  // Students Management
+  getStudents: () => axiosInstance.get("/hod/students"),
+  getStudentDetails: (studentId) =>
+    axiosInstance.get(`/hod/student/${studentId}`),
 
   // Faculty Management
+  getFaculties: () => axiosInstance.get("/hod/faculties"),
+  getFacultyDetails: (facultyId) =>
+    axiosInstance.get(`/hod/faculty/${facultyId}`),
   createFaculty: (data) => axiosInstance.post("/hod/create-faculty", data),
   editFaculty: (facultyId, data) =>
     axiosInstance.put(`/hod/edit-faculty/${facultyId}`, data),
   resetFacultyPassword: (facultyId, data) =>
     axiosInstance.put(`/hod/reset-faculty-password/${facultyId}`, data),
+
+  // TG Management
+  getTGs: () => axiosInstance.get("/hod/tgs"),
+  getTGDetails: (tgId) => axiosInstance.get(`/hod/tg/${tgId}`),
+  createTG: (data) => axiosInstance.post("/hod/create-tg", data),
+  editTG: (tgId, data) => axiosInstance.put(`/hod/edit-tg/${tgId}`, data),
+  resetTGPassword: (tgId, data) =>
+    axiosInstance.put(`/hod/reset-tg-password/${tgId}`, data),
   deleteFaculty: (facultyId) =>
     axiosInstance.delete(`/hod/delete-faculty/${facultyId}`),
 
@@ -150,6 +173,11 @@ export const hodAPI = {
   startSemester: (data) => axiosInstance.post("/hod/semester/start", data),
   endSemester: (data) => axiosInstance.post("/hod/semester/end", data),
   listSemesters: () => axiosInstance.get("/hod/semester/list"),
+
+  // Announcements
+  getAnnouncements: (params) =>
+    axiosInstance.get("/hod/announcements", { params }),
+  createAnnouncement: (data) => axiosInstance.post("/hod/announcements", data),
 };
 
 // ============ AUTH API ============

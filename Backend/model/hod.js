@@ -41,7 +41,6 @@ const hodSchema = new Schema(
     department: {
       type: String,
       required: true,
-      enum: ["CSE", "ECE", "ME", "CE", "EE", "BBA", "MBA", "MCA"],
     },
     gender: {
       type: String,

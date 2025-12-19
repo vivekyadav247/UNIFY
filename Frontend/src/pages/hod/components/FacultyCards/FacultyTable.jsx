@@ -1,59 +1,29 @@
-
 import React from "react";
 import FacultyRow from "./FacultyRow";
 
-export default function FacultyTable() {
-  const facultyList = [
-    {
-      name: "Prof. Michael Chen",
-      dept: "Computer Science",
-      id: "FAC001",
-      email: "mchen@college.edu",
-      phone: "+1 234-567-8901",
-      designation: "Professor",
-      exp: "15 years",
-      students: 25,
-      status: "Active",
-    },
-    {
-      name: "Dr. Sarah Miller",
-      dept: "Computer Science",
-      id: "FAC002",
-      email: "smiller@college.edu",
-      phone: "+1 234-567-8902",
-      designation: "Associate Professor",
-      exp: "12 years",
-      students: 28,
-      status: "Active",
-    },
-    {
-      name: "Prof. James Wilson",
-      dept: "Computer Science",
-      id: "FAC003",
-      email: "jwilson@college.edu",
-      phone: "+1 234-567-8903",
-      designation: "Assistant Professor",
-      exp: "8 years",
-      students: 23,
-      status: "Active",
-    },
-    {
-      name: "Dr. Emily Brown",
-      dept: "Computer Science",
-      id: "FAC004",
-      email: "ebrown@college.edu",
-      phone: "+1 234-567-8904",
-      designation: "Professor",
-      exp: "18 years",
-      students: 30,
-      status: "On Leave",
-    },
-  ];
+export default function FacultyTable({ faculty = [], darkMode }) {
+  if (faculty.length === 0) {
+    return (
+      <div
+        className={`text-center py-8 ${
+          darkMode ? "text-gray-400" : "text-gray-500"
+        }`}
+      >
+        No faculty members found
+      </div>
+    );
+  }
 
   return (
     <table className="w-full text-left mt-4 border-collapse">
       <thead>
-        <tr className="text-gray-600 border-b">
+        <tr
+          className={`border-b ${
+            darkMode
+              ? "text-gray-400 border-gray-700"
+              : "text-gray-600 border-gray-200"
+          }`}
+        >
           <th className="py-3 px-2">Faculty</th>
           <th className="px-2">ID</th>
           <th className="px-2">Contact</th>
@@ -66,8 +36,20 @@ export default function FacultyTable() {
       </thead>
 
       <tbody>
-        {facultyList.map((f, index) => (
-          <FacultyRow key={index} {...f} />
+        {faculty.map((f, index) => (
+          <FacultyRow
+            key={f._id || index}
+            name={f.name}
+            dept={f.department}
+            id={f.facultyId}
+            email={f.email}
+            phone={f.phone || "N/A"}
+            designation={f.designation || "Faculty"}
+            exp={f.experience || "N/A"}
+            students={f.studentsCount || 0}
+            status={f.onLeave ? "On Leave" : "Active"}
+            darkMode={darkMode}
+          />
         ))}
       </tbody>
     </table>

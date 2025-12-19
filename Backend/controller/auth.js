@@ -292,6 +292,7 @@ async function handleSignin(req, res) {
         success: true,
         message: "Login successful",
         redirectUrl,
+        token, // Send token in response as well
       });
   } catch (err) {
     console.error(err);

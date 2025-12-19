@@ -27,7 +27,16 @@ const {
   getTgFeedback,
   getTgReports,
   getTgSchedule,
+  getTgDashboardStats,
+  debugTgStudents,
 } = require("../controller/tg");
+
+const {
+  updateStudentSGPA,
+  updateStudentCGPA,
+  bulkUpdateSGPA,
+  getStudentGrades,
+} = require("../controller/marks");
 
 const { approveLeave, rejectLeave } = require("../controller/leave");
 
@@ -35,6 +44,12 @@ const { approveLeave, rejectLeave } = require("../controller/leave");
 router.get("/profile", getTgProfile);
 router.put("/profile/update", updateTgProfile);
 router.put("/profile/change-password", changeTgPassword);
+
+// Dashboard
+router.get("/dashboard/stats", getTgDashboardStats);
+
+// DEBUG route - remove in production
+router.get("/debug/students", debugTgStudents);
 
 // Attendance routes
 router.get("/attendance/dashboard", getTgAttendanceDashboard);
@@ -61,6 +76,12 @@ router.get("/announcements", getTgAnnouncements);
 
 // Marks
 router.get("/marks", getTgMarks);
+
+// CGPA/SGPA Management
+router.get("/students/:studentId/grades", getStudentGrades);
+router.put("/students/:studentId/sgpa", updateStudentSGPA);
+router.put("/students/:studentId/cgpa", updateStudentCGPA);
+router.post("/students/bulk-sgpa", bulkUpdateSGPA);
 
 // Assignments
 router.get("/assignments", getTgAssignments);

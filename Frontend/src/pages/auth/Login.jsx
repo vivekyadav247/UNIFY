@@ -61,32 +61,20 @@ export default function Login() {
 
     try {
       const res = await authAPI.login(body);
-      console.log("✅ Login Response:", res);
       setLoading(false);
 
       if (res.success) {
-        console.log("✅ Login successful, role:", role);
         // For student, use enrollment number in URL
         if (role === "student") {
           const enrollmentNumber = credentials.enrollmentNumber;
-          console.log("🔄 Redirecting to student dashboard:", `/${enrollmentNumber}`);
           navigate(`/${enrollmentNumber}`);
-        } else if (role === "faculty") {
-          console.log("🔄 Redirecting to faculty dashboard");
-          navigate("/faculty/dashboard");
-        } else if (role === "hod") {
-          console.log("🔄 Redirecting to hod dashboard");
-          navigate("/hod/dashboard");
-        } else if (role === "tg") {
-          console.log("🔄 Redirecting to tg dashboard");
-          navigate("/tg/dashboard");
-        }
+        } else if (role === "faculty") navigate("/faculty/dashboard");
+        else if (role === "hod") navigate("/hod/dashboard");
+        else if (role === "tg") navigate("/tg/dashboard");
       } else {
-        console.log("❌ Login failed:", res);
         setError(res.message || "Login failed");
       }
     } catch (err) {
-      console.log("❌ Login error caught:", err);
       setLoading(false);
       setError(
         err.response?.data?.message ||

@@ -8,6 +8,9 @@ import {
   FiBarChart2,
   FiMessageCircle,
   FiRefreshCw,
+  FiUser,
+  FiMail,
+  FiPhone,
 } from "react-icons/fi";
 import AttendanceProgress from "../components/DashboardCards/AttendanceProgress";
 import MarksDistribution from "../components/DashboardCards/MarksDistribution";
@@ -30,6 +33,7 @@ export default function Dashboard() {
   const [assignments, setAssignments] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
   const [feedback, setFeedback] = useState([]);
+  const [classTeacher, setClassTeacher] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
@@ -41,8 +45,14 @@ export default function Dashboard() {
   useEffect(() => {
     // Generate semester options (1 to current semester)
     const maxSemester = student?.semesterNumber || 1;
-    const semesterOptions = Array.from({ length: maxSemester }, (_, i) => i + 1);
+    const semesterOptions = Array.from(
+      { length: maxSemester },
+      (_, i) => i + 1
+    );
     setSemesters(semesterOptions);
+
+    // Fetch class teacher info
+    fetchClassTeacher();
 
     // Fetch dashboard data for selected semester
     fetchDashboardData(selectedSemester);
@@ -54,6 +64,16 @@ export default function Dashboard() {
     );
     return () => clearInterval(interval);
   }, [selectedSemester, student?.semesterNumber]);
+
+  const fetchClassTeacher = async () => {
+    try {
+      const data = await studentAPI.getClassTeacher();
+      setClassTeacher(data.classTeacher);
+    } catch (err) {
+      console.log("No class teacher assigned yet");
+      setClassTeacher(null);
+    }
+  };
 
   const fetchDashboardData = async (semester) => {
     try {
@@ -264,6 +284,82 @@ export default function Dashboard() {
           >
             Retry
           </button>
+        </div>
+      )}
+
+      {/* CLASS TEACHER CARD */}
+      {classTeacher && (
+        <div
+          className={`p-5 rounded-2xl border ${
+            darkMode
+              ? "bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-indigo-700/50"
+              : "bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200"
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            {classTeacher.profilePic ? (
+              <img
+                src={classTeacher.profilePic}
+                alt={classTeacher.name}
+                className="w-14 h-14 rounded-full object-cover border-2 border-indigo-500"
+              />
+            ) : (
+              <div
+                className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                  darkMode ? "bg-indigo-700" : "bg-indigo-500"
+                }`}
+              >
+                <FiUser className="text-white text-2xl" />
+              </div>
+            )}
+            <div className="flex-1">
+              <p
+                className={`text-xs font-semibold uppercase tracking-wide ${
+                  darkMode ? "text-indigo-300" : "text-indigo-600"
+                }`}
+              >
+                Your Class Teacher (TG)
+              </p>
+              <h3
+                className={`text-lg font-bold ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {classTeacher.name}
+              </h3>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {classTeacher.class} • {classTeacher.academicYear}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <a
+                href={`mailto:${classTeacher.email}`}
+                className={`p-3 rounded-lg transition-all ${
+                  darkMode
+                    ? "bg-indigo-700/50 hover:bg-indigo-600 text-indigo-200"
+                    : "bg-indigo-100 hover:bg-indigo-200 text-indigo-600"
+                }`}
+                title={classTeacher.email}
+              >
+                <FiMail className="text-xl" />
+              </a>
+              <a
+                href={`tel:${classTeacher.mobileNumber}`}
+                className={`p-3 rounded-lg transition-all ${
+                  darkMode
+                    ? "bg-green-700/50 hover:bg-green-600 text-green-200"
+                    : "bg-green-100 hover:bg-green-200 text-green-600"
+                }`}
+                title={classTeacher.mobileNumber}
+              >
+                <FiPhone className="text-xl" />
+              </a>
+            </div>
+          </div>
         </div>
       )}
 

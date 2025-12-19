@@ -94,6 +94,17 @@ export default function Marks() {
       const stats = response.statistics || {};
       const midSemMarks = response.midSemMarks || [];
 
+      // Use real CGPA/SGPA from backend if available
+      const realCGPA = response.cgpa || stats.cgpa || 0;
+      const realSGPAArray = response.sgpa || [];
+      const semesterWiseSGPA = response.semesterWiseSGPA || [];
+
+      // Get SGPA for selected semester
+      const currentSemSGPA =
+        semesterWiseSGPA.find((s) => s.semester === semester)?.sgpa ||
+        realSGPAArray[semester - 1] ||
+        calculateSGPA(marks);
+
       const transformedData = {
         statistics: {
           totalMarks: stats.totalMarks || 0,
@@ -102,9 +113,11 @@ export default function Marks() {
             2
           ),
           totalSubjects: marks.length,
-          cgpa: calculateCGPA(marks),
-          sgpa: calculateSGPA(marks),
+          cgpa: parseFloat(realCGPA).toFixed(2),
+          sgpa: parseFloat(currentSemSGPA).toFixed(2),
         },
+        semesterWiseSGPA: semesterWiseSGPA,
+        allSGPA: realSGPAArray,
         subjects: marks.map((m) => {
           const percentage = ((m.marks || 0) / (m.maxMarks || 100)) * 100;
           return {

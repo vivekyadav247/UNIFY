@@ -44,42 +44,10 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
           }
         }
 
-        // Fallback for public routes (no role in path)
-        // Try all endpoints in order
-        const endpoints = [
-          { path: "/tg/profile", role: "tg" },
-          { path: "/hod/profile", role: "hod" },
-          { path: "/faculty/profile", role: "faculty" },
-          { path: "/student/profile", role: "student" },
-          { path: "/admin/profile", role: "admin" },
-        ];
-
-        let authenticated = false;
-        let detectedRole = null;
-
-        for (const endpoint of endpoints) {
-          try {
-            const response = await axios.get(
-              `${API_BASE_URL}${endpoint.path}`,
-              {
-                withCredentials: true,
-                timeout: 2000,
-              }
-            );
-
-            if (response.status === 200 && response.data.success) {
-              authenticated = true;
-              detectedRole = endpoint.role;
-              break;
-            }
-          } catch (err) {
-            // Continue to next endpoint
-            continue;
-          }
-        }
-
-        setIsAuthenticated(authenticated);
-        setUserRole(detectedRole);
+        // No role in path - user is not on a protected route or role couldn't be detected
+        // Just mark as not authenticated - let the route handle redirect
+        setIsAuthenticated(false);
+        setUserRole(null);
       } catch (error) {
         console.error("Auth verification failed:", error);
         setIsAuthenticated(false);
@@ -97,7 +65,9 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
     if (pathname.startsWith("/hod")) return "hod";
     if (pathname.startsWith("/faculty")) return "faculty";
     if (pathname.startsWith("/admin")) return "admin";
-    if (pathname.match(/^\/[A-Z0-9]+/)) return "student"; // enrollment number pattern
+    if (pathname.startsWith("/student")) return "student";
+    // Check for enrollment number pattern (e.g., /0901CS221080)
+    if (/^\/[0-9]{4}[A-Z]{2}[0-9]+/.test(pathname)) return "student";
     return null;
   }
 

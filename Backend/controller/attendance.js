@@ -453,15 +453,8 @@ async function getDetailedAttendance(req, res) {
 
   try {
     const facultyId = req.user._id;
-    const {
-      department,
-      branch,
-      academicYear,
-      section,
-      subjectId,
-      from,
-      to,
-    } = req.query;
+    const { department, branch, academicYear, section, subjectId, from, to } =
+      req.query;
 
     if (!department || !branch || !academicYear || !section || !subjectId) {
       return res.status(400).json({
@@ -525,11 +518,19 @@ async function getStudentAttendance(req, res) {
     const studentId = req.user._id;
     const { semesterNumber, from, to } = req.query;
 
+    // Get student from DB to ensure we have latest semesterNumber
+    const student = await Student.findById(studentId).lean();
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    const targetSemester = semesterNumber
+      ? parseInt(semesterNumber)
+      : student.semesterNumber || 1;
+
     const filter = {
       studentId,
-      semesterNumber: semesterNumber
-        ? parseInt(semesterNumber)
-        : req.user.semesterNumber,
+      semesterNumber: targetSemester,
     };
 
     if (from || to) {
@@ -934,7 +935,9 @@ async function sendLowAttendanceEmail(req, res) {
             <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
               <h2 style="color: #d32f2f;">⚠️ Low Attendance Alert</h2>
               <p>Dear <strong>${student.name}</strong>,</p>
-              <p>Enrollment Number: <strong>${student.enrollmentNumber}</strong></p>
+              <p>Enrollment Number: <strong>${
+                student.enrollmentNumber
+              }</strong></p>
               <br/>
               <p>${
                 message ||
@@ -1031,25 +1034,10 @@ async function getTgClassAttendanceRecords(req, res) {
 
   try {
     const tgId = req.user._id;
-    const { department, branch, section, academicYear, semesterNumber } =
-      req.user;
     const { from, to } = req.query;
 
-    // ✅ FIX #1: Add semesterNumber validation
-    if (!semesterNumber) {
-      return res.status(400).json({
-        error: "Semester number not found in user profile",
-      });
-    }
-
-    const filter = {
-      tgId,
-      department,
-      branch,
-      section,
-      academicYear,
-      semesterNumber, // ✅ FIXED: Only current semester
-    };
+    // Simply filter by tgId - this TG's attendance records
+    const filter = { tgId };
 
     if (from || to) {
       filter.date = {};
@@ -1061,6 +1049,12 @@ async function getTgClassAttendanceRecords(req, res) {
       .populate("studentId", "name enrollmentNumber email profilePic")
       .sort({ date: -1 })
       .lean();
+
+    // Helper to capitalize status
+    const capitalizeStatus = (status) => {
+      if (!status) return "Unknown";
+      return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+    };
 
     // Group by date
     const dateWiseAttendance = {};
@@ -1074,14 +1068,23 @@ async function getTgClassAttendanceRecords(req, res) {
       }
       dateWiseAttendance[dateKey].records.push({
         student: record.studentId,
-        status: record.status,
+        status: capitalizeStatus(record.status),
       });
     });
 
+    // Also format as flat records for the frontend table
+    const records = attendanceRecords.map((record) => ({
+      date: record.date,
+      studentName: record.studentId?.name || "Unknown",
+      enrollmentNumber: record.studentId?.enrollmentNumber || "",
+      status: capitalizeStatus(record.status),
+      subjectName: record.subject || "General Attendance",
+    }));
+
     return res.status(200).json({
       success: true,
-      semesterNumber, // ✅ Include semester info
       attendance: Object.values(dateWiseAttendance),
+      records,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

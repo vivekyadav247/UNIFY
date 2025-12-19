@@ -6,13 +6,12 @@ import {
   FiCheckSquare,
   FiBarChart2,
   FiBook,
-  FiMessageSquare,
   FiLogOut,
   FiSettings,
   FiUserCheck,
-  FiFileText,
   FiClock,
   FiBell,
+  FiFileText,
 } from "react-icons/fi";
 
 const Sidebar = ({ darkMode }) => {
@@ -24,8 +23,7 @@ const Sidebar = ({ darkMode }) => {
     { name: "Attendance", icon: <FiCheckSquare />, path: "/tg/attendance" },
     { name: "Marks", icon: <FiBarChart2 />, path: "/tg/marks" },
     { name: "Assignments", icon: <FiBook />, path: "/tg/assignments" },
-    { name: "Feedback", icon: <FiMessageSquare />, path: "/tg/feedback" },
-    { name: "Reports", icon: <FiFileText />, path: "/tg/reports" },
+    { name: "Leave Requests", icon: <FiFileText />, path: "/tg/leave-request" },
     { name: "Schedule", icon: <FiClock />, path: "/tg/schedule" },
     { name: "Announcements", icon: <FiBell />, path: "/tg/announcements" },
     { name: "Verify Users", icon: <FiUserCheck />, path: "/tg/verify-users" },
@@ -41,11 +39,7 @@ const Sidebar = ({ darkMode }) => {
       className={`
         h-screen w-72 border-r flex flex-col shadow-lg sticky top-0
         transition-colors duration-300
-        ${
-          darkMode
-            ? "bg-gray-900 border-gray-800"
-            : "bg-white border-gray-200"
-        }
+        ${darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"}
       `}
     >
       {/* BRAND SECTION */}
@@ -72,11 +66,7 @@ const Sidebar = ({ darkMode }) => {
           className={`
             text-[12px] font-medium tracking-wide mt-1
             transition-colors duration-300
-            ${
-              darkMode
-                ? "text-gray-400"
-                : "text-gray-600"
-            }
+            ${darkMode ? "text-gray-400" : "text-gray-600"}
           `}
         >
           TEACHER GUARDIAN
@@ -119,12 +109,9 @@ const Sidebar = ({ darkMode }) => {
             className={`
               h-px
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "bg-gray-700/50"
-                  : "bg-gray-200"
-              }
-            `}></div>
+              ${darkMode ? "bg-gray-700/50" : "bg-gray-200"}
+            `}
+          ></div>
         </div>
 
         {/* SETTINGS */}
@@ -181,11 +168,7 @@ const Sidebar = ({ darkMode }) => {
             className={`
               text-xs font-medium
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "text-gray-400"
-                  : "text-gray-600"
-              }
+              ${darkMode ? "text-gray-400" : "text-gray-600"}
             `}
           >
             Logged in as
@@ -194,11 +177,7 @@ const Sidebar = ({ darkMode }) => {
             className={`
               text-sm font-semibold mt-1 truncate
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "text-white"
-                  : "text-gray-900"
-              }
+              ${darkMode ? "text-white" : "text-gray-900"}
             `}
           >
             {localStorage.getItem("username") || "Teacher"}

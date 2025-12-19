@@ -39,7 +39,7 @@ import TGAttendance from "../pages/tg/pages/Attendance";
 import TGMarks from "../pages/tg/pages/Marks";
 import TGAssignments from "../pages/tg/pages/Assignments";
 import TGFeedback from "../pages/tg/pages/Feedback";
-import TGReports from "../pages/tg/pages/Reports";
+
 import TGSchedule from "../pages/tg/pages/Schedule";
 import TGAnnouncements from "../pages/tg/pages/Announcements";
 import TGVerifyUsers from "../pages/tg/pages/VerifyUsers";
@@ -136,7 +136,7 @@ export default function AppRoutes({
         <Route path="marks" element={<TGMarks />} />
         <Route path="assignments" element={<TGAssignments />} />
         <Route path="feedback" element={<TGFeedback />} />
-        <Route path="reports" element={<TGReports />} />
+
         <Route path="schedule" element={<TGSchedule />} />
         <Route path="announcements" element={<TGAnnouncements />} />
         <Route path="verify-users" element={<TGVerifyUsers />} />

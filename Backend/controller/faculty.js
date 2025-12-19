@@ -1,5 +1,63 @@
 const Faculty = require("../model/faculty");
+const FacultyAssign = require("../model/facultyAssign");
+const Assignment = require("../model/assignment");
+const Leave = require("../model/leave");
+const Subject = require("../model/subject");
 const { createHmac, randomBytes } = require("crypto");
+
+async function getDashboardStats(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const facultyId = req.user._id;
+    const department = req.user.department;
+
+    // Get faculty assignments (classes assigned to this faculty)
+    const facultyAssignments = await FacultyAssign.find({
+      faculty: facultyId,
+    }).populate("subject");
+
+    // Count total unique students from all assigned classes
+    let totalStudents = 0;
+    const uniqueStudentIds = new Set();
+
+    for (const assignment of facultyAssignments) {
+      const students = await require("../model/student").find({
+        department: assignment.department,
+        branch: assignment.branch,
+        section: assignment.section,
+        academicYear: assignment.academicYear,
+      });
+      students.forEach((s) => uniqueStudentIds.add(s._id.toString()));
+    }
+    totalStudents = uniqueStudentIds.size;
+
+    // Count pending assignments (created by this faculty)
+    const pendingAssignments = await Assignment.countDocuments({
+      createdBy: facultyId,
+      dueDate: { $gte: new Date() },
+    });
+
+    // Count pending leave requests from students in faculty's classes
+    const pendingLeaves = await Leave.countDocuments({
+      department: department,
+      status: "pending",
+    });
+
+    return res.status(200).json({
+      stats: {
+        totalStudents,
+        pendingAssignments,
+        pendingLeaves,
+        totalClasses: facultyAssignments.length,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
 
 async function getFacultyProfile(req, res) {
   try {
@@ -91,8 +149,45 @@ async function changeFacultyPassword(req, res) {
   }
 }
 
+async function getFacultySchedule(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const facultyId = req.user._id;
+
+    // Get all class assignments for this faculty
+    const assignments = await FacultyAssign.find({ faculty: facultyId })
+      .populate("subject")
+      .lean();
+
+    const schedule = assignments.map((assign) => ({
+      subjectName: assign.subject?.name || "Unknown Subject",
+      subjectCode: assign.subject?.code || "",
+      department: assign.department,
+      branch: assign.branch,
+      section: assign.section,
+      academicYear: assign.academicYear,
+      dayOfWeek: assign.dayOfWeek || 1,
+      startTime: assign.startTime || "09:00",
+      endTime: assign.endTime || "10:00",
+      room: assign.room || "TBA",
+    }));
+
+    return res.status(200).json({
+      message: "Schedule fetched successfully",
+      schedule,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
+  getDashboardStats,
   getFacultyProfile,
   updateFacultyProfile,
   changeFacultyPassword,
+  getFacultySchedule,
 };

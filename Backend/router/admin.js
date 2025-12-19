@@ -2,42 +2,88 @@ const router = require("express").Router();
 
 const {
   handleAdminLogin,
+  getAdminProfile,
   handleCreateHOD,
   editHOD,
   resetHODPassword,
   deleteHOD,
+  getAllHODs,
+  getAdminDashboard,
+  createDepartment,
+  getAllDepartments,
+  updateDepartment,
+  deleteDepartment,
+  createCourse,
+  getAllCourses,
+  updateCourse,
+  deleteCourse,
+  createBranch,
+  getAllBranches,
+  updateBranch,
+  deleteBranch,
+  createSection,
+  getAllSections,
+  updateSection,
+  deleteSection,
+  createAcademicYear,
+  getAllAcademicYears,
+  updateAcademicYear,
+  deleteAcademicYear,
+  createSubject,
+  getAllSubjects,
+  updateSubject,
+  deleteSubject,
 } = require("../controller/admin");
 const { handleLogout } = require("../controller/auth");
 
-router.get("/login", async (req, res) => {
-  return res.send("Admin Login Page");
-});
-
 router.post("/login", handleAdminLogin);
 
-router.get("/dashboard", (req, res) => {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).send("Unauthorized: Please log in as admin.");
-  }
-  return res.send("Admin Dashboard");
-});
+router.get("/profile", getAdminProfile);
 
-router.get("/create-hod", (req, res) => {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).send("Unauthorized: Please log in as admin.");
-  }
-  return res.send("Create HOD Page");
-});
+router.get("/dashboard", getAdminDashboard);
 
-router.post("/create-hod", handleCreateHOD);
+// HOD Management
+router.post("/hod", handleCreateHOD);
+router.get("/hods", getAllHODs);
+router.put("/hod/:hodId", editHOD);
+router.put("/hod/:hodId/reset-password", resetHODPassword);
+router.delete("/hod/:hodId", deleteHOD);
 
-// Edit HOD
-router.put("/edit-hod/:hodId", editHOD);
+// Department Management
+router.post("/department", createDepartment);
+router.get("/departments", getAllDepartments);
+router.put("/department/:id", updateDepartment);
+router.delete("/department/:id", deleteDepartment);
 
-// Reset HOD password
-router.put("/reset-hod-password/:hodId", resetHODPassword);
+// Course Management
+router.post("/course", createCourse);
+router.get("/courses", getAllCourses);
+router.put("/course/:id", updateCourse);
+router.delete("/course/:id", deleteCourse);
 
-router.delete("/delete-hod/:hodId", deleteHOD);
+// Branch Management
+router.post("/branch", createBranch);
+router.get("/branches", getAllBranches);
+router.put("/branch/:id", updateBranch);
+router.delete("/branch/:id", deleteBranch);
+
+// Section Management
+router.post("/section", createSection);
+router.get("/sections", getAllSections);
+router.put("/section/:id", updateSection);
+router.delete("/section/:id", deleteSection);
+
+// Academic Year Management
+router.post("/academic-year", createAcademicYear);
+router.get("/academic-years", getAllAcademicYears);
+router.put("/academic-year/:id", updateAcademicYear);
+router.delete("/academic-year/:id", deleteAcademicYear);
+
+// Subject Management
+router.post("/subject", createSubject);
+router.get("/subjects", getAllSubjects);
+router.put("/subject/:id", updateSubject);
+router.delete("/subject/:id", deleteSubject);
 
 router.post("/logout", handleLogout);
 

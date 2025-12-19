@@ -25,7 +25,7 @@ async function getStudentAssignments(req, res) {
       department: student.department,
     }).populate("facultyId", "name email");
 
-    const subjectIds = subjects.map(s => s._id);
+    const subjectIds = subjects.map((s) => s._id);
 
     // Get all assignments for these subjects
     const assignments = await Assignment.find({
@@ -38,13 +38,13 @@ async function getStudentAssignments(req, res) {
     // Get submissions for this student
     const submissions = await AssignmentSubmission.find({
       studentId: studentId,
-      assignmentId: { $in: assignments.map(a => a._id) },
+      assignmentId: { $in: assignments.map((a) => a._id) },
     }).lean();
 
     // Enrich assignments with submission data
-    const enrichedAssignments = assignments.map(assignment => {
+    const enrichedAssignments = assignments.map((assignment) => {
       const submission = submissions.find(
-        s => s.assignmentId.toString() === assignment._id.toString()
+        (s) => s.assignmentId.toString() === assignment._id.toString()
       );
       return {
         ...assignment,
@@ -57,7 +57,7 @@ async function getStudentAssignments(req, res) {
 
     // Group by subject
     const groupedBySubject = {};
-    enrichedAssignments.forEach(assignment => {
+    enrichedAssignments.forEach((assignment) => {
       const subjectName = assignment.subjectId.name;
       const subjectId = assignment.subjectId._id;
       if (!groupedBySubject[subjectId]) {
@@ -175,21 +175,35 @@ async function createAssignment(req, res) {
       return res.status(401).json({ error: "Unauthorized: Faculty only" });
     }
 
-    const { title, description, subjectId, dueDate, maxMarks, instructions, attachmentUrl } = req.body;
+    const {
+      title,
+      description,
+      subject,
+      dueDate,
+      totalMarks,
+      branch,
+      section,
+    } = req.body;
     const facultyId = req.user._id;
 
-    if (!title || !description || !subjectId || !dueDate) {
+    if (!title || !description || !subject || !dueDate || !branch || !section) {
       return res.status(400).json({ error: "Missing required fields" });
     }
+
+    // Get file path if uploaded
+    const attachmentUrl = req.file
+      ? `/uploads/assignments/${req.file.filename}`
+      : null;
 
     const assignment = new Assignment({
       title,
       description,
-      subjectId,
-      facultyId,
+      subject,
+      createdBy: facultyId,
       dueDate,
-      maxMarks,
-      instructions,
+      totalMarks: totalMarks || 100,
+      branch,
+      section,
       attachmentUrl,
     });
 
@@ -214,31 +228,13 @@ async function getFacultyAssignments(req, res) {
 
     const facultyId = req.user._id;
 
-    const assignments = await Assignment.find({ facultyId })
-      .populate("subjectId", "name code")
+    const assignments = await Assignment.find({ createdBy: facultyId })
+      .sort({ createdDate: -1 })
       .lean();
-
-    // Get submission counts
-    const assignmentsWithStats = await Promise.all(
-      assignments.map(async (assignment) => {
-        const submissions = await AssignmentSubmission.countDocuments({
-          assignmentId: assignment._id,
-        });
-        const gradedSubmissions = await AssignmentSubmission.countDocuments({
-          assignmentId: assignment._id,
-          status: "graded",
-        });
-        return {
-          ...assignment,
-          totalSubmissions: submissions,
-          gradedSubmissions,
-        };
-      })
-    );
 
     return res.status(200).json({
       success: true,
-      assignments: assignmentsWithStats,
+      assignments,
     });
   } catch (err) {
     return res.status(500).json({ error: err.message });

@@ -5,7 +5,16 @@ const TG = require("../model/tg");
 const Student = require("../model/student");
 const Faculty = require("../model/faculty");
 const Hod = require("../model/hod");
+const Announcement = require("../model/announcement");
+const { notifyAnnouncement } = require("../utils/notifications");
 const { randomBytes, createHmac } = require("crypto");
+const {
+  Department,
+  Course,
+  Branch,
+  Section,
+  AcademicYear,
+} = require("../model/institutionConfig");
 
 async function handleCreateTg(req, res) {
   if (!req.user || req.user.role !== "hod") {
@@ -104,6 +113,10 @@ async function handleCreateFaculty(req, res) {
       mobileNumber,
       gender,
       course,
+      branch,
+      section,
+      academicYear,
+      assignedSubjects,
     } = req.body;
     if (
       !name ||
@@ -134,9 +147,16 @@ async function handleCreateFaculty(req, res) {
       mobileNumber,
       gender,
       course,
+      branch,
+      section,
+      academicYear,
+      assignedSubjects,
     });
     await newFaculty.save();
-    return res.redirect("/api/hod/dashboard");
+    return res.status(201).json({
+      message: "Faculty created successfully",
+      faculty: newFaculty,
+    });
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
@@ -466,26 +486,26 @@ async function changeHodPassword(req, res) {
     }
 
     const hodId = req.user._id;
-    const { oldPassword, newPassword } = req.body;
+    const { currentPassword, newPassword } = req.body;
 
     // Validation
-    if (!oldPassword || !newPassword) {
+    if (!currentPassword || !newPassword) {
       return res
         .status(400)
-        .json({ error: "Both old and new passwords required" });
+        .json({ error: "Both current and new passwords required" });
     }
 
     // Fetch HOD
     const hod = await Hod.findById(hodId);
     if (!hod) return res.status(404).json({ error: "HOD not found" });
 
-    // Verify old password
-    const oldHash = createHmac("sha256", hod.salt)
-      .update(oldPassword)
+    // Verify current password
+    const currentHash = createHmac("sha256", hod.salt)
+      .update(currentPassword)
       .digest("hex");
 
-    if (oldHash !== hod.password) {
-      return res.status(400).json({ error: "Old password is incorrect" });
+    if (currentHash !== hod.password) {
+      return res.status(400).json({ error: "Current password is incorrect" });
     }
 
     // Hash new password
@@ -499,7 +519,347 @@ async function changeHodPassword(req, res) {
 
     await hod.save();
 
-    return res.status(200).json({ message: "Password updated successfully" });
+    return res.status(200).json({ message: "Password changed successfully" });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+async function getDashboardStats(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    const department = hod.department;
+
+    // Get total students in department
+    const totalStudents = await Student.countDocuments({ department });
+
+    // Get total faculty in department
+    const totalFaculty = await Faculty.countDocuments({ department });
+
+    // Get total TGs in department
+    const totalTGs = await TG.countDocuments({ department });
+
+    // Get active semester info
+    const activeSemester = await SemesterControl.findOne({
+      status: "Active",
+      department,
+    });
+
+    // Get total subjects in department
+    const totalSubjects = await Subject.countDocuments({ department });
+
+    return res.status(200).json({
+      success: true,
+      summary: {
+        totalStudents,
+        totalFaculty,
+        totalTGs,
+        totalSubjects,
+        activeSemester: activeSemester
+          ? {
+              semesterNumber: activeSemester.semesterNumber,
+              academicYear: activeSemester.academicYear,
+              startDate: activeSemester.startDate,
+            }
+          : null,
+        department,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get all students in HOD's department
+async function getStudentsByDepartment(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    const students = await Student.find({ department: hod.department })
+      .select("-password -salt")
+      .populate("assignTgId", "name tgId")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "Students fetched successfully",
+      students,
+      total: students.length,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get all faculty in HOD's department
+async function getFacultyByDepartment(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    const faculty = await Faculty.find({ department: hod.department })
+      .select("-password -salt")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "Faculty fetched successfully",
+      faculty,
+      total: faculty.length,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get all TGs in HOD's department
+async function getTGsByDepartment(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    const tgs = await TG.find({ department: hod.department })
+      .select("-password -salt")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      message: "TGs fetched successfully",
+      tgs,
+      total: tgs.length,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get single student details
+async function getStudentDetails(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { studentId } = req.params;
+    const student = await Student.findById(studentId)
+      .select("-password -salt")
+      .populate("assignTgId", "name tgId email");
+
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    return res.status(200).json({
+      message: "Student details fetched",
+      student,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get single faculty details
+async function getFacultyDetails(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { facultyId } = req.params;
+    const faculty = await Faculty.findById(facultyId).select("-password -salt");
+
+    if (!faculty) {
+      return res.status(404).json({ error: "Faculty not found" });
+    }
+
+    return res.status(200).json({
+      message: "Faculty details fetched",
+      faculty,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get single TG details
+async function getTGDetails(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { tgId } = req.params;
+    const tg = await TG.findById(tgId).select("-password -salt");
+
+    if (!tg) {
+      return res.status(404).json({ error: "TG not found" });
+    }
+
+    return res.status(200).json({
+      message: "TG details fetched",
+      tg,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get announcements for HOD's department
+async function getHODAnnouncements(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    const { page = 1, limit = 20 } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Get all faculty in department
+    const departmentFaculty = await Faculty.find({
+      department: hod.department,
+    }).select("_id");
+    const facultyIds = departmentFaculty.map((f) => f._id);
+
+    // Get announcements from department faculty or targeted to HOD/all
+    const announcements = await Announcement.find({
+      $or: [
+        { facultyId: { $in: facultyIds } },
+        { targetRole: "hod" },
+        { targetRole: "all" },
+      ],
+    })
+      .populate("facultyId", "name email facultyId")
+      .populate("subjectId", "name code")
+      .sort({ createdDate: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .lean();
+
+    const total = await Announcement.countDocuments({
+      $or: [
+        { facultyId: { $in: facultyIds } },
+        { targetRole: "hod" },
+        { targetRole: "all" },
+      ],
+    });
+
+    return res.status(200).json({
+      message: "Announcements fetched successfully",
+      announcements,
+      total,
+      pages: Math.ceil(total / limit),
+      currentPage: parseInt(page),
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Create announcement as HOD
+async function createHODAnnouncement(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { title, content, priority, targetRole, subjectId } = req.body;
+
+    if (!title || !content) {
+      return res.status(400).json({ error: "Title and content are required" });
+    }
+
+    const announcement = new Announcement({
+      title,
+      content,
+      facultyId: req.user._id, // HOD creates it
+      priority: priority || "medium",
+      targetRole: targetRole || "all",
+      subjectId: subjectId || null,
+    });
+
+    await announcement.save();
+
+    // Get HOD details for department
+    const hod = await Hod.findById(req.user._id);
+
+    // Send real-time notification
+    const io = req.app.get("io");
+    if (io && hod) {
+      notifyAnnouncement(io, {
+        department: hod.department,
+        role: targetRole || "all",
+        announcement: {
+          ...announcement.toObject(),
+          createdBy: hod.name,
+        },
+      });
+    }
+
+    return res.status(201).json({
+      message: "Announcement created successfully",
+      announcement,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// --------------------- GET SUBJECTS BY FILTERS ------------------------
+async function getSubjectsByFilters(req, res) {
+  if (!req.user || req.user.role !== "hod") {
+    return res.status(401).send("Unauthorized: HOD only.");
+  }
+
+  try {
+    const { department, course, branch } = req.query;
+
+    const filter = {};
+    if (department) filter.department = department;
+    if (course) filter.course = course;
+    if (branch) filter.branch = branch;
+
+    const subjects = await Subject.find(filter).sort({ name: 1 });
+
+    return res.status(200).json({ subjects });
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
@@ -520,4 +880,94 @@ module.exports = {
   getHodProfile,
   updateHodProfile,
   changeHodPassword,
+  getDashboardStats,
+  getStudentsByDepartment,
+  getFacultyByDepartment,
+  getTGsByDepartment,
+  getStudentDetails,
+  getFacultyDetails,
+  getTGDetails,
+  getHODAnnouncements,
+  createHODAnnouncement,
+  getSubjectsByFilters,
+  getDepartments,
+  getCourses,
+  getBranches,
+  getSections,
+  getAcademicYears,
 };
+
+// Get all active departments
+async function getDepartments(req, res) {
+  try {
+    const departments = await Department.find({ isActive: true }).select(
+      "name code"
+    );
+    res.status(200).json({ departments });
+  } catch (error) {
+    console.error("Error fetching departments:", error);
+    res.status(500).json({ error: "Failed to fetch departments" });
+  }
+}
+
+// Get all active courses
+async function getCourses(req, res) {
+  try {
+    const courses = await Course.find({ isActive: true }).select(
+      "name code duration"
+    );
+    res.status(200).json({ courses });
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).json({ error: "Failed to fetch courses" });
+  }
+}
+
+// Get branches (optionally filtered by department)
+async function getBranches(req, res) {
+  try {
+    const { department } = req.query;
+    const query = { isActive: true };
+
+    if (department) {
+      const dept = await Department.findOne({ name: department });
+      if (dept) {
+        query.department = dept._id;
+      }
+    }
+
+    const branches = await Branch.find(query)
+      .populate("department", "name code")
+      .select("name code department");
+    res.status(200).json({ branches });
+  } catch (error) {
+    console.error("Error fetching branches:", error);
+    res.status(500).json({ error: "Failed to fetch branches" });
+  }
+}
+
+// Get all active sections
+async function getSections(req, res) {
+  try {
+    const sections = await Section.find({ isActive: true }).select(
+      "name capacity"
+    );
+    res.status(200).json({ sections });
+  } catch (error) {
+    console.error("Error fetching sections:", error);
+    res.status(500).json({ error: "Failed to fetch sections" });
+  }
+}
+
+// Get all active academic years
+async function getAcademicYears(req, res) {
+  try {
+    const academicYears = await AcademicYear.find({ isActive: true }).select(
+      "year startYear endYear"
+    );
+    res.status(200).json({ academicYears });
+  } catch (error) {
+    console.error("Error fetching academic years:", error);
+    res.status(500).json({ error: "Failed to fetch academic years" });
+  }
+}

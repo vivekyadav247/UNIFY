@@ -37,7 +37,7 @@ export default function Login() {
         return;
       }
     } else if (role === "hod") {
-      body.hodId = credentials.hodId;
+      body.hodId = credentials.hodId.toLowerCase();
       if (!credentials.hodId || !credentials.password) {
         setError("Please fill all fields");
         setLoading(false);
@@ -64,6 +64,11 @@ export default function Login() {
       setLoading(false);
 
       if (res.success) {
+        // Store token in localStorage as backup
+        if (res.token) {
+          localStorage.setItem("token", res.token);
+        }
+
         // For student, use enrollment number in URL
         if (role === "student") {
           const enrollmentNumber = credentials.enrollmentNumber;
@@ -72,17 +77,20 @@ export default function Login() {
         else if (role === "hod") navigate("/hod/dashboard");
         else if (role === "tg") navigate("/tg/dashboard");
       } else {
+        console.log("❌ Login failed:", res.message);
         setError(res.message || "Login failed");
       }
     } catch (err) {
+      console.error("❌ Login error:", err);
+      console.error("Error response:", err.response);
       setLoading(false);
-      setError(
+      const errorMsg =
         err.response?.data?.message ||
-          err.response?.data?.error ||
-          err.message ||
-          "Server error. Please try again."
-      );
-      console.error(err);
+        err.response?.data?.error ||
+        err.message ||
+        "Server error. Please try again.";
+      console.log("Setting error:", errorMsg);
+      setError(errorMsg);
     }
   };
 

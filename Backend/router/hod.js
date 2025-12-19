@@ -14,6 +14,21 @@ const {
   getHodProfile,
   updateHodProfile,
   changeHodPassword,
+  getDashboardStats,
+  getStudentsByDepartment,
+  getFacultyByDepartment,
+  getTGsByDepartment,
+  getStudentDetails,
+  getFacultyDetails,
+  getTGDetails,
+  getHODAnnouncements,
+  createHODAnnouncement,
+  getSubjectsByFilters,
+  getDepartments,
+  getCourses,
+  getBranches,
+  getSections,
+  getAcademicYears,
 } = require("../controller/hod");
 
 const {
@@ -22,12 +37,7 @@ const {
   listSemesters,
 } = require("../controller/semester");
 
-router.get("/dashboard", (req, res) => {
-  if (!req.user || req.user.role !== "hod") {
-    return res.status(401).send("Unauthorized: Please log in as HOD.");
-  }
-  res.send("HOD Dashboard");
-});
+router.get("/dashboard", getDashboardStats);
 
 // TG
 router.get("/create-tg", async (req, res) => {
@@ -64,5 +74,31 @@ router.post("/assign-faculty", assignFacultyToSubject);
 router.get("/profile", getHodProfile);
 router.put("/profile", updateHodProfile);
 router.put("/change-password", changeHodPassword);
+
+// Students
+router.get("/students", getStudentsByDepartment);
+router.get("/student/:studentId", getStudentDetails);
+
+// Faculty
+router.get("/faculties", getFacultyByDepartment);
+router.get("/faculty/:facultyId", getFacultyDetails);
+
+// TGs
+router.get("/tgs", getTGsByDepartment);
+router.get("/tg/:tgId", getTGDetails);
+
+// Announcements
+router.get("/announcements", getHODAnnouncements);
+router.post("/announcements", createHODAnnouncement);
+
+// Subjects
+router.get("/subjects", getSubjectsByFilters);
+
+// Institution Config
+router.get("/departments", getDepartments);
+router.get("/courses", getCourses);
+router.get("/branches", getBranches);
+router.get("/sections", getSections);
+router.get("/academic-years", getAcademicYears);
 
 module.exports = router;

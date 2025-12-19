@@ -14,6 +14,7 @@ import {
   FiClock,
   FiBell,
 } from "react-icons/fi";
+import NotificationDropdown from "../../../../components/NotificationDropdown/NotificationDropdown";
 
 const Sidebar = ({ darkMode }) => {
   const navigate = useNavigate();
@@ -22,9 +23,7 @@ const Sidebar = ({ darkMode }) => {
     { name: "Dashboard", icon: <FiHome />, path: "/hod/dashboard" },
     { name: "Faculty", icon: <FiUserCheck />, path: "/hod/faculty" },
     { name: "Students", icon: <FiUsers />, path: "/hod/students" },
-    { name: "Reports", icon: <FiBarChart2 />, path: "/hod/reports" },
     { name: "Events", icon: <FiClock />, path: "/hod/events" },
-    //{name: "settings", icon: <FiSettings />, path: "/hod/settings" },
   ];
 
   const handleLogout = () => {
@@ -37,11 +36,7 @@ const Sidebar = ({ darkMode }) => {
       className={`
         h-screen w-72 border-r flex flex-col shadow-lg sticky top-0
         transition-colors duration-300
-        ${
-          darkMode
-            ? "bg-gray-900 border-gray-800"
-            : "bg-white border-gray-200"
-        }
+        ${darkMode ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"}
       `}
     >
       {/* BRAND SECTION */}
@@ -68,11 +63,7 @@ const Sidebar = ({ darkMode }) => {
           className={`
             text-[12px] font-medium tracking-wide mt-1
             transition-colors duration-300
-            ${
-              darkMode
-                ? "text-gray-400"
-                : "text-gray-600"
-            }
+            ${darkMode ? "text-gray-400" : "text-gray-600"}
           `}
         >
           HOD GUARDIAN
@@ -115,13 +106,36 @@ const Sidebar = ({ darkMode }) => {
             className={`
               h-px
               transition-colors duration-300
-              ${
-                darkMode
-                  ? "bg-gray-700/50"
-                  : "bg-gray-200"
-              }
-            `}></div>
+              ${darkMode ? "bg-gray-700/50" : "bg-gray-200"}
+            `}
+          ></div>
         </div>
+
+        {/* TG MANAGEMENT */}
+        <NavLink
+          to="/hod/tg-management"
+          className={({ isActive }) =>
+            `
+            group flex items-center gap-3 px-4 py-3 rounded-lg text-[14px] font-medium
+            transition-all duration-300
+            
+            ${
+              isActive
+                ? darkMode
+                  ? "bg-blue-900/40 text-blue-300 border border-blue-800/50"
+                  : "bg-blue-100 text-blue-700 border border-blue-200"
+                : darkMode
+                ? "text-gray-300 hover:bg-gray-800/50 hover:text-white"
+                : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+            }
+          `
+          }
+        >
+          <span className="text-lg flex-shrink-0 group-hover:scale-110 transition-transform">
+            <FiUsers />
+          </span>
+          <span className="tracking-wide flex-1">TG Management</span>
+        </NavLink>
 
         {/* SETTINGS */}
         <NavLink
@@ -148,24 +162,6 @@ const Sidebar = ({ darkMode }) => {
           </span>
           <span className="tracking-wide flex-1">Settings</span>
         </NavLink>
-
-        <NavLink
-          to="/hod/tg-management"
-          className={({ isActive }) =>
-            `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-              isActive
-                ? darkMode
-                  ? "bg-blue-900/30 text-blue-300"
-                  : "bg-blue-100 text-blue-700"
-                : darkMode
-                ? "text-gray-400 hover:bg-gray-800"
-                : "text-gray-600 hover:bg-gray-100"
-            }`
-          }
-        >
-          <FiUsers className="text-xl" />
-          <span>TG Management</span>
-        </NavLink>
       </nav>
 
       {/* USER INFO SECTION */}
@@ -191,32 +187,26 @@ const Sidebar = ({ darkMode }) => {
             }
           `}
         >
-          <p
-            className={`
-              text-xs font-medium
-              transition-colors duration-300
-              ${
-                darkMode
-                  ? "text-gray-400"
-                  : "text-gray-600"
-              }
-            `}
-          >
-            Logged in as
-          </p>
-          <p
-            className={`
-              text-sm font-semibold mt-1 truncate
-              transition-colors duration-300
-              ${
-                darkMode
-                  ? "text-white"
-                  : "text-gray-900"
-              }
-            `}
-          >
-            {localStorage.getItem("username") || "HOD"}
-          </p>
+          <div className="flex-1 min-w-0">
+            <p
+              className={`
+                text-xs font-medium
+                transition-colors duration-300
+                ${darkMode ? "text-gray-400" : "text-gray-600"}
+              `}
+            >
+              Logged in as
+            </p>
+            <p
+              className={`
+                text-sm font-semibold mt-1 truncate
+                transition-colors duration-300
+                ${darkMode ? "text-white" : "text-gray-900"}
+              `}
+            >
+              {localStorage.getItem("username") || "HOD"}
+            </p>
+          </div>
         </div>
 
         {/* LOGOUT BUTTON */}

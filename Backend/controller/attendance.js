@@ -90,6 +90,39 @@ async function takeClassAttendance(req, res) {
 
 // ==================== FACULTY SUBJECT ATTENDANCE ====================
 
+// Get all classes assigned to faculty (for dropdown)
+async function getFacultyClasses(req, res) {
+  if (!req.user || req.user.role !== "faculty") {
+    return res.status(401).json({ error: "Unauthorized: Faculty only" });
+  }
+
+  try {
+    const facultyId = req.user._id;
+
+    const assignments = await FacultyAssignment.find({ faculty: facultyId })
+      .populate("subject")
+      .lean();
+
+    const classes = assignments.map((assign) => ({
+      subjectId: assign.subject._id,
+      subjectName: assign.subject.name,
+      subjectCode: assign.subject.code,
+      department: assign.department,
+      branch: assign.branch,
+      academicYear: assign.academicYear,
+      section: assign.section,
+      displayName: `${assign.subject.name} - ${assign.branch} ${assign.section} (${assign.academicYear})`,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      classes,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 // Get students list for taking attendance
 async function getStudentsForAttendance(req, res) {
   if (!req.user || req.user.role !== "faculty") {
@@ -108,8 +141,8 @@ async function getStudentsForAttendance(req, res) {
 
     // Verify faculty is assigned to this subject
     const assignment = await FacultyAssignment.findOne({
-      facultyId,
-      subjectId,
+      faculty: facultyId,
+      subject: subjectId,
       department,
       branch,
       academicYear,
@@ -137,14 +170,14 @@ async function getStudentsForAttendance(req, res) {
     // Check if attendance is already marked for today
     const today = normalizeDate(new Date());
     const todayAttendance = await SubjectAttendance.find({
-      facultyId,
-      subjectId,
+      faculty: facultyId,
+      subject: subjectId,
       date: today,
     }).lean();
 
     const attendanceMap = {};
     todayAttendance.forEach((att) => {
-      attendanceMap[att.studentId.toString()] = att.status;
+      attendanceMap[att.student.toString()] = att.status;
     });
 
     // Check for approved leaves for today
@@ -1161,6 +1194,7 @@ module.exports = {
   takeClassAttendance,
   takeSubjectAttendance,
   getStudentAttendance,
+  getFacultyClasses,
   getStudentsForAttendance,
   showSubjectAttendance,
   getDetailedAttendance,

@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AppRoutes from "./routes/AppRoutes";
+import { NotificationProvider } from "./contexts/NotificationContext";
 
 function App() {
   // Theme state
@@ -23,37 +23,33 @@ function App() {
     });
   };
 
-  // Notification state
-  const [notifications, setNotifications] = useState(3);
-
   return (
-    <div
-      data-theme={theme}
-      className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-      }`}
-    >
-      <BrowserRouter>
-        <AppRoutes
-          toggleTheme={toggleTheme}
-          currentTheme={theme}
-          notifications={notifications}
-          setNotifications={setNotifications}
-        />
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={true}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={theme === "dark" ? "dark" : "light"}
-        />
-      </BrowserRouter>
-    </div>
+    <NotificationProvider>
+      <div
+        data-theme={theme}
+        className={`min-h-screen transition-colors duration-300 ${
+          theme === "dark"
+            ? "bg-gray-900 text-white"
+            : "bg-gray-100 text-gray-900"
+        }`}
+      >
+        <BrowserRouter>
+          <AppRoutes toggleTheme={toggleTheme} currentTheme={theme} />
+          <ToastContainer
+            position="bottom-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={true}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme={theme === "dark" ? "dark" : "light"}
+          />
+        </BrowserRouter>
+      </div>
+    </NotificationProvider>
   );
 }
 

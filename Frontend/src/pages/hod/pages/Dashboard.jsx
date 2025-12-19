@@ -7,6 +7,7 @@ import {
   FiAlertCircle,
   FiLoader,
 } from "react-icons/fi";
+import { hodAPI } from "../../../services/api";
 
 import StatCard from "../components/DashboardCards/StatsCard";
 import GraphCard from "../components/DashboardCards/GraphCard";
@@ -30,29 +31,10 @@ export default function HodDashboard() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        "http://localhost:3000/api/hod/dashboard",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      setStats(data.summary || {});
+      const response = await hodAPI.getDashboard();
+      setStats(response.summary || {});
       setError(null);
     } catch (err) {
-      console.error("Error fetching dashboard data:", err);
       setError(err.message);
       setStats(null);
     } finally {
@@ -143,14 +125,7 @@ export default function HodDashboard() {
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {stats?.totalStudents || "485"}
-                </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    darkMode ? "text-blue-400" : "text-blue-600"
-                  }`}
-                >
-                  ↑ +12 this month
+                  {stats?.totalStudents || 0}
                 </p>
               </div>
               <div className="text-4xl text-blue-600">
@@ -180,14 +155,7 @@ export default function HodDashboard() {
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {stats?.facultyCount || "32"}
-                </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    darkMode ? "text-green-400" : "text-green-600"
-                  }`}
-                >
-                  ↑ +2 this month
+                  {stats?.facultyCount || 0}
                 </p>
               </div>
               <div className="text-4xl text-green-600">
@@ -217,14 +185,7 @@ export default function HodDashboard() {
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {stats?.avgAttendance || "84"}%
-                </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    darkMode ? "text-purple-400" : "text-purple-600"
-                  }`}
-                >
-                  ↑ +3% from last month
+                  {stats?.avgAttendance || 0}%
                 </p>
               </div>
               <div className="text-4xl text-purple-600">
@@ -254,14 +215,7 @@ export default function HodDashboard() {
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {stats?.pendingTasks || "8"}
-                </p>
-                <p
-                  className={`text-xs mt-2 ${
-                    darkMode ? "text-orange-400" : "text-orange-600"
-                  }`}
-                >
-                  ⚠️ 3 urgent
+                  {stats?.pendingTasks || 0}
                 </p>
               </div>
               <div className="text-4xl text-orange-600">
@@ -329,27 +283,23 @@ export default function HodDashboard() {
             </h3>
 
             <div className="space-y-4">
-              <TGActivityCard
-                name="Prof. Michael Chen"
-                students="25"
-                reports="18"
-                attendance="92%"
-                darkMode={darkMode}
-              />
-              <TGActivityCard
-                name="Dr. Sarah Miller"
-                students="28"
-                reports="22"
-                attendance="88%"
-                darkMode={darkMode}
-              />
-              <TGActivityCard
-                name="Prof. James Wilson"
-                students="23"
-                reports="20"
-                attendance="95%"
-                darkMode={darkMode}
-              />
+              {stats?.tgActivity && stats.tgActivity.length > 0 ? (
+                stats.tgActivity.map((tg, index) => (
+                  <TGActivityCard
+                    key={index}
+                    name={tg.name}
+                    students={tg.students}
+                    active={tg.active}
+                    reports={tg.reports}
+                    attendance={tg.attendance}
+                    darkMode={darkMode}
+                  />
+                ))
+              ) : (
+                <p className={darkMode ? "text-gray-400" : "text-gray-500"}>
+                  No TG activity available
+                </p>
+              )}
             </div>
           </div>
 
@@ -370,24 +320,21 @@ export default function HodDashboard() {
             </h3>
 
             <div className="space-y-4">
-              <ApprovalCard
-                title="Leave Request"
-                name="Prof. Michael Chen"
-                date="Jan 15-17"
-                darkMode={darkMode}
-              />
-              <ApprovalCard
-                title="Report Submission"
-                name="Dr. Sarah Miller"
-                date="Jan 10"
-                darkMode={darkMode}
-              />
-              <ApprovalCard
-                title="Budget Request"
-                name="Prof. James Wilson"
-                date="Jan 12"
-                darkMode={darkMode}
-              />
+              {stats?.pendingApprovals && stats.pendingApprovals.length > 0 ? (
+                stats.pendingApprovals.map((approval, index) => (
+                  <ApprovalCard
+                    key={index}
+                    title={approval.title}
+                    name={approval.name}
+                    date={approval.date}
+                    darkMode={darkMode}
+                  />
+                ))
+              ) : (
+                <p className={darkMode ? "text-gray-400" : "text-gray-500"}>
+                  No pending approvals
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -411,21 +358,24 @@ export default function HodDashboard() {
             </h3>
 
             <div className="space-y-4">
-              <AnnouncementCard
-                color={darkMode ? "bg-blue-900/20" : "bg-blue-50"}
-                textColor={darkMode ? "text-blue-300" : "text-blue-900"}
-                heading="Faculty Meeting - Jan 20, 2025"
-                text="All faculty members are requested to attend the monthly review meeting at 3 PM."
-                darkMode={darkMode}
-              />
-
-              <AnnouncementCard
-                color={darkMode ? "bg-green-900/20" : "bg-green-50"}
-                textColor={darkMode ? "text-green-300" : "text-green-900"}
-                heading="Exam Schedule Released"
-                text="End semester examination schedule has been published on the portal."
-                darkMode={darkMode}
-              />
+              {stats?.announcements && stats.announcements.length > 0 ? (
+                stats.announcements
+                  .slice(0, 2)
+                  .map((announcement, index) => (
+                    <AnnouncementCard
+                      key={index}
+                      color={darkMode ? "bg-blue-900/20" : "bg-blue-50"}
+                      textColor={darkMode ? "text-blue-300" : "text-blue-900"}
+                      heading={announcement.title}
+                      text={announcement.content}
+                      darkMode={darkMode}
+                    />
+                  ))
+              ) : (
+                <p className={darkMode ? "text-gray-400" : "text-gray-500"}>
+                  No announcements
+                </p>
+              )}
             </div>
           </div>
 

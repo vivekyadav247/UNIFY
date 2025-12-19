@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import { FiMoon, FiSun, FiBell } from "react-icons/fi";
 import Sidebar from "../components/Sidebar/Sidebar";
+import NotificationDropdown from "../../../components/NotificationDropdown/NotificationDropdown";
 import { hodAPI } from "../../../services/api";
 
 export default function HodLayout() {
@@ -16,13 +17,19 @@ export default function HodLayout() {
     const fetchHodProfile = async () => {
       try {
         const response = await hodAPI.getProfile();
-        if (response.success) {
-          setHod(response.data);
+
+        // Backend returns { message, hod } not { success, data }
+        if (response.hod) {
+          setHod(response.hod);
+
+          // Save user info for socket connection
+          localStorage.setItem("userRole", "hod");
+          localStorage.setItem("userDepartment", response.hod.department);
+          localStorage.setItem("userId", response.hod._id);
         } else {
           navigate("/signin");
         }
       } catch (error) {
-        console.error("Error fetching HOD profile:", error);
         navigate("/signin");
       } finally {
         setLoading(false);
@@ -95,12 +102,7 @@ export default function HodLayout() {
               {darkMode ? <FiSun size={22} /> : <FiMoon size={22} />}
             </div>
 
-            <div className="relative cursor-pointer">
-              <FiBell size={22} />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
-                4
-              </span>
-            </div>
+            <NotificationDropdown darkMode={darkMode} />
 
             <img
               src={`https://ui-avatars.com/api/?name=${

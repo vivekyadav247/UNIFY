@@ -1,18 +1,60 @@
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 
-export default function PerformanceBarChart() {
+export default function PerformanceBarChart({
+  darkMode,
+  performanceData = { labels: [], excellent: [], good: [], average: [] },
+}) {
   return (
-    <div className="bg-white rounded-xl p-6 shadow">
-      <h3 className="font-semibold mb-4">Performance Distribution by Year</h3>
+    <div
+      className={`rounded-xl p-6 shadow ${
+        darkMode ? "bg-gray-800" : "bg-white"
+      }`}
+    >
+      <h3
+        className={`font-semibold mb-4 ${
+          darkMode ? "text-white" : "text-gray-900"
+        }`}
+      >
+        Performance Distribution by Year
+      </h3>
       <Bar
         data={{
-          labels: ["1st", "2nd", "3rd", "4th"],
+          labels: performanceData.labels || [],
           datasets: [
-            { label: "Excellent", data: [40, 50, 60, 70] },
-            { label: "Good", data: [60, 55, 45, 35] },
-            { label: "Average", data: [30, 25, 20, 15] },
+            {
+              label: "Excellent",
+              data: performanceData.excellent || [],
+              backgroundColor: darkMode ? "#34D399" : "#10B981",
+            },
+            {
+              label: "Good",
+              data: performanceData.good || [],
+              backgroundColor: darkMode ? "#60A5FA" : "#3B82F6",
+            },
+            {
+              label: "Average",
+              data: performanceData.average || [],
+              backgroundColor: darkMode ? "#FBBF24" : "#F59E0B",
+            },
           ],
+        }}
+        options={{
+          plugins: {
+            legend: {
+              labels: { color: darkMode ? "#E5E7EB" : "#374151" },
+            },
+          },
+          scales: {
+            x: {
+              ticks: { color: darkMode ? "#9CA3AF" : "#6B7280" },
+              grid: { color: darkMode ? "#374151" : "#E5E7EB" },
+            },
+            y: {
+              ticks: { color: darkMode ? "#9CA3AF" : "#6B7280" },
+              grid: { color: darkMode ? "#374151" : "#E5E7EB" },
+            },
+          },
         }}
       />
     </div>

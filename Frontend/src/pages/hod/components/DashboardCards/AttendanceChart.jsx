@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Chart as ChartJS,
@@ -12,13 +11,19 @@ import { Bar } from "react-chartjs-2";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-export default function AttendanceChart() {
+export default function AttendanceChart({ darkMode, attendanceData = [] }) {
   const data = {
-    labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
+    labels: attendanceData.map((item) => item.day || item.label) || [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+    ],
     datasets: [
       {
         label: "Attendance %",
-        data: [92, 88, 95, 90, 89],
+        data: attendanceData.map((item) => item.percentage || item.value) || [],
 
         // Smooth pastel blue
         backgroundColor: "rgba(79, 70, 229, 0.6)", // Indigo-500 with transparency
@@ -54,8 +59,16 @@ export default function AttendanceChart() {
   };
 
   return (
-    <div className="p-5 rounded-2xl shadow-lg bg-white text-gray-900 transition-all">
-      <h2 className="font-semibold mb-4 text-lg text-gray-800">
+    <div
+      className={`p-5 rounded-2xl shadow-lg transition-all ${
+        darkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
+      }`}
+    >
+      <h2
+        className={`font-semibold mb-4 text-lg ${
+          darkMode ? "text-white" : "text-gray-800"
+        }`}
+      >
         Weekly Attendance
       </h2>
       <Bar data={data} options={options} />

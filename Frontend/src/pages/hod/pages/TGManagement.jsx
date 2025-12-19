@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
+import { hodAPI } from "../../../services/api";
 import {
   FiPlus,
   FiEdit2,
@@ -14,6 +15,7 @@ import {
 export default function TGManagement() {
   const { darkMode } = useOutletContext();
   const [tgList, setTgList] = useState([]);
+  const [filteredTGs, setFilteredTGs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
@@ -23,46 +25,105 @@ export default function TGManagement() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("create"); // create, view, edit
   const [selectedTG, setSelectedTG] = useState(null);
+  const [hodProfile, setHodProfile] = useState(null);
+
+  // Dropdown options
+  const [departments, setDepartments] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [sections, setSections] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
+
   const [formData, setFormData] = useState({
     name: "",
+    tgId: "",
     email: "",
-    phone: "",
+    mobileNumber: "",
+    password: "",
     department: "",
-    qualifications: "",
-    experience: "",
-    specialization: "",
+    course: "",
+    branch: "",
+    section: "",
+    academicYear: "",
+    gender: "",
   });
 
+  const fetchHodProfile = async () => {
+    try {
+      const response = await fetch("http://localhost:3000/api/hod/profile", {
+        credentials: "include",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setHodProfile(data.hod);
+      }
+    } catch (error) {
+      console.error("Failed to fetch HOD profile:", error);
+    }
+  };
+
+  const fetchDropdownOptions = async () => {
+    try {
+      const [deptRes, courseRes, branchRes, sectionRes, yearRes] =
+        await Promise.all([
+          fetch("http://localhost:3000/api/hod/departments", {
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/api/hod/courses", {
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/api/hod/branches", {
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/api/hod/sections", {
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/api/hod/academic-years", {
+            credentials: "include",
+          }),
+        ]);
+
+      if (deptRes.ok) {
+        const data = await deptRes.json();
+        setDepartments(data.departments || []);
+      }
+      if (courseRes.ok) {
+        const data = await courseRes.json();
+        setCourses(data.courses || []);
+      }
+      if (branchRes.ok) {
+        const data = await branchRes.json();
+        setBranches(data.branches || []);
+      }
+      if (sectionRes.ok) {
+        const data = await sectionRes.json();
+        setSections(data.sections || []);
+      }
+      if (yearRes.ok) {
+        const data = await yearRes.json();
+        setAcademicYears(data.academicYears || []);
+      }
+    } catch (error) {
+      console.error("Failed to fetch dropdown options:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchHodProfile();
     fetchTGList();
+    fetchDropdownOptions();
   }, []);
 
   const fetchTGList = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        "http://localhost:3000/api/hod/tg/all",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
-          },
-          credentials: "include",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+      const response = await hodAPI.getTGs();
+      if (response.tgs) {
+        setTgList(response.tgs);
+        setFilteredTGs(response.tgs);
+        setError(null);
       }
-
-      const data = await response.json();
-      setTgList(Array.isArray(data.tgList) ? data.tgList : []);
-      setError(null);
     } catch (err) {
-      console.error("Error fetching TG list:", err);
       setError("Failed to fetch Teacher Guardians");
       setTgList([]);
     } finally {
@@ -75,15 +136,34 @@ export default function TGManagement() {
     setSelectedTG(null);
     setFormData({
       name: "",
+      tgId: "",
       email: "",
-      phone: "",
-      department: "",
-      qualifications: "",
-      experience: "",
-      specialization: "",
+      mobileNumber: "",
+      password: "",
+      department: hodProfile?.department || "",
+      course: hodProfile?.course || "",
+      branch: "",
+      section: "",
+      academicYear: "",
+      gender: "",
     });
     setShowModal(true);
   };
+
+  useEffect(() => {
+    // Filter TGs based on search term
+    if (!searchTerm.trim()) {
+      setFilteredTGs(tgList);
+    } else {
+      const filtered = tgList.filter(
+        (tg) =>
+          tg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          tg.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          tg.tgId.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredTGs(filtered);
+    }
+  }, [searchTerm, tgList]);
 
   const handleViewClick = (tg) => {
     setModalMode("view");
@@ -100,7 +180,9 @@ export default function TGManagement() {
   };
 
   const handleDeleteClick = async (tgId) => {
-    if (!window.confirm("Are you sure you want to delete this Teacher Guardian?")) {
+    if (
+      !window.confirm("Are you sure you want to delete this Teacher Guardian?")
+    ) {
       return;
     }
 
@@ -108,12 +190,12 @@ export default function TGManagement() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(
-        `http://localhost:3000/api/hod/tg/${tgId}`,
+        `http://localhost:3000/api/hod/delete-tg/${tgId}`,
         {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           credentials: "include",
         }
@@ -147,26 +229,23 @@ export default function TGManagement() {
       let response;
 
       if (modalMode === "create") {
-        response = await fetch(
-          "http://localhost:3000/api/hod/tg/create",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
-            },
-            credentials: "include",
-            body: JSON.stringify(formData),
-          }
-        );
+        response = await fetch("http://localhost:3000/api/hod/create-tg", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(formData),
+        });
       } else if (modalMode === "edit") {
         response = await fetch(
-          `http://localhost:3000/api/hod/tg/${selectedTG._id}`,
+          `http://localhost:3000/api/hod/edit-tg/${selectedTG.tgId}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              "Authorization": `Bearer ${token}`,
+              Authorization: `Bearer ${token}`,
             },
             credentials: "include",
             body: JSON.stringify(formData),
@@ -193,11 +272,7 @@ export default function TGManagement() {
     }
   };
 
-  const filteredTG = tgList.filter(
-    (tg) =>
-      tg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tg.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTG = filteredTGs;
 
   return (
     <div>
@@ -266,7 +341,9 @@ export default function TGManagement() {
       {loading ? (
         <div
           className={`p-12 rounded-2xl border flex items-center justify-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <FiLoader className="animate-spin text-2xl mr-3" />
@@ -277,7 +354,9 @@ export default function TGManagement() {
       ) : filteredTG.length === 0 ? (
         <div
           className={`p-12 rounded-2xl border text-center ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <p
@@ -298,7 +377,9 @@ export default function TGManagement() {
       ) : (
         <div
           className={`rounded-2xl border overflow-hidden ${
-            darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
           <table className="w-full">
@@ -405,6 +486,11 @@ export default function TGManagement() {
           onSubmit={handleSubmit}
           onClose={() => setShowModal(false)}
           darkMode={darkMode}
+          departments={departments}
+          courses={courses}
+          branches={branches}
+          sections={sections}
+          academicYears={academicYears}
         />
       )}
     </div>
@@ -420,6 +506,11 @@ function TGModal({
   onSubmit,
   onClose,
   darkMode,
+  departments,
+  courses,
+  branches,
+  sections,
+  academicYears,
 }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -460,6 +551,30 @@ function TGModal({
         {/* Form */}
         <form onSubmit={onSubmit} className="p-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* TG ID */}
+            <div>
+              <label
+                className={`block text-sm font-semibold mb-2 ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                TG ID *
+              </label>
+              <input
+                type="text"
+                name="tgId"
+                value={formData.tgId}
+                onChange={onInputChange}
+                disabled={mode === "view" || mode === "edit"}
+                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
+                    : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
+                }`}
+                required
+              />
+            </div>
+
             {/* Name */}
             <div>
               <label
@@ -467,7 +582,7 @@ function TGModal({
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                Full Name
+                Full Name *
               </label>
               <input
                 type="text"
@@ -491,7 +606,7 @@ function TGModal({
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                Email
+                Email *
               </label>
               <input
                 type="email"
@@ -508,19 +623,19 @@ function TGModal({
               />
             </div>
 
-            {/* Phone */}
+            {/* Mobile Number */}
             <div>
               <label
                 className={`block text-sm font-semibold mb-2 ${
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                Phone
+                Mobile Number *
               </label>
               <input
                 type="tel"
-                name="phone"
-                value={formData.phone}
+                name="mobileNumber"
+                value={formData.mobileNumber}
                 onChange={onInputChange}
                 disabled={mode === "view"}
                 className={`w-full px-4 py-2 rounded-lg border transition-colors ${
@@ -528,8 +643,34 @@ function TGModal({
                     ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
                     : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
                 }`}
+                required
               />
             </div>
+
+            {/* Password - Only in Create mode */}
+            {mode === "create" && (
+              <div>
+                <label
+                  className={`block text-sm font-semibold mb-2 ${
+                    darkMode ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
+                  Password *
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={onInputChange}
+                  className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                    darkMode
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-gray-50 border-gray-200 text-gray-900"
+                  }`}
+                  required
+                />
+              </div>
+            )}
 
             {/* Department */}
             <div>
@@ -538,10 +679,9 @@ function TGModal({
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                Department
+                Department *
               </label>
-              <input
-                type="text"
+              <select
                 name="department"
                 value={formData.department}
                 onChange={onInputChange}
@@ -551,22 +691,29 @@ function TGModal({
                     ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
                     : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
                 }`}
-              />
+                required
+              >
+                <option value="">Select Department</option>
+                {departments.map((dept) => (
+                  <option key={dept._id} value={dept.name}>
+                    {dept.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Experience */}
+            {/* Course */}
             <div>
               <label
                 className={`block text-sm font-semibold mb-2 ${
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                Experience (Years)
+                Course *
               </label>
-              <input
-                type="number"
-                name="experience"
-                value={formData.experience}
+              <select
+                name="course"
+                value={formData.course}
                 onChange={onInputChange}
                 disabled={mode === "view"}
                 className={`w-full px-4 py-2 rounded-lg border transition-colors ${
@@ -574,22 +721,29 @@ function TGModal({
                     ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
                     : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
                 }`}
-              />
+                required
+              >
+                <option value="">Select Course</option>
+                {courses.map((course) => (
+                  <option key={course._id} value={course.name}>
+                    {course.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
-            {/* Qualifications */}
+            {/* Branch */}
             <div>
               <label
                 className={`block text-sm font-semibold mb-2 ${
                   darkMode ? "text-gray-300" : "text-gray-700"
                 }`}
               >
-                Qualifications
+                Branch *
               </label>
-              <input
-                type="text"
-                name="qualifications"
-                value={formData.qualifications}
+              <select
+                name="branch"
+                value={formData.branch}
                 onChange={onInputChange}
                 disabled={mode === "view"}
                 className={`w-full px-4 py-2 rounded-lg border transition-colors ${
@@ -597,31 +751,104 @@ function TGModal({
                     ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
                     : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
                 }`}
-              />
+                required
+              >
+                <option value="">Select Branch</option>
+                {branches.map((branch) => (
+                  <option key={branch._id} value={branch.name}>
+                    {branch.name}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
 
-          {/* Specialization */}
-          <div>
-            <label
-              className={`block text-sm font-semibold mb-2 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Specialization
-            </label>
-            <textarea
-              name="specialization"
-              value={formData.specialization}
-              onChange={onInputChange}
-              disabled={mode === "view"}
-              className={`w-full px-4 py-2 rounded-lg border transition-colors ${
-                darkMode
-                  ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
-                  : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
-              }`}
-              rows="3"
-            />
+            {/* Section */}
+            <div>
+              <label
+                className={`block text-sm font-semibold mb-2 ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Section *
+              </label>
+              <select
+                name="section"
+                value={formData.section}
+                onChange={onInputChange}
+                disabled={mode === "view"}
+                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
+                    : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
+                }`}
+                required
+              >
+                <option value="">Select Section</option>
+                {sections.map((section) => (
+                  <option key={section._id} value={section.name}>
+                    {section.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Academic Year */}
+            <div>
+              <label
+                className={`block text-sm font-semibold mb-2 ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Academic Year *
+              </label>
+              <select
+                name="academicYear"
+                value={formData.academicYear}
+                onChange={onInputChange}
+                disabled={mode === "view"}
+                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
+                    : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
+                }`}
+                required
+              >
+                <option value="">Select Year</option>
+                {academicYears.map((year) => (
+                  <option key={year._id} value={year.year}>
+                    {year.year}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Gender */}
+            <div>
+              <label
+                className={`block text-sm font-semibold mb-2 ${
+                  darkMode ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                Gender *
+              </label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={onInputChange}
+                disabled={mode === "view"}
+                className={`w-full px-4 py-2 rounded-lg border transition-colors ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white disabled:opacity-50"
+                    : "bg-gray-50 border-gray-200 text-gray-900 disabled:opacity-50"
+                }`}
+                required
+              >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
           </div>
 
           {/* Action Buttons */}

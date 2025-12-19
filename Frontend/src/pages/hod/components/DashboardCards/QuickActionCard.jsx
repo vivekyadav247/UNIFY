@@ -1,30 +1,39 @@
-
 import { useState } from "react";
 
-export default function QuickActionCard() {
+export default function QuickActionCard({ darkMode }) {
   const [clickedButton, setClickedButton] = useState(null);
 
   const handleClick = (button) => {
     setClickedButton(button);
-    setTimeout(() => setClickedButton(null), 200); // 200ms blink
+    setTimeout(() => setClickedButton(null), 200);
   };
 
   const buttons = [
     {
       label: "Generate Report",
-      color: "bg-blue-300 text-white",
-      blink: "bg-blue-200",
+      color: "bg-blue-500 text-white hover:bg-blue-600",
+      blink: "bg-blue-400",
     },
     {
       label: "Add Event",
-      color: "bg-pink-300 text-white",
-      blink: "bg-pink-200",
+      color: "bg-pink-500 text-white hover:bg-pink-600",
+      blink: "bg-pink-400",
     },
   ];
 
   return (
-    <div className="bg-white rounded-xl p-3 shadow-sm border w-64 mx-auto">
-      <h3 className="text-lg font-semibold mb-3 text-gray-800">Quick Actions</h3>
+    <div
+      className={`rounded-xl p-3 shadow-sm border w-64 mx-auto ${
+        darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+      }`}
+    >
+      <h3
+        className={`text-lg font-semibold mb-3 ${
+          darkMode ? "text-white" : "text-gray-800"
+        }`}
+      >
+        Quick Actions
+      </h3>
 
       <div className="flex flex-col gap-3">
         {buttons.map((btn) => (

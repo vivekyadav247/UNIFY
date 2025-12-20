@@ -41,8 +41,7 @@ export default function Announcements() {
         targetAudience: "all",
       });
       fetchAnnouncements();
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const getPriorityColor = (priority) => {

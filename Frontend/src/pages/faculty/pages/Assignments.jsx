@@ -63,8 +63,7 @@ export default function Assignments() {
           subject: uniqueSubjects[0]?.id || "",
         }));
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const fetchAssignments = async () => {

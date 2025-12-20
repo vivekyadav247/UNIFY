@@ -58,8 +58,7 @@ export default function BranchManagement() {
         const data = await response.json();
         setDepartments(data.departments);
       }
-    } catch (err) {
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {

@@ -18,8 +18,7 @@ const Navbar = ({ darkMode, notifications: passedNotifications = [] }) => {
         if (res.student) {
           setStudent(res.student);
         }
-      } catch (err) {
-      }
+      } catch (err) {}
     };
     fetchStudent();
   }, []);

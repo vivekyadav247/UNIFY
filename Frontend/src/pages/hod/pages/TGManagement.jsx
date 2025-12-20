@@ -57,8 +57,7 @@ export default function TGManagement() {
         const data = await response.json();
         setHodProfile(data.hod);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const fetchDropdownOptions = async () => {
@@ -102,8 +101,7 @@ export default function TGManagement() {
         const data = await yearRes.json();
         setAcademicYears(data.academicYears || []);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {

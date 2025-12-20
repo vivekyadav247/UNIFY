@@ -73,8 +73,7 @@ export default function Faculty() {
         const data = await response.json();
         setHodProfile(data.hod);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const fetchDropdownOptions = async () => {
@@ -118,8 +117,7 @@ export default function Faculty() {
         const data = await yearRes.json();
         setAcademicYears(data.academicYears || []);
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const fetchFaculty = async () => {

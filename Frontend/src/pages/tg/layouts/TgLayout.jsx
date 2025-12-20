@@ -42,8 +42,7 @@ export default function TgLayout() {
           (leave) => leave.status === "pending"
         );
         setNotifications(pendingLeaves);
-      } catch (error) {
-      }
+      } catch (error) {}
     };
 
     if (tg) {

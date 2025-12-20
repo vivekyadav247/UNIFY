@@ -77,19 +77,15 @@ export default function Login() {
         else if (role === "hod") navigate("/hod/dashboard");
         else if (role === "tg") navigate("/tg/dashboard");
       } else {
-        console.log("❌ Login failed:", res.message);
         setError(res.message || "Login failed");
       }
     } catch (err) {
-      console.error("❌ Login error:", err);
-      console.error("Error response:", err.response);
       setLoading(false);
       const errorMsg =
         err.response?.data?.message ||
         err.response?.data?.error ||
         err.message ||
         "Server error. Please try again.";
-      console.log("Setting error:", errorMsg);
       setError(errorMsg);
     }
   };

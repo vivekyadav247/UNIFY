@@ -92,7 +92,6 @@ export default function LeaveRequest() {
         showError(response.message || "Failed to submit leave request");
       }
     } catch (err) {
-      console.error("Error submitting leave request:", err);
       const errorMsg =
         err.response?.data?.error ||
         err.message ||

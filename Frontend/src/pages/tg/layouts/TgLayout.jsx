@@ -24,7 +24,6 @@ export default function TgLayout() {
           navigate("/signin");
         }
       } catch (error) {
-        console.error("Error fetching TG profile:", error);
         navigate("/signin");
       } finally {
         setLoading(false);
@@ -43,9 +42,7 @@ export default function TgLayout() {
           (leave) => leave.status === "pending"
         );
         setNotifications(pendingLeaves);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
+      } catch (error) {}
     };
 
     if (tg) {

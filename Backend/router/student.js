@@ -7,7 +7,6 @@ const {
   getMyClassTeacher,
 } = require("../controller/student");
 const { getStudentAttendance } = require("../controller/attendance");
-const { attendanceBySemester } = require("../controller/semester");
 const {
   applyLeave,
   getMyLeaves,
@@ -21,6 +20,7 @@ const {
 const {
   getStudentAnnouncements,
   getAnnouncementDetails,
+  createStudentAnnouncement,
 } = require("../controller/announcement");
 const {
   submitFeedback,
@@ -44,7 +44,6 @@ router.get("/class-teacher", getMyClassTeacher);
 
 // Attendance routes
 router.get("/attendance", getStudentAttendance);
-router.get("/semester/:semesterNumber/attendance", attendanceBySemester);
 
 // Leave routes
 router.post("/leave/apply", applyLeave);
@@ -57,6 +56,7 @@ router.get("/assignments/:assignmentId", getAssignmentDetails);
 router.post("/assignments/submit", submitAssignment);
 
 // Announcement routes
+router.post("/announcements/create", createStudentAnnouncement);
 router.get("/announcements", getStudentAnnouncements);
 router.get("/announcements/:announcementId", getAnnouncementDetails);
 

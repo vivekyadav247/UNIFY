@@ -19,6 +19,7 @@ import BranchManagement from "../pages/admin/pages/BranchManagement";
 import SectionManagement from "../pages/admin/pages/SectionManagement";
 import AcademicYearManagement from "../pages/admin/pages/AcademicYearManagement";
 import SubjectManagement from "../pages/admin/pages/SubjectManagement";
+import SemesterManagement from "../pages/admin/pages/SemesterManagement";
 
 // Student Pages
 import StudentLayout from "../pages/student/layouts/StudentLayout";
@@ -39,7 +40,10 @@ import HodFaculty from "../pages/hod/pages/Faculty";
 import HodStudents from "../pages/hod/pages/Students";
 import HodSettings from "../pages/hod/pages/Settings";
 import HodReports from "../pages/hod/pages/Reports";
-import HodEvents from "../pages/hod/pages/Events";
+import HodAnnouncements from "../pages/hod/pages/Announcements";
+import HodFacultyLeaves from "../pages/hod/pages/FacultyLeaves";
+import HodFacultyAttendance from "../pages/hod/pages/FacultyAttendance";
+import ScheduleManagement from "../pages/hod/pages/ScheduleManagement";
 
 // TG Pages
 import TgLayout from "../pages/tg/layouts/TgLayout";
@@ -103,6 +107,7 @@ export default function AppRoutes({
         <Route path="sections" element={<SectionManagement />} />
         <Route path="academic-years" element={<AcademicYearManagement />} />
         <Route path="subjects" element={<SubjectManagement />} />
+        <Route path="semesters" element={<SemesterManagement />} />
       </Route>
 
       {/* ------------------------ STUDENT ROUTES ------------------------ */}
@@ -148,8 +153,11 @@ export default function AppRoutes({
         <Route path="faculty" element={<HodFaculty />} />
         <Route path="tg-management" element={<TGManagement />} />
         <Route path="students" element={<HodStudents />} />
+        <Route path="faculty-leaves" element={<HodFacultyLeaves />} />
+        <Route path="faculty-attendance" element={<HodFacultyAttendance />} />
+        <Route path="schedule-management" element={<ScheduleManagement />} />
         <Route path="reports" element={<HodReports />} />
-        <Route path="events" element={<HodEvents />} />
+        <Route path="announcements" element={<HodAnnouncements />} />
         <Route path="settings" element={<HodSettings />} />
       </Route>
 

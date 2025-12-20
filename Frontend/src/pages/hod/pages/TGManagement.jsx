@@ -57,9 +57,7 @@ export default function TGManagement() {
         const data = await response.json();
         setHodProfile(data.hod);
       }
-    } catch (error) {
-      console.error("Failed to fetch HOD profile:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchDropdownOptions = async () => {
@@ -103,9 +101,7 @@ export default function TGManagement() {
         const data = await yearRes.json();
         setAcademicYears(data.academicYears || []);
       }
-    } catch (error) {
-      console.error("Failed to fetch dropdown options:", error);
-    }
+    } catch (error) {}
   };
 
   useEffect(() => {

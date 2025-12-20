@@ -14,7 +14,6 @@ export default function NotificationsCard() {
         // Placeholder: Replace with actual API when backend endpoint is ready
         setNotifications([]);
       } catch (error) {
-        console.error("Error fetching notifications:", error);
       } finally {
         setLoading(false);
       }

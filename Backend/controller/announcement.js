@@ -15,10 +15,7 @@ async function getStudentAnnouncements(req, res) {
 
     // Get announcements
     const announcements = await Announcement.find({
-      $or: [
-        { targetRole: "all" },
-        { targetRole: "student" }
-      ]
+      $or: [{ targetRole: "all" }, { targetRole: "student" }],
     })
       .populate("facultyId", "name email")
       .populate("subjectId", "name code")
@@ -28,10 +25,7 @@ async function getStudentAnnouncements(req, res) {
       .lean();
 
     const total = await Announcement.countDocuments({
-      $or: [
-        { targetRole: "all" },
-        { targetRole: "student" }
-      ]
+      $or: [{ targetRole: "all" }, { targetRole: "student" }],
     });
 
     return res.status(200).json({
@@ -81,17 +75,108 @@ async function createAnnouncement(req, res) {
       return res.status(401).json({ error: "Unauthorized: Faculty only" });
     }
 
-    const { title, content, subjectId, attachmentUrl, priority, targetRole } = req.body;
+    const {
+      title,
+      content,
+      message,
+      subjectId,
+      attachmentUrl,
+      priority,
+      targetRole,
+    } = req.body;
     const facultyId = req.user._id;
 
-    if (!title || !content) {
+    // Accept both 'content' and 'message' field names for flexibility
+    const actualContent = content || message;
+
+    if (!title || !actualContent) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
     const announcement = new Announcement({
       title,
-      content,
+      content: actualContent,
       subjectId,
+      facultyId,
+      attachmentUrl,
+      priority: priority || "medium",
+      targetRole: targetRole || "all",
+    });
+
+    await announcement.save();
+    await announcement.populate("facultyId", "name email");
+
+    return res.status(201).json({
+      success: true,
+      message: "Announcement created successfully",
+      announcement,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// TG Create announcement
+async function createTgAnnouncement(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const { title, content, message, attachmentUrl, priority, targetRole } =
+      req.body;
+    const facultyId = req.user._id;
+
+    // Accept both 'content' and 'message' field names for flexibility
+    const actualContent = content || message;
+
+    if (!title || !actualContent) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const announcement = new Announcement({
+      title,
+      content: actualContent,
+      facultyId,
+      attachmentUrl,
+      priority: priority || "medium",
+      targetRole: targetRole || "all",
+    });
+
+    await announcement.save();
+    await announcement.populate("facultyId", "name email");
+
+    return res.status(201).json({
+      success: true,
+      message: "Announcement created successfully",
+      announcement,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Student Create announcement
+async function createStudentAnnouncement(req, res) {
+  try {
+    if (!req.user || req.user.role !== "student") {
+      return res.status(401).json({ error: "Unauthorized: Student only" });
+    }
+
+    const { title, content, message, attachmentUrl, priority, targetRole } =
+      req.body;
+    const facultyId = req.user._id;
+
+    // Accept both 'content' and 'message' field names for flexibility
+    const actualContent = content || message;
+
+    if (!title || !actualContent) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const announcement = new Announcement({
+      title,
+      content: actualContent,
       facultyId,
       attachmentUrl,
       priority: priority || "medium",
@@ -204,6 +289,8 @@ module.exports = {
   getStudentAnnouncements,
   getAnnouncementDetails,
   createAnnouncement,
+  createTgAnnouncement,
+  createStudentAnnouncement,
   getFacultyAnnouncements,
   updateAnnouncement,
   deleteAnnouncement,

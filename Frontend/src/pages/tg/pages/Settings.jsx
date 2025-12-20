@@ -56,7 +56,6 @@ export default function Settings() {
       setEditMode(false);
     } catch (err) {
       showError(err.response?.data?.error || "Failed to update profile");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -99,7 +98,6 @@ export default function Settings() {
       setConfirmPassword("");
     } catch (err) {
       showError(err.response?.data?.error || "Failed to change password");
-      console.error(err);
     } finally {
       setLoading(false);
     }

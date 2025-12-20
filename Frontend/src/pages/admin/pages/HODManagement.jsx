@@ -69,9 +69,7 @@ export default function HODManagement() {
         const data = await response.json();
         setDepartments(data.departments);
       }
-    } catch (err) {
-      console.error("Failed to fetch departments");
-    }
+    } catch (err) {}
   };
 
   const fetchCourses = async () => {
@@ -83,9 +81,7 @@ export default function HODManagement() {
         const data = await response.json();
         setCourses(data.courses);
       }
-    } catch (err) {
-      console.error("Failed to fetch courses");
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {

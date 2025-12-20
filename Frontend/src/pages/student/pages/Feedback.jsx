@@ -70,7 +70,6 @@ export default function Feedback() {
         showSuccess("Feedback data updated!");
       }
     } catch (err) {
-      console.error("Error fetching feedback:", err);
       const errorMsg =
         err.response?.data?.error || err.message || "Failed to fetch feedback";
       setError(errorMsg);

@@ -30,7 +30,6 @@ export default function StudentLayout({
           setStudent(res.student);
         }
       } catch (err) {
-        console.error("Error fetching profile:", err);
         navigate("/signin");
       } finally {
         setLoading(false);

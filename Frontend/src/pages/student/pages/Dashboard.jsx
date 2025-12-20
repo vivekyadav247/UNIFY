@@ -70,7 +70,6 @@ export default function Dashboard() {
       const data = await studentAPI.getClassTeacher();
       setClassTeacher(data.classTeacher);
     } catch (err) {
-      console.log("No class teacher assigned yet");
       setClassTeacher(null);
     }
   };
@@ -191,7 +190,6 @@ export default function Dashboard() {
         showSuccess("Dashboard updated!");
       }
     } catch (err) {
-      console.error("Error fetching dashboard data:", err);
       setError("Failed to load dashboard data");
       showError("Failed to load dashboard data");
       // Fallback to empty data

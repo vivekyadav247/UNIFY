@@ -5,6 +5,7 @@ const TG = require("../model/tg");
 const Student = require("../model/student");
 const Faculty = require("../model/faculty");
 const Hod = require("../model/hod");
+const Marks = require("../model/marks");
 const Announcement = require("../model/announcement");
 const { notifyAnnouncement } = require("../utils/notifications");
 const { randomBytes, createHmac } = require("crypto");
@@ -113,9 +114,6 @@ async function handleCreateFaculty(req, res) {
       mobileNumber,
       gender,
       course,
-      branch,
-      section,
-      academicYear,
       assignedSubjects,
     } = req.body;
     if (
@@ -147,9 +145,6 @@ async function handleCreateFaculty(req, res) {
       mobileNumber,
       gender,
       course,
-      branch,
-      section,
-      academicYear,
       assignedSubjects,
     });
     await newFaculty.save();
@@ -558,6 +553,16 @@ async function getDashboardStats(req, res) {
     // Get total subjects in department
     const totalSubjects = await Subject.countDocuments({ department });
 
+    // Get average CGPA of department
+    const marksData = await Marks.find({ department });
+    const avgCGPA =
+      marksData.length > 0
+        ? (
+            marksData.reduce((sum, record) => sum + (record.cgpa || 0), 0) /
+            marksData.length
+          ).toFixed(2)
+        : 0;
+
     return res.status(200).json({
       success: true,
       summary: {
@@ -565,6 +570,7 @@ async function getDashboardStats(req, res) {
         totalFaculty,
         totalTGs,
         totalSubjects,
+        avgCGPA: parseFloat(avgCGPA),
         activeSemester: activeSemester
           ? {
               semesterNumber: activeSemester.semesterNumber,
@@ -801,15 +807,17 @@ async function createHODAnnouncement(req, res) {
       return res.status(401).json({ error: "Unauthorized: HOD only" });
     }
 
-    const { title, content, priority, targetRole, subjectId } = req.body;
+    const { title, content, message, priority, targetRole, subjectId } =
+      req.body;
 
-    if (!title || !content) {
+    const actualContent = content || message;
+    if (!title || !actualContent) {
       return res.status(400).json({ error: "Title and content are required" });
     }
 
     const announcement = new Announcement({
       title,
-      content,
+      content: actualContent,
       facultyId: req.user._id, // HOD creates it
       priority: priority || "medium",
       targetRole: targetRole || "all",
@@ -843,6 +851,78 @@ async function createHODAnnouncement(req, res) {
   }
 }
 
+// Update announcement as HOD
+async function updateHODAnnouncement(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { announcementId } = req.params;
+    const { title, content, message, priority, targetRole } = req.body;
+
+    const announcement = await Announcement.findById(announcementId);
+
+    if (!announcement) {
+      return res.status(404).json({ error: "Announcement not found" });
+    }
+
+    // Check if HOD owns this announcement
+    if (announcement.facultyId.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Can only edit own announcements" });
+    }
+
+    // Update fields
+    if (title) announcement.title = title;
+    if (content || message) announcement.content = content || message;
+    if (priority) announcement.priority = priority;
+    if (targetRole) announcement.targetRole = targetRole;
+
+    await announcement.save();
+
+    return res.status(200).json({
+      message: "Announcement updated successfully",
+      announcement,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Delete announcement as HOD
+async function deleteHODAnnouncement(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { announcementId } = req.params;
+
+    const announcement = await Announcement.findById(announcementId);
+
+    if (!announcement) {
+      return res.status(404).json({ error: "Announcement not found" });
+    }
+
+    // Check if HOD owns this announcement
+    if (announcement.facultyId.toString() !== req.user._id.toString()) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Can only delete own announcements" });
+    }
+
+    await Announcement.findByIdAndDelete(announcementId);
+
+    return res.status(200).json({
+      message: "Announcement deleted successfully",
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 // --------------------- GET SUBJECTS BY FILTERS ------------------------
 async function getSubjectsByFilters(req, res) {
   if (!req.user || req.user.role !== "hod") {
@@ -850,12 +930,12 @@ async function getSubjectsByFilters(req, res) {
   }
 
   try {
-    const { department, course, branch } = req.query;
+    const { department, course } = req.query;
 
     const filter = {};
     if (department) filter.department = department;
     if (course) filter.course = course;
-    if (branch) filter.branch = branch;
+    // Don't filter by branch - faculty can teach across all branches in their department
 
     const subjects = await Subject.find(filter).sort({ name: 1 });
 
@@ -889,12 +969,18 @@ module.exports = {
   getTGDetails,
   getHODAnnouncements,
   createHODAnnouncement,
+  updateHODAnnouncement,
+  deleteHODAnnouncement,
   getSubjectsByFilters,
   getDepartments,
   getCourses,
   getBranches,
   getSections,
   getAcademicYears,
+  getHODFacultyLeaveRequests,
+  approveHODFacultyLeave,
+  rejectHODFacultyLeave,
+  getTodayFacultyAttendance,
 };
 
 // Get all active departments
@@ -905,7 +991,6 @@ async function getDepartments(req, res) {
     );
     res.status(200).json({ departments });
   } catch (error) {
-    console.error("Error fetching departments:", error);
     res.status(500).json({ error: "Failed to fetch departments" });
   }
 }
@@ -918,7 +1003,6 @@ async function getCourses(req, res) {
     );
     res.status(200).json({ courses });
   } catch (error) {
-    console.error("Error fetching courses:", error);
     res.status(500).json({ error: "Failed to fetch courses" });
   }
 }
@@ -941,7 +1025,6 @@ async function getBranches(req, res) {
       .select("name code department");
     res.status(200).json({ branches });
   } catch (error) {
-    console.error("Error fetching branches:", error);
     res.status(500).json({ error: "Failed to fetch branches" });
   }
 }
@@ -954,7 +1037,6 @@ async function getSections(req, res) {
     );
     res.status(200).json({ sections });
   } catch (error) {
-    console.error("Error fetching sections:", error);
     res.status(500).json({ error: "Failed to fetch sections" });
   }
 }
@@ -967,7 +1049,212 @@ async function getAcademicYears(req, res) {
     );
     res.status(200).json({ academicYears });
   } catch (error) {
-    console.error("Error fetching academic years:", error);
     res.status(500).json({ error: "Failed to fetch academic years" });
+  }
+}
+// Get faculty leave requests for HOD approval
+async function getHODFacultyLeaveRequests(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    // Get pending faculty leave requests for this HOD's department
+    const Leave = require("../model/leave");
+    const leaveRequests = await Leave.find({
+      userId: {
+        $in: await Faculty.find({ department: hod.department }).select("_id"),
+      },
+      userType: "faculty",
+      status: { $in: ["pending", "submitted"] },
+    })
+      .populate("userId", "name facultyId email")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      leaveRequests,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// HOD approve faculty leave
+async function approveHODFacultyLeave(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { leaveId } = req.params;
+    const { remarks } = req.body;
+
+    const Leave = require("../model/leave");
+    const leave = await Leave.findById(leaveId).populate("userId");
+
+    if (!leave) {
+      return res.status(404).json({ error: "Leave request not found" });
+    }
+
+    if (leave.userType !== "faculty") {
+      return res
+        .status(400)
+        .json({ error: "This is not a faculty leave request" });
+    }
+
+    // Verify HOD's department
+    const hod = await Hod.findById(req.user._id);
+    const faculty = await Faculty.findById(leave.userId);
+
+    if (faculty.department !== hod.department) {
+      return res
+        .status(403)
+        .json({ error: "Unauthorized: Faculty not in your department" });
+    }
+
+    leave.status = "approved";
+    leave.approvedBy = req.user._id;
+    if (remarks) leave.remarks = remarks;
+
+    await leave.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Faculty leave approved successfully",
+      leave,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// HOD reject faculty leave
+async function rejectHODFacultyLeave(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const { leaveId } = req.params;
+    const { remarks } = req.body;
+
+    const Leave = require("../model/leave");
+    const leave = await Leave.findById(leaveId);
+
+    if (!leave) {
+      return res.status(404).json({ error: "Leave request not found" });
+    }
+
+    if (leave.userType !== "faculty") {
+      return res
+        .status(400)
+        .json({ error: "This is not a faculty leave request" });
+    }
+
+    leave.status = "rejected";
+    leave.approvedBy = null;
+    if (remarks) leave.remarks = remarks;
+
+    await leave.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Faculty leave rejected successfully",
+      leave,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get today's faculty attendance (who came and who didn't)
+async function getTodayFacultyAttendance(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    // Get all faculty in department
+    const faculty = await Faculty.find({ department: hod.department });
+    const facultyIds = faculty.map((f) => f._id);
+
+    // Get leave requests for today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const Leave = require("../model/leave");
+    const leaveToday = await Leave.find({
+      userId: { $in: facultyIds },
+      userType: "faculty",
+      fromDate: { $lte: today },
+      toDate: { $gte: today },
+      status: "approved",
+    });
+
+    const leaveFacultyIds = new Set(leaveToday.map((l) => l.userId.toString()));
+
+    // Categorize faculty
+    const present = faculty.filter(
+      (f) => !leaveFacultyIds.has(f._id.toString())
+    );
+    const onLeave = faculty.filter((f) =>
+      leaveFacultyIds.has(f._id.toString())
+    );
+
+    const presentPercentage =
+      faculty.length > 0
+        ? Math.round((present.length / faculty.length) * 100)
+        : 0;
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        date: today.toLocaleDateString(),
+        totalFaculty: faculty.length,
+        presentFaculty: present.map((f) => ({
+          _id: f._id,
+          name: f.name,
+          facultyId: f.facultyId,
+          email: f.email,
+          status: "present",
+        })),
+        onLeaveFaculty: onLeave.map((f) => ({
+          _id: f._id,
+          name: f.name,
+          facultyId: f.facultyId,
+          email: f.email,
+          status: "on_leave",
+          leaveReason: leaveToday.find(
+            (l) => l.userId.toString() === f._id.toString()
+          )?.reason,
+        })),
+        presentPercentage,
+        summary: {
+          total: faculty.length,
+          present: present.length,
+          onLeave: onLeave.length,
+          absent: 0,
+        },
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
   }
 }

@@ -76,7 +76,6 @@ async function getStudentAssignments(req, res) {
       assignments: Object.values(groupedBySubject),
     });
   } catch (err) {
-    console.error("Error fetching assignments:", err);
     return res.status(500).json({ error: err.message });
   }
 }

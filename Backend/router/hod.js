@@ -23,19 +23,19 @@ const {
   getTGDetails,
   getHODAnnouncements,
   createHODAnnouncement,
+  updateHODAnnouncement,
+  deleteHODAnnouncement,
   getSubjectsByFilters,
   getDepartments,
   getCourses,
   getBranches,
   getSections,
   getAcademicYears,
+  getHODFacultyLeaveRequests,
+  approveHODFacultyLeave,
+  rejectHODFacultyLeave,
+  getTodayFacultyAttendance,
 } = require("../controller/hod");
-
-const {
-  startSemester,
-  endSemester,
-  listSemesters,
-} = require("../controller/semester");
 
 router.get("/dashboard", getDashboardStats);
 
@@ -65,10 +65,6 @@ router.delete("/delete-faculty/:facultyId", deleteFaculty);
 
 router.post("/subject", createSubject);
 
-router.post("/semester/start", startSemester);
-router.post("/semester/end", endSemester);
-router.get("/semester/list", listSemesters);
-
 router.post("/assign-faculty", assignFacultyToSubject);
 
 router.get("/profile", getHodProfile);
@@ -90,6 +86,8 @@ router.get("/tg/:tgId", getTGDetails);
 // Announcements
 router.get("/announcements", getHODAnnouncements);
 router.post("/announcements", createHODAnnouncement);
+router.put("/announcements/:announcementId", updateHODAnnouncement);
+router.delete("/announcements/:announcementId", deleteHODAnnouncement);
 
 // Subjects
 router.get("/subjects", getSubjectsByFilters);
@@ -100,5 +98,13 @@ router.get("/courses", getCourses);
 router.get("/branches", getBranches);
 router.get("/sections", getSections);
 router.get("/academic-years", getAcademicYears);
+
+// Faculty Leave Approval
+router.get("/faculty/leave/requests", getHODFacultyLeaveRequests);
+router.post("/faculty/leave/approve/:leaveId", approveHODFacultyLeave);
+router.post("/faculty/leave/reject/:leaveId", rejectHODFacultyLeave);
+
+// Faculty Attendance
+router.get("/faculty/attendance/today", getTodayFacultyAttendance);
 
 module.exports = router;

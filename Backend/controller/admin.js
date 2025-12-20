@@ -15,6 +15,7 @@ const Subject = require("../model/subject");
 async function handleAdminLogin(req, res) {
   try {
     const { adminId, password } = req.body;
+
     if (!adminId || !password) {
       return res.status(400).json({ error: "All fields are required" });
     }
@@ -22,7 +23,7 @@ async function handleAdminLogin(req, res) {
       return res.status(401).json({ error: "Invalid Admin Credentials" });
     }
     const token = await createToken({
-      id: adminId,
+      _id: adminId,
       name: "Admin",
       role: "admin",
     });
@@ -614,6 +615,123 @@ async function getAdminProfile(req, res) {
   }
 }
 
+// ==================== SUBJECT CRUD ====================
+async function createSubject(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).json({ error: "Unauthorized: Admin only" });
+  }
+
+  try {
+    const {
+      subjectCode,
+      name,
+      course,
+      department,
+      branch,
+      semesterNumber,
+      subjectType,
+    } = req.body;
+
+    if (
+      !subjectCode ||
+      !name ||
+      !course ||
+      !department ||
+      !branch ||
+      !semesterNumber ||
+      !subjectType
+    ) {
+      return res.status(400).json({ error: "Required fields are missing" });
+    }
+
+    const existingSubject = await Subject.findOne({ subjectCode });
+    if (existingSubject) {
+      return res
+        .status(400)
+        .json({ error: "Subject with this code already exists" });
+    }
+
+    const subject = await Subject.create({
+      subjectCode: subjectCode.toUpperCase(),
+      name,
+      course,
+      department,
+      branch,
+      semesterNumber,
+      subjectType,
+    });
+
+    res.status(201).json({ message: "Subject created successfully", subject });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create subject" });
+  }
+}
+
+async function getAllSubjects(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).json({ error: "Unauthorized: Admin only" });
+  }
+
+  try {
+    const subjects = await Subject.find().sort({ subjectCode: 1 });
+    res.status(200).json({ subjects });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch subjects" });
+  }
+}
+
+async function updateSubject(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).json({ error: "Unauthorized: Admin only" });
+  }
+
+  try {
+    const { id } = req.params;
+    const { name, course, department, branch, semesterNumber, subjectType } =
+      req.body;
+
+    const subject = await Subject.findByIdAndUpdate(
+      id,
+      {
+        name,
+        course,
+        department,
+        branch,
+        semesterNumber,
+        subjectType,
+      },
+      { new: true }
+    );
+
+    if (!subject) {
+      return res.status(404).json({ error: "Subject not found" });
+    }
+
+    res.status(200).json({ message: "Subject updated successfully", subject });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update subject" });
+  }
+}
+
+async function deleteSubject(req, res) {
+  if (!req.user || req.user.role !== "admin") {
+    return res.status(401).json({ error: "Unauthorized: Admin only" });
+  }
+
+  try {
+    const { id } = req.params;
+    const subject = await Subject.findByIdAndDelete(id);
+
+    if (!subject) {
+      return res.status(404).json({ error: "Subject not found" });
+    }
+
+    res.status(200).json({ message: "Subject deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete subject" });
+  }
+}
+
 module.exports = {
   handleAdminLogin,
   getAdminProfile,
@@ -654,133 +772,3 @@ module.exports = {
   updateSubject,
   deleteSubject,
 };
-
-// ==================== SUBJECT CRUD ====================
-async function createSubject(req, res) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).json({ error: "Unauthorized: Admin only" });
-  }
-
-  try {
-    const {
-      subjectCode,
-      name,
-      course,
-      department,
-      branch,
-      section,
-      semesterNumber,
-      academicYear,
-    } = req.body;
-
-    if (
-      !subjectCode ||
-      !name ||
-      !course ||
-      !department ||
-      !semesterNumber ||
-      !academicYear
-    ) {
-      return res.status(400).json({ error: "Required fields are missing" });
-    }
-
-    const existingSubject = await Subject.findOne({ subjectCode });
-    if (existingSubject) {
-      return res
-        .status(400)
-        .json({ error: "Subject with this code already exists" });
-    }
-
-    const subject = await Subject.create({
-      subjectCode: subjectCode.toUpperCase(),
-      name,
-      course,
-      department,
-      branch: branch || "",
-      section: section || "",
-      semesterNumber,
-      academicYear,
-    });
-
-    res.status(201).json({ message: "Subject created successfully", subject });
-  } catch (error) {
-    console.error("Error creating subject:", error);
-    res.status(500).json({ error: "Failed to create subject" });
-  }
-}
-
-async function getAllSubjects(req, res) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).json({ error: "Unauthorized: Admin only" });
-  }
-
-  try {
-    const subjects = await Subject.find().sort({ subjectCode: 1 });
-    res.status(200).json({ subjects });
-  } catch (error) {
-    console.error("Error fetching subjects:", error);
-    res.status(500).json({ error: "Failed to fetch subjects" });
-  }
-}
-
-async function updateSubject(req, res) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).json({ error: "Unauthorized: Admin only" });
-  }
-
-  try {
-    const { id } = req.params;
-    const {
-      name,
-      course,
-      department,
-      branch,
-      section,
-      semesterNumber,
-      academicYear,
-    } = req.body;
-
-    const subject = await Subject.findByIdAndUpdate(
-      id,
-      {
-        name,
-        course,
-        department,
-        branch: branch || "",
-        section: section || "",
-        semesterNumber,
-        academicYear,
-      },
-      { new: true }
-    );
-
-    if (!subject) {
-      return res.status(404).json({ error: "Subject not found" });
-    }
-
-    res.status(200).json({ message: "Subject updated successfully", subject });
-  } catch (error) {
-    console.error("Error updating subject:", error);
-    res.status(500).json({ error: "Failed to update subject" });
-  }
-}
-
-async function deleteSubject(req, res) {
-  if (!req.user || req.user.role !== "admin") {
-    return res.status(401).json({ error: "Unauthorized: Admin only" });
-  }
-
-  try {
-    const { id } = req.params;
-    const subject = await Subject.findByIdAndDelete(id);
-
-    if (!subject) {
-      return res.status(404).json({ error: "Subject not found" });
-    }
-
-    res.status(200).json({ message: "Subject deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting subject:", error);
-    res.status(500).json({ error: "Failed to delete subject" });
-  }
-}

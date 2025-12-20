@@ -22,8 +22,19 @@ const Sidebar = ({ darkMode }) => {
   const menu = [
     { name: "Dashboard", icon: <FiHome />, path: "/hod/dashboard" },
     { name: "Faculty", icon: <FiUserCheck />, path: "/hod/faculty" },
+    {
+      name: "Faculty Leaves",
+      icon: <FiFileText />,
+      path: "/hod/faculty-leaves",
+    },
+    {
+      name: "Faculty Attendance",
+      icon: <FiCheckSquare />,
+      path: "/hod/faculty-attendance",
+    },
+    { name: "Schedule", icon: <FiClock />, path: "/hod/schedule-management" },
     { name: "Students", icon: <FiUsers />, path: "/hod/students" },
-    { name: "Events", icon: <FiClock />, path: "/hod/events" },
+    { name: "Announcements", icon: <FiBell />, path: "/hod/announcements" },
   ];
 
   const handleLogout = () => {

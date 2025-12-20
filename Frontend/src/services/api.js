@@ -58,6 +58,8 @@ export const studentAPI = {
     axiosInstance.get("/student/announcements", { params: filters }),
   getAnnouncementDetails: (id) =>
     axiosInstance.get(`/student/announcements/${id}`),
+  createAnnouncement: (data) =>
+    axiosInstance.post("/student/announcements/create", data),
 
   // Feedback
   submitFeedback: (data) =>
@@ -125,6 +127,12 @@ export const facultyAPI = {
   submitLeaveRequest: (data) =>
     axiosInstance.post("/faculty/leave/request", data),
   getLeaves: () => axiosInstance.get("/faculty/leave"),
+  getStudentLeaveRequests: () =>
+    axiosInstance.get("/faculty/leave/requests/pending"),
+  approveStudentLeave: (leaveId, data) =>
+    axiosInstance.post(`/faculty/leave/approve/${leaveId}`, data),
+  rejectStudentLeave: (leaveId, data) =>
+    axiosInstance.post(`/faculty/leave/reject/${leaveId}`, data),
 
   // Schedule
   getSchedule: () => axiosInstance.get("/faculty/schedule"),
@@ -178,6 +186,37 @@ export const hodAPI = {
   getAnnouncements: (params) =>
     axiosInstance.get("/hod/announcements", { params }),
   createAnnouncement: (data) => axiosInstance.post("/hod/announcements", data),
+  updateAnnouncement: (announcementId, data) =>
+    axiosInstance.put(`/hod/announcements/${announcementId}`, data),
+  deleteAnnouncement: (announcementId) =>
+    axiosInstance.delete(`/hod/announcements/${announcementId}`),
+
+  // Faculty Leave Approval
+  getFacultyLeaveRequests: () =>
+    axiosInstance.get("/hod/faculty/leave/requests"),
+  approveFacultyLeave: (leaveId, data) =>
+    axiosInstance.post(`/hod/faculty/leave/approve/${leaveId}`, data),
+  rejectFacultyLeave: (leaveId, data) =>
+    axiosInstance.post(`/hod/faculty/leave/reject/${leaveId}`, data),
+
+  // Faculty Attendance
+  getTodayFacultyAttendance: () =>
+    axiosInstance.get("/hod/faculty/attendance/today"),
+
+  // Schedule Management
+  createSchedule: (data) => axiosInstance.post("/schedule/create", data),
+  getAllSchedules: () => axiosInstance.get("/schedule/all"),
+  getSchedulesByClass: (params) =>
+    axiosInstance.get("/schedule/class", { params }),
+  getSchedule: (scheduleId) => axiosInstance.get(`/schedule/${scheduleId}`),
+  updateSchedule: (scheduleId, data) =>
+    axiosInstance.put(`/schedule/${scheduleId}`, data),
+  publishSchedule: (scheduleId) =>
+    axiosInstance.put(`/schedule/${scheduleId}/publish`),
+  assignBackupFaculty: (scheduleId, slotIndex, data) =>
+    axiosInstance.post(`/schedule/${scheduleId}/backup/${slotIndex}`, data),
+  deleteSchedule: (scheduleId) =>
+    axiosInstance.delete(`/schedule/${scheduleId}`),
 };
 
 // ============ AUTH API ============
@@ -236,6 +275,8 @@ export const tgAPI = {
 
   // Announcements
   getAnnouncements: () => axiosInstance.get("/tg/announcements"),
+  createAnnouncement: (data) =>
+    axiosInstance.post("/tg/announcements/create", data),
 
   // Marks
   getMarks: () => axiosInstance.get("/tg/marks"),
@@ -276,6 +317,17 @@ export const adminAPI = {
     }),
   updateFeedbackStatus: (id, data) =>
     axiosInstance.put(`/feedback/${id}/status`, data),
+
+  // Semester Management
+  createSemester: (data) => axiosInstance.post("/admin/semester", data),
+  getAllSemesters: () => axiosInstance.get("/admin/semesters"),
+  getSemestersByYear: (academicYear) =>
+    axiosInstance.get(`/admin/semester/year/${academicYear}`),
+  getCurrentSemester: () => axiosInstance.get("/admin/semester/current"),
+  updateSemester: (semesterId, data) =>
+    axiosInstance.put(`/admin/semester/${semesterId}`, data),
+  deleteSemester: (semesterId) =>
+    axiosInstance.delete(`/admin/semester/${semesterId}`),
 };
 
 // ============ FILE UPLOAD API ============

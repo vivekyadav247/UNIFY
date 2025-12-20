@@ -27,7 +27,6 @@ export default function MyStudents() {
       setError(null);
     } catch (err) {
       setError(err.message || "Failed to fetch students");
-      console.error("Error fetching students:", err);
       showError("Failed to load students");
       setStudents([]);
     } finally {

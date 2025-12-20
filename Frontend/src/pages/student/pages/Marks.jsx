@@ -152,7 +152,6 @@ export default function Marks() {
         showSuccess("Marks data updated!");
       }
     } catch (err) {
-      console.error("Error fetching marks:", err);
       const errorMsg =
         err.response?.data?.error || err.message || "Failed to fetch marks";
       setError(errorMsg);

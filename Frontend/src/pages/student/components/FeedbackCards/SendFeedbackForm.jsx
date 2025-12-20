@@ -8,34 +8,41 @@ export default function SendFeedbackForm({ darkMode, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Feedback submitted:", formData);
     onClose();
   };
 
   return (
-    <div className={`p-6 rounded-2xl transition-colors duration-300 ${
-      darkMode 
-        ? "bg-gray-800/50 border border-gray-700" 
-        : "bg-white border border-gray-200"
-    }`}>
-      
-      <h3 className={`text-lg font-bold mb-4 ${darkMode ? "text-white" : "text-gray-900"}`}>
+    <div
+      className={`p-6 rounded-2xl transition-colors duration-300 ${
+        darkMode
+          ? "bg-gray-800/50 border border-gray-700"
+          : "bg-white border border-gray-200"
+      }`}
+    >
+      <h3
+        className={`text-lg font-bold mb-4 ${
+          darkMode ? "text-white" : "text-gray-900"
+        }`}
+      >
         Request Feedback
       </h3>
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        
         {/* TYPE SELECT */}
         <div>
-          <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+          <label
+            className={`block text-sm font-medium mb-2 ${
+              darkMode ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
             Feedback Type
           </label>
           <select
             value={formData.type}
-            onChange={(e) => setFormData({...formData, type: e.target.value})}
+            onChange={(e) => setFormData({ ...formData, type: e.target.value })}
             className={`w-full px-4 py-2 rounded-lg transition-colors duration-300 ${
-              darkMode 
-                ? "bg-gray-700 border border-gray-600 text-white" 
+              darkMode
+                ? "bg-gray-700 border border-gray-600 text-white"
                 : "bg-white border border-gray-300 text-gray-900"
             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           >
@@ -48,17 +55,23 @@ export default function SendFeedbackForm({ darkMode, onClose }) {
 
         {/* MESSAGE TEXTAREA */}
         <div>
-          <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+          <label
+            className={`block text-sm font-medium mb-2 ${
+              darkMode ? "text-gray-300" : "text-gray-700"
+            }`}
+          >
             Your Message
           </label>
           <textarea
             value={formData.message}
-            onChange={(e) => setFormData({...formData, message: e.target.value})}
+            onChange={(e) =>
+              setFormData({ ...formData, message: e.target.value })
+            }
             rows="5"
             placeholder="Write your feedback request here..."
             className={`w-full px-4 py-2 rounded-lg transition-colors duration-300 ${
-              darkMode 
-                ? "bg-gray-700 border border-gray-600 text-white placeholder-gray-500" 
+              darkMode
+                ? "bg-gray-700 border border-gray-600 text-white placeholder-gray-500"
                 : "bg-white border border-gray-300 text-gray-900 placeholder-gray-500"
             } focus:outline-none focus:ring-2 focus:ring-blue-500`}
           />
@@ -70,8 +83,8 @@ export default function SendFeedbackForm({ darkMode, onClose }) {
             type="button"
             onClick={onClose}
             className={`px-4 py-2 rounded-lg transition-all duration-300 font-medium ${
-              darkMode 
-                ? "border border-gray-600 text-white hover:bg-gray-700" 
+              darkMode
+                ? "border border-gray-600 text-white hover:bg-gray-700"
                 : "border border-gray-300 text-gray-900 hover:bg-gray-100"
             }`}
           >
@@ -80,8 +93,8 @@ export default function SendFeedbackForm({ darkMode, onClose }) {
           <button
             type="submit"
             className={`px-4 py-2 rounded-lg transition-all duration-300 font-medium ${
-              darkMode 
-                ? "bg-blue-600 hover:bg-blue-700 text-white" 
+              darkMode
+                ? "bg-blue-600 hover:bg-blue-700 text-white"
                 : "bg-blue-600 hover:bg-blue-700 text-white"
             }`}
           >

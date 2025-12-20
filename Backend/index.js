@@ -13,6 +13,7 @@ const hodRouter = require("./router/hod");
 const tgRouter = require("./router/tg");
 const facultyRouter = require("./router/faculty");
 const studentRouter = require("./router/student");
+const scheduleRouter = require("./router/schedule");
 const logger = require("./utils/logger");
 const requestLogger = require("./middleware/requestLogger");
 
@@ -74,10 +75,12 @@ app.use((req, res, next) => {
 
 // Public routes
 app.use("/api/auth", authRouter);
+app.post("/api/admin/login", require("./controller/admin").handleAdminLogin);
 
 // Protected routes
 app.use("/api/admin", cookieAuthenticate, adminRouter);
 app.use("/api/hod", cookieAuthenticate, hodRouter);
+app.use("/api/schedule", cookieAuthenticate, scheduleRouter);
 app.use("/api/tg", cookieAuthenticate, tgRouter);
 app.use("/api/faculty", cookieAuthenticate, facultyRouter);
 app.use("/api/:enrollmentNumber", cookieAuthenticate, studentRouter);

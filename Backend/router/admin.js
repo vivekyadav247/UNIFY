@@ -34,6 +34,14 @@ const {
   updateSubject,
   deleteSubject,
 } = require("../controller/admin");
+const {
+  createSemester,
+  getAllSemesters,
+  getSemestersByYear,
+  getCurrentSemester,
+  updateSemester,
+  deleteSemester,
+} = require("../controller/semester");
 const { handleLogout } = require("../controller/auth");
 
 router.post("/login", handleAdminLogin);
@@ -84,6 +92,14 @@ router.post("/subject", createSubject);
 router.get("/subjects", getAllSubjects);
 router.put("/subject/:id", updateSubject);
 router.delete("/subject/:id", deleteSubject);
+
+// Semester Management
+router.post("/semester", createSemester);
+router.get("/semesters", getAllSemesters);
+router.get("/semester/year/:academicYear", getSemestersByYear);
+router.get("/semester/current", getCurrentSemester);
+router.put("/semester/:semesterId", updateSemester);
+router.delete("/semester/:semesterId", deleteSemester);
 
 router.post("/logout", handleLogout);
 

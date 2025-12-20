@@ -91,7 +91,6 @@ export default function Attendance() {
 
       setAttendanceData(transformedData);
     } catch (err) {
-      console.error("Error fetching attendance:", err);
       const errorMsg =
         err.response?.data?.error ||
         err.message ||

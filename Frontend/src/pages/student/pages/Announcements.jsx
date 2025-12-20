@@ -86,7 +86,6 @@ export default function Announcements() {
         }
       }
     } catch (err) {
-      console.error("Error fetching announcements:", err);
       const errorMsg =
         err.response?.data?.error ||
         err.message ||

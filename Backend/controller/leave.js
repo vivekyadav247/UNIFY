@@ -193,7 +193,6 @@ async function submitLeaveRequest(req, res) {
       leave,
     });
   } catch (err) {
-    console.error("Leave request error:", err);
     return res.status(500).json({ error: err.message });
   }
 }
@@ -258,6 +257,123 @@ async function getFacultyLeaves(req, res) {
   }
 }
 
+// Get student leave requests for Faculty approval
+async function getFacultyStudentLeaveRequests(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const Faculty = require("../model/faculty");
+    const Student = require("../model/student");
+
+    const faculty = await Faculty.findById(req.user._id);
+    if (!faculty) {
+      return res.status(404).json({ error: "Faculty not found" });
+    }
+
+    // Get students taught by this faculty
+    const students = await Student.find({
+      assignedSubjects: { $in: faculty.assignedSubjects || [] },
+    }).select("_id");
+
+    const studentIds = students.map((s) => s._id);
+
+    // Get pending leave requests from these students
+    const leaveRequests = await Leave.find({
+      studentId: { $in: studentIds },
+      status: { $in: ["pending", "submitted"] },
+    })
+      .populate("studentId", "name enrollmentNumber email semesterNumber")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      success: true,
+      leaveRequests,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Faculty approve student leave
+async function approveFacultyStudentLeave(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const { leaveId } = req.params;
+    const { remarks } = req.body;
+
+    const leave = await Leave.findById(leaveId).populate("studentId");
+    if (!leave) {
+      return res.status(404).json({ error: "Leave request not found" });
+    }
+
+    // Verify faculty teaches the student
+    const Faculty = require("../model/faculty");
+    const faculty = await Faculty.findById(req.user._id);
+
+    const studentSubjects = leave.studentId.assignedSubjects || [];
+    const hasCommonSubjects = (faculty.assignedSubjects || []).some((subj) =>
+      studentSubjects.includes(subj)
+    );
+
+    if (!hasCommonSubjects) {
+      return res.status(403).json({
+        error: "You are not authorized to approve this student's leave",
+      });
+    }
+
+    leave.status = "approved";
+    leave.approvedBy = req.user._id;
+    if (remarks) leave.remarks = remarks;
+
+    await leave.save();
+    await autoMarkLeaveAttendance(leave);
+
+    return res.status(200).json({
+      success: true,
+      message: "Leave approved successfully",
+      leave,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Faculty reject student leave
+async function rejectFacultyStudentLeave(req, res) {
+  try {
+    if (!req.user || req.user.role !== "faculty") {
+      return res.status(401).json({ error: "Unauthorized: Faculty only" });
+    }
+
+    const { leaveId } = req.params;
+    const { remarks } = req.body;
+
+    const leave = await Leave.findById(leaveId);
+    if (!leave) {
+      return res.status(404).json({ error: "Leave request not found" });
+    }
+
+    leave.status = "rejected";
+    leave.approvedBy = null;
+    if (remarks) leave.remarks = remarks;
+
+    await leave.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Leave rejected successfully",
+      leave,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   applyLeave,
   approveLeave,
@@ -267,4 +383,7 @@ module.exports = {
   submitLeaveRequest,
   submitFacultyLeaveRequest,
   getFacultyLeaves,
+  getFacultyStudentLeaveRequests,
+  approveFacultyStudentLeave,
+  rejectFacultyStudentLeave,
 };

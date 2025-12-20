@@ -34,7 +34,6 @@ export default function Faculty() {
     password: "",
     department: "",
     course: "",
-    branch: "",
     section: "",
     gender: "",
     academicYear: [],
@@ -74,9 +73,7 @@ export default function Faculty() {
         const data = await response.json();
         setHodProfile(data.hod);
       }
-    } catch (error) {
-      console.error("Failed to fetch HOD profile:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchDropdownOptions = async () => {
@@ -120,9 +117,7 @@ export default function Faculty() {
         const data = await yearRes.json();
         setAcademicYears(data.academicYears || []);
       }
-    } catch (error) {
-      console.error("Failed to fetch dropdown options:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchFaculty = async () => {
@@ -173,21 +168,51 @@ export default function Faculty() {
   const handleCreateClick = () => {
     setModalMode("create");
     setSelectedFaculty(null);
+
+    // Get full names from dropdowns instead of using hodProfile abbreviations
+    let courseValue = "";
+    let deptValue = "";
+
+    if (hodProfile?.course) {
+      // Try to find matching course in dropdown
+      const matchedCourse = courses.find(
+        (c) =>
+          c.name === hodProfile.course ||
+          c.code === hodProfile.course ||
+          c.name.toUpperCase().includes(hodProfile.course.replace(/[.]/g, ""))
+      );
+      courseValue = matchedCourse?.name || hodProfile.course;
+    }
+
+    if (hodProfile?.department) {
+      // Try to find matching department in dropdown
+      const matchedDept = departments.find(
+        (d) =>
+          d.name === hodProfile.department ||
+          d.code === hodProfile.department ||
+          d.name.includes(hodProfile.department)
+      );
+      deptValue = matchedDept?.name || hodProfile.department;
+    }
+
     setFormData({
       name: "",
       facultyId: "",
       email: "",
       mobileNumber: "",
       password: "",
-      department: hodProfile?.department || "",
-      course: hodProfile?.course || "",
-      branch: "",
-      section: "",
+      department: deptValue,
+      course: courseValue,
       gender: "",
-      academicYear: [],
       assignedSubjects: [],
     });
-    setSubjects([]);
+
+    // Fetch subjects if course is available
+    if (courseValue) {
+      fetchSubjects(courseValue);
+    } else {
+      setSubjects([]);
+    }
     setShowModal(true);
   };
 
@@ -200,22 +225,34 @@ export default function Faculty() {
   const handleEditClick = (faculty) => {
     setModalMode("edit");
     setSelectedFaculty(faculty);
+
+    // Normalize course and department names from dropdowns
+    let courseValue = faculty.course;
+    let deptValue = faculty.department;
+
+    const matchedCourse = courses.find((c) => c.name === faculty.course);
+    if (matchedCourse) {
+      courseValue = matchedCourse.name;
+    }
+
+    const matchedDept = departments.find((d) => d.name === faculty.department);
+    if (matchedDept) {
+      deptValue = matchedDept.name;
+    }
+
     setFormData({
       name: faculty.name || "",
       facultyId: faculty.facultyId || "",
       email: faculty.email || "",
       mobileNumber: faculty.mobileNumber || "",
-      department: faculty.department || "",
-      course: faculty.course || "",
-      branch: faculty.branch || "",
-      section: faculty.section || "",
+      department: deptValue || "",
+      course: courseValue || "",
       gender: faculty.gender || "",
-      academicYear: faculty.academicYear || [],
       assignedSubjects: faculty.assignedSubjects || [],
     });
     // Fetch subjects if course and branch are available
-    if (faculty.course && faculty.branch) {
-      fetchSubjects(faculty.course, faculty.branch);
+    if (faculty.course) {
+      fetchSubjects(faculty.course);
     }
     setShowModal(true);
   };
@@ -254,23 +291,32 @@ export default function Faculty() {
     }
   };
 
-  const fetchSubjects = async (course, branch) => {
+  const fetchSubjects = async (course) => {
     try {
       setLoadingSubjects(true);
       const department = hodProfile?.department || "";
-      const response = await fetch(
-        `http://localhost:3000/api/hod/subjects?department=${department}&course=${course}&branch=${branch}`,
-        {
-          credentials: "include",
-        }
-      );
+
+      if (!department || !course) {
+        setSubjects([]);
+        setLoadingSubjects(false);
+        return;
+      }
+
+      const url = `http://localhost:3000/api/hod/subjects?department=${encodeURIComponent(
+        department
+      )}&course=${encodeURIComponent(course)}`;
+
+      const response = await fetch(url, {
+        credentials: "include",
+      });
 
       if (response.ok) {
         const data = await response.json();
         setSubjects(data.subjects || []);
+      } else {
+        const errorData = await response.json();
       }
     } catch (err) {
-      console.error("Failed to fetch subjects:", err);
       setSubjects([]);
     } finally {
       setLoadingSubjects(false);
@@ -284,13 +330,9 @@ export default function Faculty() {
       [name]: value,
     }));
 
-    // Fetch subjects when course or branch changes
-    if (name === "course" || name === "branch") {
-      const course = name === "course" ? value : formData.course;
-      const branch = name === "branch" ? value : formData.branch;
-      if (course && branch) {
-        fetchSubjects(course, branch);
-      }
+    // Fetch subjects when course changes (branch selection is optional)
+    if (name === "course" && value) {
+      fetchSubjects(value);
     }
   };
 
@@ -979,84 +1021,30 @@ export default function Faculty() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label
-                        className={`block text-sm font-medium mb-2 ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Branch
-                      </label>
-                      <select
-                        name="branch"
-                        value={formData.branch}
-                        onChange={handleInputChange}
-                        className={`w-full px-4 py-2 rounded-lg border ${
-                          darkMode
-                            ? "bg-gray-700 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
-                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      >
-                        <option value="">Select Branch</option>
-                        {branches.map((branch) => (
-                          <option key={branch._id} value={branch.name}>
-                            {branch.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label
-                        className={`block text-sm font-medium mb-2 ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Section
-                      </label>
-                      <select
-                        name="section"
-                        value={formData.section}
-                        onChange={handleInputChange}
-                        className={`w-full px-4 py-2 rounded-lg border ${
-                          darkMode
-                            ? "bg-gray-700 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
-                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      >
-                        <option value="">Select Section</option>
-                        {sections.map((section) => (
-                          <option key={section._id} value={section.name}>
-                            {section.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label
-                        className={`block text-sm font-medium mb-2 ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      >
-                        Gender *
-                      </label>
-                      <select
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleInputChange}
-                        required
-                        className={`w-full px-4 py-2 rounded-lg border ${
-                          darkMode
-                            ? "bg-gray-700 border-gray-600 text-white"
-                            : "bg-white border-gray-300 text-gray-900"
-                        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      >
-                        <option value="">Select</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
+                  <div>
+                    <label
+                      className={`block text-sm font-medium mb-2 ${
+                        darkMode ? "text-gray-300" : "text-gray-700"
+                      }`}
+                    >
+                      Gender *
+                    </label>
+                    <select
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleInputChange}
+                      required
+                      className={`w-full px-4 py-2 rounded-lg border ${
+                        darkMode
+                          ? "bg-gray-700 border-gray-600 text-white"
+                          : "bg-white border-gray-300 text-gray-900"
+                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                    >
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
 
                   <div>
@@ -1065,78 +1053,135 @@ export default function Faculty() {
                         darkMode ? "text-gray-300" : "text-gray-700"
                       }`}
                     >
-                      Academic Year (Hold Ctrl to select multiple)
+                      Assigned Subjects (Click to select)
                     </label>
-                    <select
-                      name="academicYear"
-                      multiple
-                      value={formData.academicYear}
-                      onChange={handleMultiSelect}
-                      className={`w-full px-4 py-2 rounded-lg border ${
-                        darkMode
-                          ? "bg-gray-700 border-gray-600 text-white"
-                          : "bg-white border-gray-300 text-gray-900"
-                      } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                      size="4"
-                    >
-                      {academicYears.map((year) => (
-                        <option key={year._id} value={year.year}>
-                          {year.year}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {formData.course && formData.branch && (
-                    <div>
-                      <label
-                        className={`block text-sm font-medium mb-2 ${
-                          darkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
+                    {loadingSubjects ? (
+                      <p
+                        className={darkMode ? "text-gray-400" : "text-gray-600"}
                       >
-                        Assigned Subjects (Hold Ctrl to select multiple)
-                      </label>
-                      {loadingSubjects ? (
-                        <p
-                          className={
-                            darkMode ? "text-gray-400" : "text-gray-600"
-                          }
-                        >
-                          Loading subjects...
-                        </p>
-                      ) : subjects.length > 0 ? (
-                        <select
-                          name="assignedSubjects"
-                          multiple
-                          value={formData.assignedSubjects}
-                          onChange={handleMultiSelect}
-                          className={`w-full px-4 py-2 rounded-lg border ${
+                        Loading subjects...
+                      </p>
+                    ) : subjects && subjects.length > 0 ? (
+                      <div>
+                        <div
+                          className={`border rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto ${
                             darkMode
-                              ? "bg-gray-700 border-gray-600 text-white"
-                              : "bg-white border-gray-300 text-gray-900"
-                          } focus:outline-none focus:ring-2 focus:ring-blue-500`}
-                          size="5"
+                              ? "bg-gray-700 border-gray-600"
+                              : "bg-white border-gray-300"
+                          }`}
                         >
                           {subjects.map((subject) => (
-                            <option
+                            <label
                               key={subject._id}
-                              value={subject.subjectCode}
+                              className={`flex items-center cursor-pointer p-2 rounded hover:${
+                                darkMode ? "bg-gray-600" : "bg-gray-100"
+                              } ${
+                                darkMode ? "text-gray-200" : "text-gray-900"
+                              }`}
                             >
-                              {subject.name} ({subject.subjectCode})
-                            </option>
+                              <input
+                                type="checkbox"
+                                checked={formData.assignedSubjects.includes(
+                                  subject.subjectCode
+                                )}
+                                onChange={(e) => {
+                                  const code = subject.subjectCode;
+                                  if (e.target.checked) {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      assignedSubjects: [
+                                        ...prev.assignedSubjects,
+                                        code,
+                                      ],
+                                    }));
+                                  } else {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      assignedSubjects:
+                                        prev.assignedSubjects.filter(
+                                          (c) => c !== code
+                                        ),
+                                    }));
+                                  }
+                                }}
+                                className="mr-2 cursor-pointer"
+                              />
+                              <span className="text-sm">
+                                {subject.name} ({subject.subjectCode})
+                              </span>
+                            </label>
                           ))}
-                        </select>
-                      ) : (
+                        </div>
                         <p
-                          className={
+                          className={`text-xs mt-2 ${
                             darkMode ? "text-gray-400" : "text-gray-600"
-                          }
+                          }`}
                         >
-                          No subjects available for selected course and branch
+                          Total subjects: {subjects.length} | Selected:{" "}
+                          {formData.assignedSubjects.length}
                         </p>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    ) : (
+                      <p
+                        className={
+                          darkMode ? "text-yellow-400" : "text-yellow-600"
+                        }
+                      >
+                        {formData.course
+                          ? "Loading subjects for selected course..."
+                          : "⚠️ Please select a course first to see available subjects"}
+                      </p>
+                    )}
+                  </div>
+
+                  {formData.assignedSubjects &&
+                    formData.assignedSubjects.length > 0 && (
+                      <div>
+                        <label
+                          className={`block text-sm font-medium mb-2 ${
+                            darkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                        >
+                          Selected Subjects ({formData.assignedSubjects.length})
+                        </label>
+                        <div
+                          className={`p-3 rounded-lg border space-y-1 ${
+                            darkMode
+                              ? "bg-gray-700 border-gray-600"
+                              : "bg-gray-100 border-gray-300"
+                          }`}
+                        >
+                          {formData.assignedSubjects.map((subjectCode) => {
+                            const subject = subjects.find(
+                              (s) => s.subjectCode === subjectCode
+                            );
+                            return (
+                              <div
+                                key={subjectCode}
+                                className="text-sm flex justify-between items-center"
+                              >
+                                <span>✓ {subject?.name || subjectCode}</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFormData((prev) => ({
+                                      ...prev,
+                                      assignedSubjects:
+                                        prev.assignedSubjects.filter(
+                                          (c) => c !== subjectCode
+                                        ),
+                                    }));
+                                  }}
+                                  className="text-red-500 hover:text-red-700 text-xs ml-2"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
 
                   {/* Form Actions */}
                   <div className="flex items-center justify-end gap-3 pt-4">

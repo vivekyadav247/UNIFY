@@ -27,7 +27,6 @@ export default function Schedule() {
       const response = await facultyAPI.getSchedule();
       setSchedule(response.schedule || []);
     } catch (error) {
-      console.error("Error fetching schedule:", error);
     } finally {
       setLoading(false);
     }

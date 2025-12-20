@@ -24,7 +24,6 @@ export default function Announcements() {
       const response = await facultyAPI.getAnnouncements();
       setAnnouncements(response.announcements || []);
     } catch (error) {
-      console.error("Error fetching announcements:", error);
     } finally {
       setLoading(false);
     }
@@ -42,9 +41,7 @@ export default function Announcements() {
         targetAudience: "all",
       });
       fetchAnnouncements();
-    } catch (error) {
-      console.error("Error creating announcement:", error);
-    }
+    } catch (error) {}
   };
 
   const getPriorityColor = (priority) => {

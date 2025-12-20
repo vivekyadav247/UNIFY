@@ -70,7 +70,6 @@ export default function Assignments() {
         }
       }
     } catch (err) {
-      console.error("Error fetching assignments:", err);
       const errorMsg =
         err.response?.data?.error ||
         err.message ||

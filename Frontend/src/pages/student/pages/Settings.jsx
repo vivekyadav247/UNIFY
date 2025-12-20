@@ -70,7 +70,6 @@ export default function Settings() {
         });
       }
     } catch (err) {
-      console.error("Error fetching profile:", err);
       showError("Failed to load profile");
     } finally {
       setProfileLoading(false);

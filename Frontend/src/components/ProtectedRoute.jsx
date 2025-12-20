@@ -56,7 +56,6 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
         setIsAuthenticated(false);
         setUserRole(null);
       } catch (error) {
-        console.error("❌ Auth error:", error);
         setIsAuthenticated(false);
       } finally {
         setLoading(false);

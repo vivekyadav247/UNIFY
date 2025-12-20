@@ -58,9 +58,7 @@ export default function BranchManagement() {
         const data = await response.json();
         setDepartments(data.departments);
       }
-    } catch (err) {
-      console.error("Failed to fetch departments");
-    }
+    } catch (err) {}
   };
 
   useEffect(() => {

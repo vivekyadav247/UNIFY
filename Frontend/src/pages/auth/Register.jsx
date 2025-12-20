@@ -57,7 +57,6 @@ const Register = () => {
       setError(
         err.response?.data?.message || "Server error. Please try again."
       );
-      console.error(err);
     }
   };
 
@@ -88,7 +87,6 @@ const Register = () => {
       setError(
         err.response?.data?.message || "Server error while verifying OTP"
       );
-      console.error(err);
     }
   };
 
@@ -119,7 +117,6 @@ const Register = () => {
     } catch (err) {
       setLoading(false);
       setError(err.response?.data?.message || "Error connecting to server");
-      console.error(err);
     }
   };
 

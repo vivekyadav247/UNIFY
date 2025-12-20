@@ -70,7 +70,6 @@ export default function HODManagement() {
         setDepartments(data.departments);
       }
     } catch (err) {
-      console.error("Failed to fetch departments");
     }
   };
 
@@ -84,7 +83,6 @@ export default function HODManagement() {
         setCourses(data.courses);
       }
     } catch (err) {
-      console.error("Failed to fetch courses");
     }
   };
 

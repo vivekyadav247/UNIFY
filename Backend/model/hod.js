@@ -36,7 +36,12 @@ const hodSchema = new Schema(
     course: {
       type: String,
       required: true,
-      enum: ["B.Tech", "M.Tech", "MBA", "MCA"],
+      enum: [
+        "Bachelor of Technology",
+        "Master of Technology",
+        "Master of Business Administration",
+        "Master of Computer Applications",
+      ],
     },
     department: {
       type: String,

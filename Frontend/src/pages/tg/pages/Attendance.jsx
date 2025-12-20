@@ -77,7 +77,6 @@ const Attendance = () => {
       });
       setAttendanceData(initialData);
     } catch (error) {
-      console.error("Error fetching data:", error);
       showError("Failed to load attendance data");
     } finally {
       setLoading(false);
@@ -158,7 +157,6 @@ const Attendance = () => {
       setShowModal(false);
       fetchData();
     } catch (error) {
-      console.error("Error submitting attendance:", error);
       showError(error.response?.data?.message || "Failed to submit attendance");
     } finally {
       setSubmitting(false);

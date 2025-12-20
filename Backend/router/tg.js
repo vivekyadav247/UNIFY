@@ -31,6 +31,8 @@ const {
   debugTgStudents,
 } = require("../controller/tg");
 
+const { createTgAnnouncement } = require("../controller/announcement");
+
 const {
   updateStudentSGPA,
   updateStudentCGPA,
@@ -72,6 +74,7 @@ router.post("/leave/approve/:leaveId", approveTgLeaveRequest);
 router.post("/leave/reject/:leaveId", rejectTgLeaveRequest);
 
 // Announcements
+router.post("/announcements/create", createTgAnnouncement);
 router.get("/announcements", getTgAnnouncements);
 
 // Marks

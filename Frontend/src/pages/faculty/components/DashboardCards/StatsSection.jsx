@@ -23,7 +23,6 @@ export default function StatsSection() {
       const response = await facultyAPI.getDashboardStats();
       setStats(response.stats);
     } catch (error) {
-      console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
     }

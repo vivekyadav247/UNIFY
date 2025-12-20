@@ -37,7 +37,6 @@ export default function LeaveRequest() {
       setLeaveRequests(filtered);
     } catch (err) {
       showError("Failed to fetch leave requests");
-      console.error(err);
       setLeaveRequests([]);
     } finally {
       setLoading(false);
@@ -52,7 +51,6 @@ export default function LeaveRequest() {
       setLeaveRequests(leaveRequests.filter((l) => l._id !== leaveId));
     } catch (err) {
       showError("Failed to approve leave");
-      console.error(err);
     } finally {
       setApproving(null);
     }
@@ -71,7 +69,6 @@ export default function LeaveRequest() {
       setLeaveRequests(leaveRequests.filter((l) => l._id !== leaveId));
     } catch (err) {
       showError("Failed to reject leave");
-      console.error(err);
     } finally {
       setApproving(null);
     }

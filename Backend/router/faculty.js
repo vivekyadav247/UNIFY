@@ -34,6 +34,9 @@ const {
 const {
   submitFacultyLeaveRequest,
   getFacultyLeaves,
+  getFacultyStudentLeaveRequests,
+  approveFacultyStudentLeave,
+  rejectFacultyStudentLeave,
 } = require("../controller/leave");
 
 // Dashboard routes
@@ -70,6 +73,9 @@ router.put("/marks/:studentId", updateStudentMarks);
 // Leave routes
 router.post("/leave/request", submitFacultyLeaveRequest);
 router.get("/leave", getFacultyLeaves);
+router.get("/leave/requests/pending", getFacultyStudentLeaveRequests);
+router.post("/leave/approve/:leaveId", approveFacultyStudentLeave);
+router.post("/leave/reject/:leaveId", rejectFacultyStudentLeave);
 
 // Schedule route
 router.get("/schedule", getFacultySchedule);

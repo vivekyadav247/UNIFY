@@ -71,7 +71,6 @@ export default function Profile() {
         setStudent(formatted);
       }
     } catch (err) {
-      console.error("Error fetching profile:", err);
       setError(err.response?.data?.error || "Failed to load profile");
       showError("Failed to load profile");
     } finally {

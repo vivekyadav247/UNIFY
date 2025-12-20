@@ -23,7 +23,6 @@ export default function FacultyProfile() {
       setFormData(response.faculty);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching profile:", error);
       setLoading(false);
     }
   };

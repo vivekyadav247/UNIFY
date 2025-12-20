@@ -23,8 +23,6 @@ export default function SubjectManagement() {
   const [departments, setDepartments] = useState([]);
   const [courses, setCourses] = useState([]);
   const [branches, setBranches] = useState([]);
-  const [sections, setSections] = useState([]);
-  const [academicYears, setAcademicYears] = useState([]);
 
   const [formData, setFormData] = useState({
     subjectCode: "",
@@ -32,9 +30,8 @@ export default function SubjectManagement() {
     course: "",
     department: "",
     branch: "",
-    section: "",
     semesterNumber: "",
-    academicYear: "",
+    subjectType: "",
   });
 
   useEffect(() => {
@@ -91,17 +88,7 @@ export default function SubjectManagement() {
         const data = await branchRes.json();
         setBranches(data.branches || []);
       }
-      if (sectionRes.ok) {
-        const data = await sectionRes.json();
-        setSections(data.sections || []);
-      }
-      if (yearRes.ok) {
-        const data = await yearRes.json();
-        setAcademicYears(data.academicYears || []);
-      }
-    } catch (error) {
-      console.error("Failed to fetch dropdown options:", error);
-    }
+    } catch (error) {}
   };
 
   const fetchSubjects = async () => {
@@ -147,10 +134,9 @@ export default function SubjectManagement() {
       name: subject.name,
       course: subject.course,
       department: subject.department,
-      branch: subject.branch || "",
-      section: subject.section || "",
+      branch: subject.branch,
       semesterNumber: subject.semesterNumber,
-      academicYear: subject.academicYear,
+      subjectType: subject.subjectType,
     });
     setShowModal(true);
   };
@@ -445,15 +431,16 @@ export default function SubjectManagement() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Branch
+                    Branch *
                   </label>
                   <select
                     name="branch"
                     value={formData.branch}
                     onChange={handleInputChange}
+                    required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                   >
-                    <option value="">Select Branch (Optional)</option>
+                    <option value="">Select Branch</option>
                     {branches.map((branch) => (
                       <option key={branch._id} value={branch.name}>
                         {branch.name}
@@ -461,28 +448,9 @@ export default function SubjectManagement() {
                     ))}
                   </select>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Section
-                  </label>
-                  <select
-                    name="section"
-                    value={formData.section}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
-                  >
-                    <option value="">Select Section (Optional)</option>
-                    {sections.map((section) => (
-                      <option key={section._id} value={section.name}>
-                        {section.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Semester Number *
@@ -502,21 +470,18 @@ export default function SubjectManagement() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Academic Year *
+                    Subject Type *
                   </label>
                   <select
-                    name="academicYear"
-                    value={formData.academicYear}
+                    name="subjectType"
+                    value={formData.subjectType}
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500"
                   >
-                    <option value="">Select Academic Year</option>
-                    {academicYears.map((year) => (
-                      <option key={year._id} value={year.year}>
-                        {year.year}
-                      </option>
-                    ))}
+                    <option value="">Select Type</option>
+                    <option value="Theory">Theory</option>
+                    <option value="Practical">Practical</option>
                   </select>
                 </div>
               </div>

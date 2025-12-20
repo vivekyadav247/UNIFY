@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 
 export default function ApplyLeaveCard() {
@@ -12,9 +11,7 @@ export default function ApplyLeaveCard() {
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
-
   const handleSubmit = () => {
-    console.log(form);
     alert("Leave Application Submitted");
   };
 
@@ -25,9 +22,7 @@ export default function ApplyLeaveCard() {
       {/* Dates */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
-          <label className="block text-sm font-medium mb-2">
-            Start Date
-          </label>
+          <label className="block text-sm font-medium mb-2">Start Date</label>
           <input
             type="date"
             name="startDate"
@@ -38,9 +33,7 @@ export default function ApplyLeaveCard() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium mb-2">
-            End Date
-          </label>
+          <label className="block text-sm font-medium mb-2">End Date</label>
           <input
             type="date"
             name="endDate"
@@ -53,9 +46,7 @@ export default function ApplyLeaveCard() {
 
       {/* Leave Type */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">
-          Leave Type
-        </label>
+        <label className="block text-sm font-medium mb-2">Leave Type</label>
         <select
           name="leaveType"
           value={form.leaveType}
@@ -71,9 +62,7 @@ export default function ApplyLeaveCard() {
 
       {/* Reason */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">
-          Reason
-        </label>
+        <label className="block text-sm font-medium mb-2">Reason</label>
         <textarea
           name="reason"
           value={form.reason}

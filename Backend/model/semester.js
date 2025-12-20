@@ -3,23 +3,69 @@ const Schema = mongoose.Schema;
 
 const semesterSchema = new Schema(
   {
-    academicYear: { type: String, required: true },
-    branch: { type: String, required: true },
-    section: { type: String, required: true },
+    // Academic Year (e.g., "2024-2025")
+    academicYear: {
+      type: String,
+      required: true,
+      unique: false,
+    },
 
-    semesterNumber: { type: Number, required: true }, // 1,2,3...
+    // Semester Number (1-8)
+    semesterNumber: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 8,
+    },
 
-    startDate: { type: Date, required: true },
-    endDate: { type: Date, default: null }, // null = running semester
+    // Semester Name (e.g., "Spring 2024", "Fall 2024")
+    semesterName: {
+      type: String,
+      default: null,
+    },
 
-    isActive: { type: Boolean, default: true },
+    // Start Date of Semester
+    startDate: {
+      type: Date,
+      required: true,
+    },
+
+    // End Date of Semester
+    endDate: {
+      type: Date,
+      required: true,
+    },
+
+    // Status
+    status: {
+      type: String,
+      enum: ["scheduled", "active", "completed"],
+      default: "scheduled",
+    },
+
+    // Description/Remarks
+    description: {
+      type: String,
+      default: null,
+    },
+
+    // Created by (Admin/HOD)
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "Admin",
+      required: false,
+    },
+
+    // Department if HOD creates it
+    department: {
+      type: String,
+      default: null,
+    },
   },
   { timestamps: true }
 );
 
-semesterSchema.index(
-  { academicYear: 1, branch: 1, section: 1, semesterNumber: 1 },
-  { unique: true }
-);
+// Unique index on academic year + semester number
+semesterSchema.index({ academicYear: 1, semesterNumber: 1 }, { unique: true });
 
 module.exports = mongoose.model("Semester", semesterSchema);

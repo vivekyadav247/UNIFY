@@ -59,7 +59,6 @@ export default function BranchManagement() {
         setDepartments(data.departments);
       }
     } catch (err) {
-      console.error("Failed to fetch departments");
     }
   };
 

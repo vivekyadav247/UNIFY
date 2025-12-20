@@ -58,7 +58,6 @@ export default function TGManagement() {
         setHodProfile(data.hod);
       }
     } catch (error) {
-      console.error("Failed to fetch HOD profile:", error);
     }
   };
 
@@ -104,7 +103,6 @@ export default function TGManagement() {
         setAcademicYears(data.academicYears || []);
       }
     } catch (error) {
-      console.error("Failed to fetch dropdown options:", error);
     }
   };
 

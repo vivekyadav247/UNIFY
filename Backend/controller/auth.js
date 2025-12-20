@@ -32,7 +32,6 @@ async function sendOtp(req, res) {
       message: "OTP sent to email",
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ success: false, message: err.message });
   }
 }
@@ -70,7 +69,6 @@ async function verifyOtp(req, res) {
       message: "Email verified",
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ success: false, message: err.message });
   }
 }
@@ -166,7 +164,6 @@ async function handleSignup(req, res) {
         redirectUrl: `/${enrollmentNumber}`,
       });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ success: false, message: err.message });
   }
 }
@@ -295,7 +292,7 @@ async function handleSignin(req, res) {
         token, // Send token in response as well
       });
   } catch (err) {
-    console.error(err);
+  } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
 }

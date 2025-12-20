@@ -30,7 +30,6 @@ export default function VerifyUsers() {
       setError(null);
     } catch (err) {
       setError(err.message || "Failed to fetch unverified students");
-      console.error("Error fetching students:", err);
       setUnverifiedStudents([]);
     } finally {
       setLoading(false);
@@ -47,7 +46,6 @@ export default function VerifyUsers() {
       showSuccess("Student verified successfully!");
     } catch (err) {
       showError("Failed to verify student");
-      console.error(err);
     } finally {
       setVerifying(null);
     }
@@ -66,7 +64,6 @@ export default function VerifyUsers() {
       showSuccess("Student rejected!");
     } catch (err) {
       showError("Failed to reject student");
-      console.error(err);
     } finally {
       setVerifying(null);
     }

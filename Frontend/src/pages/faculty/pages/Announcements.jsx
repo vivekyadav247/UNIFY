@@ -24,7 +24,6 @@ export default function Announcements() {
       const response = await facultyAPI.getAnnouncements();
       setAnnouncements(response.announcements || []);
     } catch (error) {
-      console.error("Error fetching announcements:", error);
     } finally {
       setLoading(false);
     }
@@ -43,7 +42,6 @@ export default function Announcements() {
       });
       fetchAnnouncements();
     } catch (error) {
-      console.error("Error creating announcement:", error);
     }
   };
 

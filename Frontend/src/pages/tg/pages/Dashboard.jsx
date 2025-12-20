@@ -52,7 +52,6 @@ export default function Dashboard() {
 
       setLoading(false);
     } catch (err) {
-      console.error("Error fetching dashboard:", err);
       showError("Failed to fetch dashboard data");
       setLoading(false);
     }
@@ -66,7 +65,6 @@ export default function Dashboard() {
       setLeaveRequests(leaveRequests.filter((l) => l._id !== leaveId));
     } catch (err) {
       showError("Failed to approve leave");
-      console.error(err);
     } finally {
       setApproving(null);
     }
@@ -80,7 +78,6 @@ export default function Dashboard() {
       setLeaveRequests(leaveRequests.filter((l) => l._id !== leaveId));
     } catch (err) {
       showError("Failed to reject leave");
-      console.error(err);
     } finally {
       setApproving(null);
     }

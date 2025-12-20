@@ -1,12 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
-import {
-  FiUsers,
-  FiUserCheck,
-  FiTrendingUp,
-  FiAlertCircle,
-  FiLoader,
-} from "react-icons/fi";
+import { FiUsers, FiUserCheck, FiTrendingUp, FiLoader } from "react-icons/fi";
 import { hodAPI } from "../../../services/api";
 
 import StatCard from "../components/DashboardCards/StatsCard";
@@ -14,7 +8,6 @@ import GraphCard from "../components/DashboardCards/GraphCard";
 import TGActivityCard from "../components/DashboardCards/TGActivityCard";
 import ApprovalCard from "../components/DashboardCards/ApprovalCard";
 import AnnouncementCard from "../components/DashboardCards/AnnouncementCard";
-import QuickActionsCard from "../components/DashboardCards/QuickActionCard";
 import AttendanceChart from "../components/DashboardCards/AttendanceChart";
 import PerformanceChart from "../components/DashboardCards/PerformanceChart";
 
@@ -197,29 +190,29 @@ export default function HodDashboard() {
           <div
             className={`p-6 rounded-2xl border transition-all ${
               darkMode
-                ? "bg-gradient-to-br from-orange-900/20 to-orange-800/10 border-orange-700/30 hover:border-orange-600/50"
-                : "bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200 hover:border-orange-300"
+                ? "bg-gradient-to-br from-indigo-900/20 to-indigo-800/10 border-indigo-700/30 hover:border-indigo-600/50"
+                : "bg-gradient-to-br from-indigo-50 to-indigo-100/50 border-indigo-200 hover:border-indigo-300"
             }`}
           >
             <div className="flex items-center justify-between">
               <div>
                 <p
                   className={`text-sm font-semibold ${
-                    darkMode ? "text-orange-300" : "text-orange-600"
+                    darkMode ? "text-indigo-300" : "text-indigo-600"
                   }`}
                 >
-                  Pending Tasks
+                  Average CGPA
                 </p>
                 <p
                   className={`text-3xl font-bold mt-2 ${
                     darkMode ? "text-white" : "text-gray-900"
                   }`}
                 >
-                  {stats?.pendingTasks || 0}
+                  {stats?.avgCGPA ? stats.avgCGPA.toFixed(2) : "0.00"}
                 </p>
               </div>
-              <div className="text-4xl text-orange-600">
-                <FiAlertCircle />
+              <div className="text-4xl text-indigo-600">
+                <FiTrendingUp />
               </div>
             </div>
           </div>
@@ -339,49 +332,41 @@ export default function HodDashboard() {
           </div>
         </div>
 
-        {/* ANNOUNCEMENTS + QUICK ACTIONS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Announcements */}
-          <div
-            className={`rounded-2xl border p-6 ${
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
+        {/* ANNOUNCEMENTS */}
+        <div
+          className={`rounded-2xl border p-6 ${
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <h3
+            className={`text-lg font-semibold mb-6 ${
+              darkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            <h3
-              className={`text-lg font-semibold mb-6 ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              Department Announcements
-            </h3>
+            Department Announcements
+          </h3>
 
-            <div className="space-y-4">
-              {stats?.announcements && stats.announcements.length > 0 ? (
-                stats.announcements
-                  .slice(0, 2)
-                  .map((announcement, index) => (
-                    <AnnouncementCard
-                      key={index}
-                      color={darkMode ? "bg-blue-900/20" : "bg-blue-50"}
-                      textColor={darkMode ? "text-blue-300" : "text-blue-900"}
-                      heading={announcement.title}
-                      text={announcement.content}
-                      darkMode={darkMode}
-                    />
-                  ))
-              ) : (
-                <p className={darkMode ? "text-gray-400" : "text-gray-500"}>
-                  No announcements
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="lg:col-span-2">
-            <QuickActionsCard darkMode={darkMode} />
+          <div className="space-y-4">
+            {stats?.announcements && stats.announcements.length > 0 ? (
+              stats.announcements
+                .slice(0, 2)
+                .map((announcement, index) => (
+                  <AnnouncementCard
+                    key={index}
+                    color={darkMode ? "bg-blue-900/20" : "bg-blue-50"}
+                    textColor={darkMode ? "text-blue-300" : "text-blue-900"}
+                    heading={announcement.title}
+                    text={announcement.content}
+                    darkMode={darkMode}
+                  />
+                ))
+            ) : (
+              <p className={darkMode ? "text-gray-400" : "text-gray-500"}>
+                No announcements
+              </p>
+            )}
           </div>
         </div>
       </div>

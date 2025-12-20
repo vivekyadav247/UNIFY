@@ -31,7 +31,6 @@ export default function AdminLayout() {
         credentials: "include",
       });
     } catch (err) {
-      console.error("Logout error:", err);
     } finally {
       localStorage.clear();
       navigate("/admin/login");

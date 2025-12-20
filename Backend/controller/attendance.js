@@ -843,7 +843,6 @@ async function getTgAttendanceDashboard(req, res) {
       allStudents: studentStats,
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
@@ -998,7 +997,6 @@ async function sendLowAttendanceEmail(req, res) {
       sentTo: students.map((s) => s.email),
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({ error: err.message });
   }
 }
@@ -1052,7 +1050,6 @@ UNIFY College ERP`;
       students: whatsappLinks,
     });
   } catch (err) {
-    console.error(err);
     return res.status(500).json({
       error: err.message,
     });

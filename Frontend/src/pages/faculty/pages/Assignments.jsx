@@ -64,7 +64,6 @@ export default function Assignments() {
         }));
       }
     } catch (error) {
-      console.error("Error fetching classes:", error);
     }
   };
 
@@ -73,7 +72,6 @@ export default function Assignments() {
       const response = await facultyAPI.getAssignments();
       setAssignments(response.assignments || []);
     } catch (error) {
-      console.error("Error fetching assignments:", error);
     } finally {
       setLoading(false);
     }
@@ -138,7 +136,6 @@ export default function Assignments() {
       setSelectedFile(null);
       fetchAssignments();
     } catch (error) {
-      console.error("Error creating assignment:", error);
       alert(error.response?.data?.error || "Failed to create assignment");
     }
   };

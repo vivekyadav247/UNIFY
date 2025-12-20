@@ -36,7 +36,6 @@ export default function StudentDetail() {
       setError(null);
     } catch (err) {
       setError(err.message || "Failed to fetch student details");
-      console.error("Error:", err);
       showError("Failed to load student details");
     } finally {
       setLoading(false);

@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { tgAPI } from "../../../services/api";
-import { showError } from "../../../utils/notifications";
-import { FiLoader, FiAlertCircle, FiBell } from "react-icons/fi";
+import { showError, showSuccess } from "../../../utils/notifications";
+import { FiLoader, FiAlertCircle, FiBell, FiPlus } from "react-icons/fi";
 
 export default function Announcements() {
   const { darkMode } = useOutletContext();
   const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [formData, setFormData] = useState({
+    title: "",
+    message: "",
+    priority: "medium",
+    targetAudience: "all",
+  });
 
   useEffect(() => {
     fetchAnnouncements();
@@ -30,6 +37,26 @@ export default function Announcements() {
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await tgAPI.createAnnouncement(formData);
+      showSuccess("Announcement created successfully");
+      setShowCreateModal(false);
+      setFormData({
+        title: "",
+        message: "",
+        priority: "medium",
+        targetAudience: "all",
+      });
+      fetchAnnouncements();
+    } catch (err) {
+      const errorMsg =
+        err.response?.data?.error || "Failed to create announcement";
+      showError(errorMsg);
+    }
+  };
+
   if (loading) {
     return (
       <div
@@ -44,13 +71,21 @@ export default function Announcements() {
 
   return (
     <div>
-      <h1
-        className={`text-3xl font-bold mb-6 flex items-center gap-2 ${
-          darkMode ? "text-white" : "text-gray-900"
-        }`}
-      >
-        <FiBell /> Announcements
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1
+          className={`text-3xl font-bold flex items-center gap-2 ${
+            darkMode ? "text-white" : "text-gray-900"
+          }`}
+        >
+          <FiBell /> Announcements
+        </h1>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          <FiPlus /> Create Announcement
+        </button>
+      </div>
 
       {error && (
         <div
@@ -132,6 +167,113 @@ export default function Announcements() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div
+            className={`rounded-xl p-6 w-full max-w-2xl ${
+              darkMode ? "bg-gray-800" : "bg-white"
+            }`}
+          >
+            <h2 className="text-2xl font-bold mb-4">Create Announcement</h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Title</label>
+                <input
+                  type="text"
+                  value={formData.title}
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
+                  }
+                  required
+                  className={`w-full px-4 py-2 rounded-lg ${
+                    darkMode ? "bg-gray-700" : "bg-white border border-gray-300"
+                  }`}
+                  placeholder="Announcement title"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  Message
+                </label>
+                <textarea
+                  value={formData.message}
+                  onChange={(e) =>
+                    setFormData({ ...formData, message: e.target.value })
+                  }
+                  required
+                  rows="4"
+                  className={`w-full px-4 py-2 rounded-lg ${
+                    darkMode ? "bg-gray-700" : "bg-white border border-gray-300"
+                  }`}
+                  placeholder="Announcement message..."
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Priority
+                  </label>
+                  <select
+                    value={formData.priority}
+                    onChange={(e) =>
+                      setFormData({ ...formData, priority: e.target.value })
+                    }
+                    className={`w-full px-4 py-2 rounded-lg ${
+                      darkMode
+                        ? "bg-gray-700"
+                        : "bg-white border border-gray-300"
+                    }`}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Target Audience
+                  </label>
+                  <select
+                    value={formData.targetAudience}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        targetAudience: e.target.value,
+                      })
+                    }
+                    className={`w-full px-4 py-2 rounded-lg ${
+                      darkMode
+                        ? "bg-gray-700"
+                        : "bg-white border border-gray-300"
+                    }`}
+                  >
+                    <option value="all">All Students</option>
+                    <option value="department">My Department</option>
+                    <option value="class">Specific Class</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex justify-end gap-4">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                >
+                  Create
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

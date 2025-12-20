@@ -19,7 +19,6 @@ const Navbar = ({ darkMode, notifications: passedNotifications = [] }) => {
           setStudent(res.student);
         }
       } catch (err) {
-        console.error("Error fetching student:", err);
       }
     };
     fetchStudent();

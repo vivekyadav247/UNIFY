@@ -29,18 +29,6 @@ const facultySchema = new Schema(
       type: String,
       required: true,
     },
-    branch: {
-      type: String,
-      required: false,
-    },
-    section: {
-      type: String,
-      required: false,
-    },
-    academicYear: {
-      type: [String],
-      required: false,
-    },
     assignedSubjects: {
       type: [String],
       required: false,

@@ -33,6 +33,7 @@ const Sidebar = ({ darkMode }) => {
       path: "/hod/faculty-attendance",
     },
     { name: "Schedule", icon: <FiClock />, path: "/hod/schedule-management" },
+    { name: "Semesters", icon: <FiBook />, path: "/hod/semesters" },
     { name: "Students", icon: <FiUsers />, path: "/hod/students" },
     { name: "Announcements", icon: <FiBell />, path: "/hod/announcements" },
   ];

@@ -203,6 +203,10 @@ export const hodAPI = {
   getTodayFacultyAttendance: () =>
     axiosInstance.get("/hod/faculty/attendance/today"),
 
+  // Semesters
+  getSemestersByActiveAcademicYear: () =>
+    axiosInstance.get("/hod/semesters"),
+
   // Schedule Management
   createSchedule: (data) => axiosInstance.post("/schedule/create", data),
   getAllSchedules: () => axiosInstance.get("/schedule/all"),

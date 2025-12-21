@@ -35,6 +35,7 @@ const {
   approveHODFacultyLeave,
   rejectHODFacultyLeave,
   getTodayFacultyAttendance,
+  getSemestersByActiveAcademicYear,
 } = require("../controller/hod");
 
 router.get("/dashboard", getDashboardStats);
@@ -106,5 +107,8 @@ router.post("/faculty/leave/reject/:leaveId", rejectHODFacultyLeave);
 
 // Faculty Attendance
 router.get("/faculty/attendance/today", getTodayFacultyAttendance);
+
+// Semesters
+router.get("/semesters", getSemestersByActiveAcademicYear);
 
 module.exports = router;

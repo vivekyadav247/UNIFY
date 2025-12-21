@@ -945,6 +945,57 @@ async function getSubjectsByFilters(req, res) {
   }
 }
 
+// Get Semesters for HOD's current academic year
+async function getSemestersByActiveAcademicYear(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    // Get all active academic years
+    const activeAcademicYears = await AcademicYear.find({ isActive: true });
+
+    if (!activeAcademicYears || activeAcademicYears.length === 0) {
+      return res.status(200).json({
+        semesters: [],
+        message: "No active academic year found",
+      });
+    }
+
+    // Get the first active academic year
+    const currentAcademicYear = activeAcademicYears[0].name;
+
+    // Fetch semesters for the active academic year
+    const Semester = require("../model/semester");
+    const semesters = await Semester.find({
+      academicYear: currentAcademicYear,
+    }).sort({ semesterNumber: 1 });
+
+    return res.status(200).json({
+      success: true,
+      academicYear: currentAcademicYear,
+      semesters: semesters.map((sem) => ({
+        _id: sem._id,
+        semesterNumber: sem.semesterNumber,
+        semesterName: sem.semesterName,
+        startDate: sem.startDate,
+        endDate: sem.endDate,
+        status: sem.status,
+        description: sem.description,
+      })),
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   handleCreateTg,
   handleCreateFaculty,
@@ -981,6 +1032,7 @@ module.exports = {
   approveHODFacultyLeave,
   rejectHODFacultyLeave,
   getTodayFacultyAttendance,
+  getSemestersByActiveAcademicYear,
 };
 
 // Get all active departments

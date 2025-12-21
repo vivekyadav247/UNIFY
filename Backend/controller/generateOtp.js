@@ -7,7 +7,6 @@ function generateOtp() {
 async function saveOtp(email) {
   const existingOtp = await Otp.findOne({ email });
 
-  // RATE LIMIT CHECK → Only 1 OTP per 60 seconds
   if (existingOtp) {
     const secondsPassed = (Date.now() - existingOtp.lastSentAt) / 1000;
 

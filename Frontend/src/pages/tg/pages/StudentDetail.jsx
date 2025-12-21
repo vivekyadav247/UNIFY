@@ -438,7 +438,7 @@ export default function StudentDetail() {
               darkMode ? "text-gray-300" : "text-gray-700"
             }`}
           >
-            📢 Class Announcements
+            Class Announcements
           </p>
           <p
             className={`text-sm mt-4 ${

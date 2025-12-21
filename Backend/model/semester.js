@@ -51,8 +51,7 @@ const semesterSchema = new Schema(
 
     // Created by (Admin/HOD)
     createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "Admin",
+      type: String,
       required: false,
     },
 

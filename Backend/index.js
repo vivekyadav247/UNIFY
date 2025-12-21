@@ -66,7 +66,6 @@ app.use(cookieParser());
 // Serve static files from uploads directory
 app.use("/uploads", express.static("uploads"));
 
-// ✅ LOGGING MIDDLEWARE
 app.use(requestLogger);
 app.use((req, res, next) => {
   res.locals.user = req.user;

@@ -302,7 +302,7 @@ export default function TGManagement() {
       {/* Success Message */}
       {success && (
         <div className="mb-6 p-4 rounded-lg bg-green-100 text-green-700 border border-green-200">
-          <p className="font-semibold">✓ {success}</p>
+          <p className="font-semibold">{success}</p>
         </div>
       )}
 

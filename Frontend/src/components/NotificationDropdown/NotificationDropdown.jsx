@@ -43,17 +43,17 @@ const NotificationDropdown = ({ darkMode }) => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case "announcement":
-        return "📢";
+        return "[A]";
       case "assignment":
-        return "📝";
+        return "[AS]";
       case "leave":
-        return "🏖️";
+        return "[L]";
       case "marks":
-        return "📊";
+        return "[M]";
       case "attendance":
-        return "✅";
+        return "[AT]";
       default:
-        return "🔔";
+        return "[N]";
     }
   };
 

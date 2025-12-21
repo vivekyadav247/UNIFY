@@ -1033,6 +1033,8 @@ module.exports = {
   rejectHODFacultyLeave,
   getTodayFacultyAttendance,
   getSemestersByActiveAcademicYear,
+  getCurrentSemester,
+  getStudentAnalyticsBySemester,
 };
 
 // Get all active departments
@@ -1304,6 +1306,143 @@ async function getTodayFacultyAttendance(req, res) {
           onLeave: onLeave.length,
           absent: 0,
         },
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+// Get current active semester
+async function getCurrentSemester(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const Semester = require("../model/semester");
+    const AcademicYear = require("../model/institutionConfig").AcademicYear;
+
+    // Get active academic year
+    const activeAcademicYear = await AcademicYear.findOne({
+      isActive: true,
+    });
+
+    if (!activeAcademicYear) {
+      return res.status(404).json({ error: "No active academic year found" });
+    }
+
+    // Get current active semester
+    const currentSemester = await Semester.findOne({
+      academicYear: activeAcademicYear.name,
+      status: "active",
+    });
+
+    if (!currentSemester) {
+      return res.status(200).json({
+        success: true,
+        currentSemester: null,
+        message: "No active semester found for the current academic year",
+        academicYear: activeAcademicYear.name,
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      academicYear: activeAcademicYear.name,
+      currentSemester: {
+        _id: currentSemester._id,
+        semesterNumber: currentSemester.semesterNumber,
+        semesterName: currentSemester.semesterName,
+        startDate: currentSemester.startDate,
+        endDate: currentSemester.endDate,
+        status: currentSemester.status,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// Get student analytics by current semester
+async function getStudentAnalyticsBySemester(req, res) {
+  try {
+    if (!req.user || req.user.role !== "hod") {
+      return res.status(401).json({ error: "Unauthorized: HOD only" });
+    }
+
+    const hodId = req.user._id;
+    const hod = await Hod.findById(hodId);
+
+    if (!hod) {
+      return res.status(404).json({ error: "HOD not found" });
+    }
+
+    const Semester = require("../model/semester");
+    const AcademicYear = require("../model/institutionConfig").AcademicYear;
+
+    // Get active academic year
+    const activeAcademicYear = await AcademicYear.findOne({
+      isActive: true,
+    });
+
+    if (!activeAcademicYear) {
+      return res.status(404).json({ error: "No active academic year found" });
+    }
+
+    // Get current active semester
+    const currentSemester = await Semester.findOne({
+      academicYear: activeAcademicYear.name,
+      status: "active",
+    });
+
+    // Get all students in department
+    const students = await Student.find({
+      department: hod.department,
+    }).select(
+      "name enrollmentNumber branch section academicYear email mobileNumber"
+    );
+
+    // Get marks for these students for current semester
+    const marksData = await Marks.find({
+      studentId: { $in: students.map((s) => s._id) },
+      "marks.semester": currentSemester
+        ? currentSemester.semesterNumber
+        : { $exists: true },
+    });
+
+    // Calculate analytics
+    const totalStudents = students.length;
+    const studentsWithMarks = marksData.length;
+    const avgCGPA =
+      marksData.length > 0
+        ? (
+            marksData.reduce((sum, record) => sum + (record.cgpa || 0), 0) /
+            marksData.length
+          ).toFixed(2)
+        : 0;
+
+    // Get performance distribution
+    const performance = {
+      excellent: marksData.filter((m) => m.cgpa >= 8.5).length,
+      good: marksData.filter((m) => m.cgpa >= 7 && m.cgpa < 8.5).length,
+      average: marksData.filter((m) => m.cgpa >= 5.5 && m.cgpa < 7).length,
+      below_average: marksData.filter((m) => m.cgpa < 5.5).length,
+    };
+
+    return res.status(200).json({
+      success: true,
+      academicYear: activeAcademicYear.name,
+      currentSemester: currentSemester
+        ? {
+            semesterNumber: currentSemester.semesterNumber,
+            semesterName: currentSemester.semesterName,
+          }
+        : null,
+      analytics: {
+        totalStudents,
+        studentsWithMarks,
+        avgCGPA: parseFloat(avgCGPA),
+        performance,
       },
     });
   } catch (err) {

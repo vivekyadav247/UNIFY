@@ -1,5 +1,10 @@
 const Student = require("../model/student");
 const TG = require("../model/tg");
+const Semester = require("../model/semester");
+const Marks = require("../model/marks");
+const ClassAttendance = require("../model/classAttendance");
+const Assignment = require("../model/assignment");
+const Feedback = require("../model/feedback");
 const { createHmac, randomBytes } = require("crypto");
 
 async function getStudentProfile(req, res) {
@@ -216,4 +221,130 @@ module.exports = {
   changeStudentPassword,
   completeStudentProfile,
   getMyClassTeacher,
+  getStudentCurrentSemesterData,
 };
+
+// Get all student data for current semester
+async function getStudentCurrentSemesterData(req, res) {
+  try {
+    if (!req.user || req.user.role !== "student") {
+      return res.status(401).json({ error: "Unauthorized: Student only" });
+    }
+
+    const studentId = req.user._id;
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({ error: "Student not found" });
+    }
+
+    // Get current active semester
+    const now = new Date();
+    const currentSemester = await Semester.findOne({
+      status: "active",
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+
+    if (!currentSemester) {
+      return res.status(404).json({
+        error: "No active semester found",
+        data: {
+          student,
+          currentSemester: null,
+          marks: null,
+          attendance: null,
+          assignments: null,
+          feedback: null,
+        },
+      });
+    }
+
+    // Get student's HOD
+    const hod = await TG.findOne({
+      role: "hod",
+      department: student.department,
+    }).select("name hodId email mobileNumber profilePic");
+
+    // Fetch data for current semester
+    const [marks, attendance, assignments, feedback] = await Promise.all([
+      Marks.find({
+        studentId,
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+      ClassAttendance.find({
+        studentId,
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+      Assignment.find({
+        branch: student.branch,
+        section: student.section,
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+      Feedback.find({
+        studentId,
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+    ]);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        student: {
+          id: student._id,
+          name: student.name,
+          enrollmentNumber: student.enrollmentNumber,
+          branch: student.branch,
+          section: student.section,
+          academicYear: student.academicYear,
+        },
+        hod: hod
+          ? {
+              name: hod.name,
+              hodId: hod.hodId,
+              email: hod.email,
+              mobileNumber: hod.mobileNumber,
+              profilePic: hod.profilePic,
+            }
+          : null,
+        currentSemester: {
+          semesterNumber: currentSemester.semesterNumber,
+          semesterName: currentSemester.semesterName,
+          academicYear: currentSemester.academicYear,
+          startDate: currentSemester.startDate,
+          endDate: currentSemester.endDate,
+          status: currentSemester.status,
+        },
+        marks: marks || null,
+        attendance: {
+          total: attendance.length,
+          present: attendance.filter((a) => a.status === "present").length,
+          absent: attendance.filter((a) => a.status === "absent").length,
+          leave: attendance.filter((a) => a.status === "leave").length,
+          percentage:
+            attendance.length > 0
+              ? (
+                  (attendance.filter((a) => a.status === "present").length /
+                    attendance.length) *
+                  100
+                ).toFixed(2)
+              : 0,
+        },
+        assignments: assignments.map((a) => ({
+          id: a._id,
+          title: a.title,
+          subject: a.subject,
+          dueDate: a.dueDate,
+          totalMarks: a.totalMarks,
+        })),
+        feedbackCount: feedback.length,
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}

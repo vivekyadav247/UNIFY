@@ -1,16 +1,16 @@
 const mongoose = require("mongoose");
-const dbLogger = require("../utils/dbLogger");
+const logger = require("../utils/logger");
 
 const configDB = () => {
   mongoose
     .connect(process.env.DBURL || "mongodb://127.0.0.1:27017/UnifyDB")
     .then(() => {
-      dbLogger.connection("connected", "MongoDB connected successfully", {
+      logger.database("MongoDB connected successfully", "DB_CONNECTION", {
         url: process.env.DBURL || "mongodb://127.0.0.1:27017/UnifyDB",
       });
     })
     .catch((err) => {
-      dbLogger.connection("error", "MongoDB connection failed", {
+      logger.error("MongoDB connection failed", "DB_CONNECTION", {
         error: err.message,
       });
     });

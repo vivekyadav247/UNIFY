@@ -36,6 +36,8 @@ const {
   rejectHODFacultyLeave,
   getTodayFacultyAttendance,
   getSemestersByActiveAcademicYear,
+  getCurrentSemester,
+  getStudentAnalyticsBySemester,
 } = require("../controller/hod");
 
 router.get("/dashboard", getDashboardStats);
@@ -110,5 +112,9 @@ router.get("/faculty/attendance/today", getTodayFacultyAttendance);
 
 // Semesters
 router.get("/semesters", getSemestersByActiveAcademicYear);
+router.get("/semester/current", getCurrentSemester);
+
+// Analytics
+router.get("/analytics/students-by-semester", getStudentAnalyticsBySemester);
 
 module.exports = router;

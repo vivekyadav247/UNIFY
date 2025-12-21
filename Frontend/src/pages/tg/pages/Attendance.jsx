@@ -29,25 +29,35 @@ const Attendance = () => {
     total: 0,
   });
   const [filterDate, setFilterDate] = useState("");
+  const [currentSemester, setCurrentSemester] = useState(null);
 
   useEffect(() => {
+    fetchCurrentSemesterInfo();
     fetchData();
   }, []);
+
+  const fetchCurrentSemesterInfo = async () => {
+    try {
+      const data = await tgAPI.getCurrentSemesterStudentData();
+      setCurrentSemester(data.currentSemester || data.data?.currentSemester);
+
+      const semesterStudents = data.students || data.data?.students || [];
+      setStudents(semesterStudents);
+    } catch (err) {
+      setCurrentSemester(null);
+      setStudents([]);
+    }
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [recordsRes, studentsRes] = await Promise.all([
-        tgAPI.getAttendanceRecords(),
-        tgAPI.getAllStudents(),
-      ]);
+      const recordsRes = await tgAPI.getAttendanceRecords();
 
       // Axios interceptor already extracts .data, so no need for .data again
-      const records = recordsRes?.records || [];
-      const studentsList = studentsRes?.students || [];
+      const records = recordsRes?.records || recordsRes?.data?.records || [];
 
       setAttendanceRecords(records);
-      setStudents(studentsList);
 
       // Check if today's attendance is already taken
       const today = new Date().toISOString().split("T")[0];
@@ -211,6 +221,16 @@ const Attendance = () => {
           <p className={`mt-1 ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
             Track and manage student attendance
           </p>
+          {currentSemester && (
+            <p
+              className={`text-xs mt-2 font-semibold ${
+                darkMode ? "text-blue-300" : "text-blue-700"
+              }`}
+            >
+              Semester {currentSemester.semesterNumber} (
+              {currentSemester.academicYear})
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -256,8 +276,8 @@ const Attendance = () => {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             darkMode
-              ? "bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40"
-              : "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/60"
+              ? "bg-linear-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40"
+              : "bg-linear-to-br from-blue-50 to-blue-100/50 border-blue-200/60"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -295,8 +315,8 @@ const Attendance = () => {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             darkMode
-              ? "bg-gradient-to-br from-green-900/30 to-green-800/20 border-green-700/40"
-              : "bg-gradient-to-br from-green-50 to-green-100/50 border-green-200/60"
+              ? "bg-linear-to-br from-green-900/30 to-green-800/20 border-green-700/40"
+              : "bg-linear-to-br from-green-50 to-green-100/50 border-green-200/60"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -338,8 +358,8 @@ const Attendance = () => {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             darkMode
-              ? "bg-gradient-to-br from-red-900/30 to-red-800/20 border-red-700/40"
-              : "bg-gradient-to-br from-red-50 to-red-100/50 border-red-200/60"
+              ? "bg-linear-to-br from-red-900/30 to-red-800/20 border-red-700/40"
+              : "bg-linear-to-br from-red-50 to-red-100/50 border-red-200/60"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -493,7 +513,7 @@ const Attendance = () => {
                   >
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                        <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                           {record.studentName?.charAt(0) || "S"}
                         </div>
                         <div>
@@ -714,7 +734,7 @@ const Attendance = () => {
                       >
                         {index + 1}
                       </span>
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                      <div className="w-10 h-10 bg-linear-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
                         {student.name?.charAt(0) || "S"}
                       </div>
                       <div>

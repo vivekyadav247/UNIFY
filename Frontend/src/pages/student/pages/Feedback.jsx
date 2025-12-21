@@ -66,7 +66,7 @@ export default function Feedback() {
       // Notify if new feedback received
       if (transformedData.length > 0 && refreshing) {
         const latestFeedback = transformedData[0];
-        showInfo(`📬 New feedback from ${latestFeedback.by}`);
+        showInfo(`New feedback from ${latestFeedback.by}`);
         showSuccess("Feedback data updated!");
       }
     } catch (err) {
@@ -121,7 +121,7 @@ export default function Feedback() {
               darkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            Feedback 💬
+            Feedback
           </h1>
           <p
             className={`mt-2 text-lg ${
@@ -205,8 +205,8 @@ export default function Feedback() {
         <div
           className={`p-6 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40 hover:border-blue-600/60"
-              : "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/60 hover:border-blue-300"
+              ? "bg-linear-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40 hover:border-blue-600/60"
+              : "bg-linear-to-br from-blue-50 to-blue-100/50 border-blue-200/60 hover:border-blue-300"
           } hover:shadow-lg`}
         >
           <div className="flex items-center justify-between mb-4">
@@ -249,8 +249,8 @@ export default function Feedback() {
         <div
           className={`p-6 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-yellow-900/30 to-yellow-800/20 border-yellow-700/40 hover:border-yellow-600/60"
-              : "bg-gradient-to-br from-yellow-50 to-yellow-100/50 border-yellow-200/60 hover:border-yellow-300"
+              ? "bg-linear-to-br from-yellow-900/30 to-yellow-800/20 border-yellow-700/40 hover:border-yellow-600/60"
+              : "bg-linear-to-br from-yellow-50 to-yellow-100/50 border-yellow-200/60 hover:border-yellow-300"
           } hover:shadow-lg`}
         >
           <div className="flex items-center justify-between mb-4">
@@ -293,8 +293,8 @@ export default function Feedback() {
         <div
           className={`p-6 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-green-900/30 to-green-800/20 border-green-700/40 hover:border-green-600/60"
-              : "bg-gradient-to-br from-green-50 to-green-100/50 border-green-200/60 hover:border-green-300"
+              ? "bg-linear-to-br from-green-900/30 to-green-800/20 border-green-700/40 hover:border-green-600/60"
+              : "bg-linear-to-br from-green-50 to-green-100/50 border-green-200/60 hover:border-green-300"
           } hover:shadow-lg`}
         >
           <div className="flex items-center justify-between mb-4">
@@ -339,8 +339,8 @@ export default function Feedback() {
         <div
           className={`p-8 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-purple-900/30 to-purple-800/20 border-purple-700/40"
-              : "bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200/60"
+              ? "bg-linear-to-br from-purple-900/30 to-purple-800/20 border-purple-700/40"
+              : "bg-linear-to-br from-purple-50 to-purple-100/50 border-purple-200/60"
           }`}
         >
           <div className="flex items-center justify-between">
@@ -350,7 +350,7 @@ export default function Feedback() {
                   darkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                Share Your Feedback 📝
+                Share Your Feedback
               </h3>
               <p
                 className={`mt-1 ${

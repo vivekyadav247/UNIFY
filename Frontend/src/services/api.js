@@ -36,6 +36,9 @@ export const studentAPI = {
   // Class Teacher (TG)
   getClassTeacher: () => axiosInstance.get("/student/class-teacher"),
 
+  // Current Semester Data
+  getCurrentSemesterData: () => axiosInstance.get("/student/semester/current"),
+
   // Attendance
   getAttendance: (filters = {}) =>
     axiosInstance.get("/student/attendance", { params: filters }),
@@ -204,8 +207,10 @@ export const hodAPI = {
     axiosInstance.get("/hod/faculty/attendance/today"),
 
   // Semesters
-  getSemestersByActiveAcademicYear: () =>
-    axiosInstance.get("/hod/semesters"),
+  getSemestersByActiveAcademicYear: () => axiosInstance.get("/hod/semesters"),
+  getCurrentSemester: () => axiosInstance.get("/hod/semester/current"),
+  getStudentAnalyticsBySemester: () =>
+    axiosInstance.get("/hod/analytics/students-by-semester"),
 
   // Schedule Management
   createSchedule: (data) => axiosInstance.post("/schedule/create", data),
@@ -269,6 +274,8 @@ export const tgAPI = {
 
   // Dashboard
   getDashboardStats: () => axiosInstance.get("/tg/dashboard/stats"),
+  getCurrentSemesterStudentData: () =>
+    axiosInstance.get("/tg/semester/current"),
 
   // Leave Management
   getLeaveRequests: () => axiosInstance.get("/tg/leave/requests"),
@@ -332,6 +339,11 @@ export const adminAPI = {
     axiosInstance.put(`/admin/semester/${semesterId}`, data),
   deleteSemester: (semesterId) =>
     axiosInstance.delete(`/admin/semester/${semesterId}`),
+
+  // Academic Year Management
+  getAllAcademicYears: () => axiosInstance.get("/admin/academic-years"),
+  getActiveAcademicYear: () =>
+    axiosInstance.get("/admin/academic-years/active"),
 };
 
 // ============ FILE UPLOAD API ============

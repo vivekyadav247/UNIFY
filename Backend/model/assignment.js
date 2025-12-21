@@ -29,6 +29,16 @@ const assignmentSchema = new Schema(
       type: String,
       required: true,
     },
+    academicYear: {
+      type: String,
+      required: true,
+    },
+    semesterNumber: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: 8,
+    },
     dueDate: {
       type: Date,
       required: true,

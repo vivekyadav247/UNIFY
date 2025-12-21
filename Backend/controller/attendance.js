@@ -13,7 +13,6 @@ function normalizeDate(dateInput) {
   return d;
 }
 
-// ==================== TG CLASS ATTENDANCE ====================
 async function takeClassAttendance(req, res) {
   if (!req.user || req.user.role !== "tg") {
     return res.status(401).json({ error: "Unauthorized: TG only" });
@@ -88,9 +87,6 @@ async function takeClassAttendance(req, res) {
   }
 }
 
-// ==================== FACULTY SUBJECT ATTENDANCE ====================
-
-// Get all classes assigned to faculty (for dropdown)
 async function getFacultyClasses(req, res) {
   if (!req.user || req.user.role !== "faculty") {
     return res.status(401).json({ error: "Unauthorized: Faculty only" });
@@ -541,7 +537,6 @@ async function getDetailedAttendance(req, res) {
   }
 }
 
-// ==================== STUDENT ATTENDANCE VIEW ====================
 async function getStudentAttendance(req, res) {
   if (!req.user || req.user.role !== "student") {
     return res.status(401).json({ error: "Unauthorized: Student only" });
@@ -616,9 +611,6 @@ async function getStudentAttendance(req, res) {
   }
 }
 
-// ==================== TG ATTENDANCE DASHBOARD ====================
-
-// Get comprehensive TG attendance dashboard
 async function getTgAttendanceDashboard(req, res) {
   if (!req.user || req.user.role !== "tg") {
     return res.status(401).json({ error: "Unauthorized: TG only" });
@@ -629,14 +621,12 @@ async function getTgAttendanceDashboard(req, res) {
     const { department, branch, section, academicYear, semesterNumber } =
       req.user;
 
-    // ✅ FIX #1: Add semesterNumber filter
     if (!semesterNumber) {
       return res.status(400).json({
         error: "Semester number not found in user profile",
       });
     }
 
-    // Get all verified students of this TG's class
     const students = await Student.find({
       department,
       branch,
@@ -652,35 +642,32 @@ async function getTgAttendanceDashboard(req, res) {
 
     const totalStudents = students.length;
 
-    // ✅ FIX #1: Add semesterNumber filter to classAttendance
     const classAttendance = await ClassAttendance.find({
       tgId,
       department,
       branch,
       section,
       academicYear,
-      semesterNumber, // ✅ FIXED: Only current semester
+      semesterNumber,
     }).lean();
 
-    // ✅ FIX #2: Add semesterNumber filter to subjectAttendance
     const subjectAttendance = await SubjectAttendance.find({
       department,
       branch,
       section,
       academicYear,
-      semesterNumber, // ✅ FIXED: Only current semester
+      semesterNumber,
     })
       .populate("subjectId", "name subjectCode")
       .lean();
 
-    // ✅ FIX #3: Add semesterNumber filter to pending leaves
     const pendingLeaves = await Leave.find({
       status: "pending",
       department,
       branch,
       section,
       academicYear,
-      semesterNumber, // ✅ FIXED: Only current semester leaves
+      semesterNumber,
     })
       .populate("studentId", "name enrollmentNumber email mobileNumber")
       .sort({ appliedDate: -1 })
@@ -821,7 +808,7 @@ async function getTgAttendanceDashboard(req, res) {
         branch,
         section,
         academicYear,
-        semesterNumber, // ✅ Include semester info in response
+        semesterNumber,
       },
       summary: {
         totalStudents,
@@ -858,14 +845,12 @@ async function getStudentsAtRisk(req, res) {
     const { department, branch, section, academicYear, semesterNumber } =
       req.user;
 
-    // ✅ FIX #1: Add semesterNumber validation
     if (!semesterNumber) {
       return res.status(400).json({
         error: "Semester number not found in user profile",
       });
     }
 
-    // Get all verified students
     const students = await Student.find({
       department,
       branch,
@@ -878,14 +863,13 @@ async function getStudentsAtRisk(req, res) {
       )
       .lean();
 
-    // ✅ FIX #1: Add semesterNumber filter
     const classAttendance = await ClassAttendance.find({
       tgId,
       department,
       branch,
       section,
       academicYear,
-      semesterNumber, // ✅ FIXED: Only current semester
+      semesterNumber,
     }).lean();
 
     // Calculate attendance for each student
@@ -921,7 +905,7 @@ async function getStudentsAtRisk(req, res) {
 
     return res.status(200).json({
       success: true,
-      semesterNumber, // ✅ Include semester info
+      semesterNumber,
       count: studentsAtRisk.length,
       students: studentsAtRisk,
     });
@@ -965,7 +949,7 @@ async function sendLowAttendanceEmail(req, res) {
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4;">
             <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px;">
-              <h2 style="color: #d32f2f;">⚠️ Low Attendance Alert</h2>
+              <h2 style="color: #d32f2f;">Low Attendance Alert</h2>
               <p>Dear <strong>${student.name}</strong>,</p>
               <p>Enrollment Number: <strong>${
                 student.enrollmentNumber
@@ -1001,7 +985,6 @@ async function sendLowAttendanceEmail(req, res) {
   }
 }
 
-// ✅ UPDATED: Send WhatsApp notification (Direct WhatsApp Web Link - NO TWILIO NEEDED)
 async function sendLowAttendanceWhatsApp(req, res) {
   if (!req.user || req.user.role !== "tg") {
     return res.status(401).json({ error: "Unauthorized: TG only" });

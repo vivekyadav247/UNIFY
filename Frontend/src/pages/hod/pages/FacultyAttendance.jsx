@@ -157,7 +157,7 @@ const FacultyAttendance = () => {
 
       <div className="attendance-note">
         <p>
-          💡 This view updates daily at 9:00 AM. It shows which faculty members
+          This view updates daily at 9:00 AM. It shows which faculty members
           have approved leaves scheduled for today.
         </p>
       </div>

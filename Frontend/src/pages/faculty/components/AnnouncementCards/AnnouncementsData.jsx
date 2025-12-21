@@ -9,9 +9,9 @@ export const announcementsData = [
     validTo: "2025-12-15",
     description:
       "All faculty members are requested to attend the department meeting scheduled for December 15, 2025, at 10:00 AM in Conference Hall A.",
-    priority: "high"
+    priority: "high",
   },
-   {
+  {
     id: 2,
     title: "Semester Exam Schedule Released",
     author: "Examination Cell",
@@ -19,7 +19,7 @@ export const announcementsData = [
     validTo: "2025-12-30",
     description:
       "The semester examination schedule has been released. Faculty members should verify their examination duties and report any conflicts immediately.",
-    priority: "high"
+    priority: "high",
   },
 
   {
@@ -30,7 +30,7 @@ export const announcementsData = [
     validTo: "2025-12-17",
     description:
       "A two-day workshop on recent advances in AI and Machine Learning will be conducted on December 18-19.",
-    priority: "medium"
+    priority: "medium",
   },
   {
     id: 3,
@@ -40,10 +40,9 @@ export const announcementsData = [
     validTo: "2025-12-20",
     description:
       "New digital resources and journals have been added to the library. Access credentials will be shared via email.",
-    priority: "low"
+    priority: "low",
   },
 
-  // ✅ NEW CONTENT (Library ke baad)
   {
     id: 4,
     title: "Student Counseling Session Schedule",
@@ -52,6 +51,6 @@ export const announcementsData = [
     validTo: "2025-12-20",
     description:
       "Faculty members are requested to update their counseling session schedules for the upcoming month by December 20.",
-    priority: "medium"
-  }
+    priority: "medium",
+  },
 ];

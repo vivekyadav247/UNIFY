@@ -318,7 +318,7 @@ export default function LeaveRequest() {
 
                 {/* Action Buttons - Only for pending */}
                 {leave.status === "pending" && (
-                  <div className="flex gap-2 flex-shrink-0">
+                  <div className="flex gap-2 shrink-0">
                     <button
                       onClick={() => handleApprove(leave._id)}
                       disabled={approving === leave._id}

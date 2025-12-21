@@ -1,5 +1,6 @@
 const Semester = require("../model/semester");
 const Student = require("../model/student");
+const logger = require("../utils/logger");
 
 // Create a new semester
 async function createSemester(req, res) {
@@ -62,7 +63,6 @@ async function createSemester(req, res) {
       endDate: end,
       status,
       description,
-      createdBy: req.user._id,
       department: req.user.role === "hod" ? req.user.department : null,
     });
 
@@ -74,7 +74,13 @@ async function createSemester(req, res) {
       semester,
     });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    logger.error("Semester creation failed", "SEMESTER_CREATE", {
+      error: err.message,
+    });
+    return res.status(500).json({
+      error: err.message,
+      details: err.toString(),
+    });
   }
 }
 

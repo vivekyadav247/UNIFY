@@ -292,7 +292,6 @@ async function handleSignin(req, res) {
         token, // Send token in response as well
       });
   } catch (err) {
-  } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }
 }

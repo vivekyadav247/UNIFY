@@ -336,7 +336,7 @@ export default function LeaveRequest() {
       >
         <div className="flex gap-3">
           <FiFileText
-            className={`text-2xl flex-shrink-0 ${
+            className={`text-2xl shrink-0 ${
               darkMode ? "text-blue-400" : "text-blue-600"
             }`}
           />

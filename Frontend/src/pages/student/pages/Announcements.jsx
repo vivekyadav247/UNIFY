@@ -122,9 +122,9 @@ export default function Announcements() {
 
   const getPriorityBadge = (priority) => {
     const badges = {
-      high: "🔴 Urgent",
-      medium: "🟡 Important",
-      normal: "🔵 General",
+      high: "[URGENT]",
+      medium: "[IMPORTANT]",
+      normal: "[GENERAL]",
     };
     return badges[priority] || badges.normal;
   };
@@ -234,7 +234,7 @@ export default function Announcements() {
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          🔴 Urgent
+          [URGENT]
         </button>
         <button
           onClick={() => setFilter("medium")}
@@ -246,7 +246,7 @@ export default function Announcements() {
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          🟡 Important
+          [IMPORTANT]
         </button>
         <button
           onClick={() => setFilter("normal")}
@@ -258,7 +258,7 @@ export default function Announcements() {
               : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          🔵 General
+          [GENERAL]
         </button>
       </div>
 
@@ -267,8 +267,8 @@ export default function Announcements() {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             darkMode
-              ? "bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40"
-              : "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200"
+              ? "bg-linear-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40"
+              : "bg-linear-to-br from-blue-50 to-blue-100/50 border-blue-200"
           }`}
         >
           <div className="flex items-center justify-between mb-2">
@@ -293,12 +293,12 @@ export default function Announcements() {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             darkMode
-              ? "bg-gradient-to-br from-red-900/30 to-red-800/20 border-red-700/40"
-              : "bg-gradient-to-br from-red-50 to-red-100/50 border-red-200"
+              ? "bg-linear-to-br from-red-900/30 to-red-800/20 border-red-700/40"
+              : "bg-linear-to-br from-red-50 to-red-100/50 border-red-200"
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">🔴</span>
+            <span className="text-2xl">[U]</span>
           </div>
           <p
             className={`text-sm ${
@@ -319,12 +319,12 @@ export default function Announcements() {
         <div
           className={`p-6 rounded-2xl border transition-all ${
             darkMode
-              ? "bg-gradient-to-br from-green-900/30 to-green-800/20 border-green-700/40"
-              : "bg-gradient-to-br from-green-50 to-green-100/50 border-green-200"
+              ? "bg-linear-to-br from-green-900/30 to-green-800/20 border-green-700/40"
+              : "bg-linear-to-br from-green-50 to-green-100/50 border-green-200"
           }`}
         >
           <div className="flex items-center justify-between mb-2">
-            <span className="text-2xl">✨</span>
+            <span className="text-2xl">[N]</span>
           </div>
           <p
             className={`text-sm ${
@@ -459,7 +459,7 @@ export default function Announcements() {
                               rel="noopener noreferrer"
                               className="inline-block px-3 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
                             >
-                              📎 Download Attachment {idx + 1}
+                              Download Attachment {idx + 1}
                             </a>
                           ))}
                         </div>

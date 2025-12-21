@@ -1129,7 +1129,7 @@ export default function Faculty() {
                       >
                         {formData.course
                           ? "Loading subjects for selected course..."
-                          : "⚠️ Please select a course first to see available subjects"}
+                          : "Please select a course first to see available subjects"}
                       </p>
                     )}
                   </div>

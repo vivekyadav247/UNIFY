@@ -280,8 +280,8 @@ export default function Attendance() {
         <div
           className={`p-6 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40 hover:border-blue-600/60"
-              : "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/60 hover:border-blue-300"
+              ? "bg-linear-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40 hover:border-blue-600/60"
+              : "bg-linear-to-br from-blue-50 to-blue-100/50 border-blue-200/60 hover:border-blue-300"
           } hover:shadow-lg`}
         >
           <div className="flex items-center justify-between mb-4">
@@ -324,8 +324,8 @@ export default function Attendance() {
         <div
           className={`p-6 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-purple-900/30 to-purple-800/20 border-purple-700/40 hover:border-purple-600/60"
-              : "bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200/60 hover:border-purple-300"
+              ? "bg-linear-to-br from-purple-900/30 to-purple-800/20 border-purple-700/40 hover:border-purple-600/60"
+              : "bg-linear-to-br from-purple-50 to-purple-100/50 border-purple-200/60 hover:border-purple-300"
           } hover:shadow-lg`}
         >
           <div className="flex items-center justify-between mb-4">
@@ -369,8 +369,8 @@ export default function Attendance() {
         <div
           className={`p-6 rounded-2xl border transition-all duration-300 ${
             darkMode
-              ? "bg-gradient-to-br from-red-900/30 to-red-800/20 border-red-700/40 hover:border-red-600/60"
-              : "bg-gradient-to-br from-red-50 to-red-100/50 border-red-200/60 hover:border-red-300"
+              ? "bg-linear-to-br from-red-900/30 to-red-800/20 border-red-700/40 hover:border-red-600/60"
+              : "bg-linear-to-br from-red-50 to-red-100/50 border-red-200/60 hover:border-red-300"
           } hover:shadow-lg`}
         >
           <div className="flex items-center justify-between mb-4">

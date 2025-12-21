@@ -11,24 +11,26 @@ export default function MyStudents() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [error, setError] = useState(null);
+  const [currentSemester, setCurrentSemester] = useState(null);
 
   useEffect(() => {
-    fetchMyStudents();
+    fetchCurrentSemesterStudentData();
   }, []);
 
-  const fetchMyStudents = async () => {
+  const fetchCurrentSemesterStudentData = async () => {
     try {
       setLoading(true);
-      const data = await tgAPI.getAllStudents();
+      const data = await tgAPI.getCurrentSemesterStudentData();
+      setCurrentSemester(data.currentSemester || data.data?.currentSemester);
 
-      // Get all verified students
-      const verifiedStudents = data.verified || data.students || [];
-      setStudents(verifiedStudents);
+      const semesterStudents = data.students || data.data?.students || [];
+      setStudents(semesterStudents);
       setError(null);
     } catch (err) {
-      setError(err.message || "Failed to fetch students");
-      showError("Failed to load students");
+      setError(err.message || "Failed to fetch semester data");
       setStudents([]);
+      setCurrentSemester(null);
+      showError("Failed to load semester data");
     } finally {
       setLoading(false);
     }
@@ -67,6 +69,16 @@ export default function MyStudents() {
           >
             {filteredStudents.length} Verified Students
           </p>
+          {currentSemester && (
+            <p
+              className={`text-xs mt-2 font-semibold ${
+                darkMode ? "text-blue-300" : "text-blue-700"
+              }`}
+            >
+              Current: Semester {currentSemester.semesterNumber} (
+              {currentSemester.academicYear})
+            </p>
+          )}
         </div>
         <div
           className={`px-4 py-2 rounded-lg text-sm font-semibold ${

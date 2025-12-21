@@ -1000,9 +1000,9 @@ export default function Settings() {
                     darkMode ? "text-blue-200" : "text-blue-800"
                   }`}
                 >
-                  <li>✓ Minimum 6 characters</li>
-                  <li>✓ Different from current password</li>
-                  <li>✓ Passwords must match</li>
+                  <li>Minimum 6 characters</li>
+                  <li>Different from current password</li>
+                  <li>Passwords must match</li>
                 </ul>
               </div>
             </div>

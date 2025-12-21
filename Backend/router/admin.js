@@ -27,6 +27,7 @@ const {
   deleteSection,
   createAcademicYear,
   getAllAcademicYears,
+  getActiveAcademicYear,
   updateAcademicYear,
   deleteAcademicYear,
   createSubject,
@@ -84,6 +85,7 @@ router.delete("/section/:id", deleteSection);
 // Academic Year Management
 router.post("/academic-year", createAcademicYear);
 router.get("/academic-years", getAllAcademicYears);
+router.get("/academic-years/active", getActiveAcademicYear);
 router.put("/academic-year/:id", updateAcademicYear);
 router.delete("/academic-year/:id", deleteAcademicYear);
 

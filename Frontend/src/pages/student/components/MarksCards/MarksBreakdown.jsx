@@ -10,10 +10,37 @@ import React from "react";
  */
 export default function MarksBreakdown({
   subjects = [
-    { name: "Mathematics", internalObtained: 42, internalMax: 50, externalObtained: 85, externalMax: 100, totalObtained: 127, totalMax: 150, grade: "A" },
-    { name: "Physics", internalObtained: 38, internalMax: 50, externalObtained: 78, externalMax: 100, totalObtained: 116, totalMax: 150, grade: "B+" },
-    { name: "Data Structures", internalObtained: 45, internalMax: 50, externalObtained: 90, externalMax: 100, totalObtained: 135, totalMax: 150, grade: "A+" },
-  ]
+    {
+      name: "Mathematics",
+      internalObtained: 42,
+      internalMax: 50,
+      externalObtained: 85,
+      externalMax: 100,
+      totalObtained: 127,
+      totalMax: 150,
+      grade: "A",
+    },
+    {
+      name: "Physics",
+      internalObtained: 38,
+      internalMax: 50,
+      externalObtained: 78,
+      externalMax: 100,
+      totalObtained: 116,
+      totalMax: 150,
+      grade: "B+",
+    },
+    {
+      name: "Data Structures",
+      internalObtained: 45,
+      internalMax: 50,
+      externalObtained: 90,
+      externalMax: 100,
+      totalObtained: 135,
+      totalMax: 150,
+      grade: "A+",
+    },
+  ],
 }) {
   return (
     <div className="bg-white p-6 rounded-xl shadow space-y-4">
@@ -23,28 +50,37 @@ export default function MarksBreakdown({
         {subjects.map((s, idx) => {
           const percentage = ((s.totalObtained / s.totalMax) * 100).toFixed(1);
           return (
-            <div key={idx} className="bg-slate-50 rounded-xl p-4 flex flex-col gap-3">
+            <div
+              key={idx}
+              className="bg-slate-50 rounded-xl p-4 flex flex-col gap-3"
+            >
               <div className="flex justify-between items-start">
                 <div>
                   <div className="flex items-center gap-2">
-                    <div className="text-sky-600">📘</div>
+                    <div className="text-sky-600">[S]</div>
                     <h4 className="font-semibold">{s.name}</h4>
                   </div>
 
                   <div className="grid grid-cols-3 gap-4 mt-3 text-sm text-slate-700">
                     <div>
                       <div className="text-xs text-slate-400">Internal</div>
-                      <div className="font-medium">{s.internalObtained} / {s.internalMax}</div>
+                      <div className="font-medium">
+                        {s.internalObtained} / {s.internalMax}
+                      </div>
                     </div>
 
                     <div>
                       <div className="text-xs text-slate-400">External</div>
-                      <div className="font-medium">{s.externalObtained} / {s.externalMax}</div>
+                      <div className="font-medium">
+                        {s.externalObtained} / {s.externalMax}
+                      </div>
                     </div>
 
                     <div>
                       <div className="text-xs text-slate-400">Total</div>
-                      <div className="font-medium">{s.totalObtained} / {s.totalMax}</div>
+                      <div className="font-medium">
+                        {s.totalObtained} / {s.totalMax}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -57,9 +93,14 @@ export default function MarksBreakdown({
               {/* Progress bar row */}
               <div className="flex items-center gap-4">
                 <div className="flex-1 bg-white rounded-full h-3 overflow-hidden">
-                  <div className="h-3 rounded-full bg-black" style={{ width: `${percentage}%` }} />
+                  <div
+                    className="h-3 rounded-full bg-black"
+                    style={{ width: `${percentage}%` }}
+                  />
                 </div>
-                <div className="w-16 text-right text-sm font-medium">{percentage}%</div>
+                <div className="w-16 text-right text-sm font-medium">
+                  {percentage}%
+                </div>
               </div>
 
               {/* Actions: upload / download / approve (placeholders) */}

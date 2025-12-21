@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { adminAPI } from "../../../services/api";
 import { showSuccess, showError } from "../../../utils/notifications";
-import { FiPlus, FiEdit2, FiTrash2, FiX, FiCheckCircle } from "react-icons/fi";
+import {
+  FiPlus,
+  FiEdit2,
+  FiTrash2,
+  FiX,
+  FiCalendar,
+  FiClock,
+  FiAlertCircle,
+} from "react-icons/fi";
 
 const SemesterManagement = () => {
   const [semesters, setSemesters] = useState([]);
+  const [activeAcademicYear, setActiveAcademicYear] = useState("");
+  const [allAcademicYears, setAllAcademicYears] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingSemester, setEditingSemester] = useState(null);
@@ -13,23 +23,26 @@ const SemesterManagement = () => {
   const [formData, setFormData] = useState({
     academicYear: "",
     semesterNumber: "",
-    semesterName: "",
     startDate: "",
     endDate: "",
-    description: "",
   });
 
   useEffect(() => {
-    fetchSemesters();
+    fetchAllData();
   }, []);
 
-  const fetchSemesters = async () => {
+  const fetchAllData = async () => {
     try {
       setLoading(true);
-      const data = await adminAPI.getAllSemesters();
-      setSemesters(data.semesters || []);
+      const [semData, yearData] = await Promise.all([
+        adminAPI.getAllSemesters(),
+        adminAPI.getActiveAcademicYear(),
+      ]);
+      setSemesters(semData.semesters || []);
+      setActiveAcademicYear(yearData.academicYear?.year || "");
+      setAllAcademicYears(yearData.allYears || []);
     } catch (error) {
-      showError(error.response?.data?.error || "Failed to fetch semesters");
+      showError(error.response?.data?.error || "Failed to fetch data");
     } finally {
       setLoading(false);
     }
@@ -38,19 +51,16 @@ const SemesterManagement = () => {
   const handleCreateNew = () => {
     setEditingSemester(null);
     setFormData({
-      academicYear: "",
+      academicYear: activeAcademicYear,
       semesterNumber: "",
-      semesterName: "",
       startDate: "",
       endDate: "",
-      description: "",
     });
     setShowModal(true);
   };
 
   const handleSave = async () => {
     try {
-      // Validation
       if (
         !formData.academicYear ||
         !formData.semesterNumber ||
@@ -69,16 +79,23 @@ const SemesterManagement = () => {
         return;
       }
 
+      const dataToSend = {
+        academicYear: formData.academicYear,
+        semesterNumber: parseInt(formData.semesterNumber),
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+      };
+
       if (editingSemester) {
-        await adminAPI.updateSemester(editingSemester._id, formData);
+        await adminAPI.updateSemester(editingSemester._id, dataToSend);
         showSuccess("Semester updated successfully");
       } else {
-        await adminAPI.createSemester(formData);
+        await adminAPI.createSemester(dataToSend);
         showSuccess("Semester created successfully");
       }
 
       setShowModal(false);
-      fetchSemesters();
+      fetchAllData();
     } catch (error) {
       showError(error.response?.data?.error || "Failed to save semester");
     }
@@ -89,7 +106,7 @@ const SemesterManagement = () => {
       try {
         await adminAPI.deleteSemester(semesterId);
         showSuccess("Semester deleted successfully");
-        fetchSemesters();
+        fetchAllData();
       } catch (error) {
         showError(error.response?.data?.error || "Failed to delete semester");
       }
@@ -102,12 +119,40 @@ const SemesterManagement = () => {
     const end = new Date(semester.endDate);
 
     if (now >= start && now <= end) {
-      return <span className="badge badge-active">Active</span>;
+      return (
+        <div className="inline-block px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+          Active
+        </div>
+      );
     } else if (now < start) {
-      return <span className="badge badge-scheduled">Scheduled</span>;
+      return (
+        <div className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+          Scheduled
+        </div>
+      );
     } else {
-      return <span className="badge badge-completed">Completed</span>;
+      return (
+        <div className="inline-block px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-sm font-semibold">
+          Completed
+        </div>
+      );
     }
+  };
+
+  const getDaysCount = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const filteredSemesters = searchYear
@@ -123,167 +168,205 @@ const SemesterManagement = () => {
 
   if (loading) {
     return (
-      <div className="semester-container">
-        <div className="loading-state">Loading semesters...</div>
+      <div className="min-h-screen bg-gray-50 p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4">[L]</div>
+          <p className="text-gray-600">Loading semesters...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="semester-container">
-      <div className="page-header">
-        <div>
-          <h2>Semester Management</h2>
-          <p>Create and manage academic semesters</p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+              <FiCalendar className="text-blue-600" />
+              Semester Management
+            </h1>
+            <p className="text-gray-600 mt-1">
+              Create and manage academic semesters for {activeAcademicYear}
+            </p>
+          </div>
+          <button
+            onClick={handleCreateNew}
+            className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-md"
+          >
+            <FiPlus size={20} />
+            Create Semester
+          </button>
         </div>
-        <button className="btn-primary" onClick={handleCreateNew}>
-          <FiPlus /> Create Semester
-        </button>
-      </div>
 
-      {/* Search */}
-      <div className="search-section">
-        <input
-          type="text"
-          placeholder="Search by academic year (e.g., 2024-2025)"
-          value={searchYear}
-          onChange={(e) => setSearchYear(e.target.value)}
-          className="search-input"
-        />
-      </div>
+        {/* Search */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search by academic year..."
+            value={searchYear}
+            onChange={(e) => setSearchYear(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
 
-      {/* Semesters by Year */}
-      <div className="semesters-list">
+        {/* Semesters List */}
         {Object.keys(groupedBySemester).length > 0 ? (
-          Object.keys(groupedBySemester)
-            .sort()
-            .reverse()
-            .map((year) => (
-              <div key={year} className="year-section">
-                <h3 className="year-title">{year}</h3>
-                <div className="semester-grid">
-                  {groupedBySemester[year]
-                    .sort((a, b) => a.semesterNumber - b.semesterNumber)
-                    .map((semester) => (
-                      <div key={semester._id} className="semester-card">
-                        <div className="card-header-sem">
-                          <div>
-                            <h4>
-                              Semester {semester.semesterNumber}{" "}
-                              {semester.semesterName &&
-                                `(${semester.semesterName})`}
-                            </h4>
+          <div className="space-y-6">
+            {Object.keys(groupedBySemester)
+              .sort()
+              .reverse()
+              .map((year) => (
+                <div key={year}>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-600">
+                    {year}
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {groupedBySemester[year]
+                      .sort((a, b) => a.semesterNumber - b.semesterNumber)
+                      .map((semester) => (
+                        <div
+                          key={semester._id}
+                          className="bg-white rounded-lg shadow hover:shadow-lg transition p-5 border-l-4 border-blue-500"
+                        >
+                          {/* Header */}
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h3 className="text-lg font-bold text-gray-900">
+                                Semester {semester.semesterNumber}
+                              </h3>
+                              <p className="text-sm text-gray-500 mt-1">
+                                {semester.semesterName}
+                              </p>
+                            </div>
                             {getStatusBadge(semester)}
                           </div>
-                          <div className="card-actions">
+
+                          {/* Dates */}
+                          <div className="space-y-3 mb-4 p-3 bg-gray-50 rounded">
+                            <div className="flex items-center gap-2 text-sm">
+                              <FiClock className="text-green-600" />
+                              <div>
+                                <p className="text-gray-600">Start</p>
+                                <p className="font-semibold text-gray-900">
+                                  {formatDate(semester.startDate)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm">
+                              <FiClock className="text-red-600" />
+                              <div>
+                                <p className="text-gray-600">End</p>
+                                <p className="font-semibold text-gray-900">
+                                  {formatDate(semester.endDate)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Duration */}
+                          <div className="bg-blue-50 p-3 rounded mb-4">
+                            <p className="text-sm text-gray-600">Duration</p>
+                            <p className="text-lg font-bold text-blue-600">
+                              {getDaysCount(
+                                semester.startDate,
+                                semester.endDate
+                              )}{" "}
+                              days
+                            </p>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex gap-2">
                             <button
-                              className="btn-icon edit"
-                              title="Edit"
                               onClick={() => {
                                 setEditingSemester(semester);
                                 setFormData({
                                   academicYear: semester.academicYear,
                                   semesterNumber:
                                     semester.semesterNumber.toString(),
-                                  semesterName: semester.semesterName || "",
                                   startDate: semester.startDate.split("T")[0],
                                   endDate: semester.endDate.split("T")[0],
-                                  description: semester.description || "",
                                 });
                                 setShowModal(true);
                               }}
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition font-semibold"
                             >
-                              <FiEdit2 />
+                              <FiEdit2 size={16} />
+                              Edit
                             </button>
                             <button
-                              className="btn-icon delete"
-                              title="Delete"
                               onClick={() => handleDelete(semester._id)}
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-red-50 text-red-600 rounded hover:bg-red-100 transition font-semibold"
                             >
-                              <FiTrash2 />
+                              <FiTrash2 size={16} />
+                              Delete
                             </button>
                           </div>
                         </div>
-
-                        <div className="card-body-sem">
-                          <p className="info-row">
-                            <span className="label">Start Date:</span>
-                            <span className="value">
-                              {new Date(semester.startDate).toLocaleDateString(
-                                "en-IN"
-                              )}
-                            </span>
-                          </p>
-                          <p className="info-row">
-                            <span className="label">End Date:</span>
-                            <span className="value">
-                              {new Date(semester.endDate).toLocaleDateString(
-                                "en-IN"
-                              )}
-                            </span>
-                          </p>
-                          <p className="info-row">
-                            <span className="label">Duration:</span>
-                            <span className="value">
-                              {Math.ceil(
-                                (new Date(semester.endDate) -
-                                  new Date(semester.startDate)) /
-                                  (1000 * 60 * 60 * 24)
-                              )}{" "}
-                              days
-                            </span>
-                          </p>
-                          {semester.description && (
-                            <p className="info-row">
-                              <span className="label">Description:</span>
-                              <span className="value">
-                                {semester.description}
-                              </span>
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))}
+          </div>
         ) : (
-          <div className="empty-state">
-            <FiCheckCircle className="empty-icon" />
-            <p>No semesters found. Create one to get started!</p>
+          <div className="bg-white rounded-lg shadow p-12 text-center">
+            <FiAlertCircle className="text-4xl text-gray-400 mx-auto mb-3" />
+            <p className="text-gray-600 text-lg">No semesters found</p>
+            <p className="text-gray-500">Click "Create Semester" to add one</p>
           </div>
         )}
-      </div>
 
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>
-                {editingSemester ? "Edit Semester" : "Create New Semester"}
-              </h2>
-              <button className="btn-close" onClick={() => setShowModal(false)}>
-                <FiX />
-              </button>
-            </div>
-
-            <div className="modal-body">
-              <div className="form-group">
-                <label>Academic Year *</label>
-                <input
-                  type="text"
-                  placeholder="e.g., 2024-2025"
-                  value={formData.academicYear}
-                  onChange={(e) =>
-                    setFormData({ ...formData, academicYear: e.target.value })
-                  }
-                />
+        {/* Modal */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {editingSemester ? "Edit Semester" : "Create New Semester"}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <FiX size={24} />
+                </button>
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Semester Number *</label>
+              {/* Modal Body */}
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Academic Year *
+                  </label>
+                  {activeAcademicYear && (
+                    <p className="text-sm text-green-600 mb-2">
+                      Active: {activeAcademicYear}
+                    </p>
+                  )}
+                  <select
+                    value={formData.academicYear}
+                    onChange={(e) =>
+                      setFormData({ ...formData, academicYear: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Select Academic Year</option>
+                    {allAcademicYears.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                        {year === activeAcademicYear ? " (Active)" : ""}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Semester Number *
+                  </label>
                   <select
                     value={formData.semesterNumber}
                     onChange={(e) =>
@@ -292,6 +375,7 @@ const SemesterManagement = () => {
                         semesterNumber: e.target.value,
                       })
                     }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select Semester</option>
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
@@ -302,70 +386,54 @@ const SemesterManagement = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label>Semester Name</label>
-                  <input
-                    type="text"
-                    placeholder="e.g., Spring 2024, Fall 2024"
-                    value={formData.semesterName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, semesterName: e.target.value })
-                    }
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date *</label>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    Start Date *
+                  </label>
                   <input
                     type="date"
                     value={formData.startDate}
                     onChange={(e) =>
                       setFormData({ ...formData, startDate: e.target.value })
                     }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
 
-                <div className="form-group">
-                  <label>End Date *</label>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">
+                    End Date *
+                  </label>
                   <input
                     type="date"
                     value={formData.endDate}
                     onChange={(e) =>
                       setFormData({ ...formData, endDate: e.target.value })
                     }
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Description</label>
-                <textarea
-                  placeholder="Add any notes or description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  rows="3"
-                />
+              {/* Modal Footer */}
+              <div className="flex gap-3 p-6 border-t border-gray-200">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-semibold"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                >
+                  {editingSemester ? "Update" : "Create"}
+                </button>
               </div>
             </div>
-
-            <div className="modal-footer">
-              <button
-                className="btn-secondary"
-                onClick={() => setShowModal(false)}
-              >
-                Cancel
-              </button>
-              <button className="btn-primary" onClick={handleSave}>
-                {editingSemester ? "Update Semester" : "Create Semester"}
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

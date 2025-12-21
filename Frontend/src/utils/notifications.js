@@ -73,50 +73,45 @@ export const updateLoadingToast = (toastId, message, type = "success") => {
   });
 };
 
-// Assignment notifications
 export const notifyNewAssignment = (title, dueDate) => {
-  showInfo(`📝 New Assignment: ${title} due on ${dueDate}`);
+  showInfo(`New Assignment: ${title} due on ${dueDate}`);
 };
 
 export const notifyAssignmentDueSoon = (title, daysLeft) => {
-  showWarning(`⏰ Assignment due in ${daysLeft} days: ${title}`);
+  showWarning(`Assignment due in ${daysLeft} days: ${title}`);
 };
 
-// Marks notifications
 export const notifyMarksReleased = (subject, marks) => {
-  showSuccess(`📊 Marks released for ${subject}: ${marks}/100`);
+  showSuccess(`Marks released for ${subject}: ${marks}/100`);
 };
 
-// Announcement notifications
 export const notifyNewAnnouncement = (title) => {
-  showInfo(`📢 New Announcement: ${title}`);
+  showInfo(`New Announcement: ${title}`);
 };
 
 // Attendance notifications
 export const notifyAttendanceMarked = () => {
-  showSuccess("✓ Attendance marked for today");
+  showSuccess("Attendance marked for today");
 };
 
 export const notifyLowAttendance = (percentage) => {
   showWarning(
-    `⚠️ Your attendance is ${percentage}%. Please attend classes regularly!`
+    `Your attendance is ${percentage}%. Please attend classes regularly!`
   );
 };
 
-// Leave notifications
 export const notifyLeaveApproved = (fromDate, toDate) => {
-  showSuccess(`✓ Leave approved from ${fromDate} to ${toDate}`);
+  showSuccess(`Leave approved from ${fromDate} to ${toDate}`);
 };
 
 export const notifyLeaveRejected = (reason) => {
-  showError(`✗ Leave request rejected: ${reason}`);
+  showError(`Leave request rejected: ${reason}`);
 };
 
-// General action notifications
 export const notifySuccess = (action) => {
-  showSuccess(`✓ ${action} successful`);
+  showSuccess(`${action} successful`);
 };
 
 export const notifyError = (action, error) => {
-  showError(`✗ ${action} failed: ${error}`);
+  showError(`${action} failed: ${error}`);
 };

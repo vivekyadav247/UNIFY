@@ -44,6 +44,7 @@ import HodAnnouncements from "../pages/hod/pages/Announcements";
 import HodFacultyLeaves from "../pages/hod/pages/FacultyLeaves";
 import HodFacultyAttendance from "../pages/hod/pages/FacultyAttendance";
 import ScheduleManagement from "../pages/hod/pages/ScheduleManagement";
+import Semesters from "../pages/hod/pages/Semesters";
 
 // TG Pages
 import TgLayout from "../pages/tg/layouts/TgLayout";
@@ -156,6 +157,7 @@ export default function AppRoutes({
         <Route path="faculty-leaves" element={<HodFacultyLeaves />} />
         <Route path="faculty-attendance" element={<HodFacultyAttendance />} />
         <Route path="schedule-management" element={<ScheduleManagement />} />
+        <Route path="semesters" element={<Semesters />} />
         <Route path="reports" element={<HodReports />} />
         <Route path="announcements" element={<HodAnnouncements />} />
         <Route path="settings" element={<HodSettings />} />

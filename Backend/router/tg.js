@@ -28,6 +28,7 @@ const {
   getTgReports,
   getTgSchedule,
   getTgDashboardStats,
+  getTgCurrentSemesterStudentData,
   debugTgStudents,
 } = require("../controller/tg");
 
@@ -49,6 +50,7 @@ router.put("/profile/change-password", changeTgPassword);
 
 // Dashboard
 router.get("/dashboard/stats", getTgDashboardStats);
+router.get("/semester/current", getTgCurrentSemesterStudentData);
 
 // DEBUG route - remove in production
 router.get("/debug/students", debugTgStudents);

@@ -49,6 +49,11 @@ export default function AdminLayout() {
       icon: <FiCalendar />,
       path: "/admin/academic-years",
     },
+    {
+      name: "Semesters",
+      icon: <FiLayers />,
+      path: "/admin/semesters",
+    },
   ];
 
   return (

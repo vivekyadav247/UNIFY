@@ -1,6 +1,10 @@
 const Student = require("../model/student");
 const TG = require("../model/tg");
 const Leave = require("../model/leave");
+const Semester = require("../model/semester");
+const ClassAttendance = require("../model/classAttendance");
+const Marks = require("../model/marks");
+const Assignment = require("../model/assignment");
 const { createHmac, randomBytes } = require("crypto");
 
 // DEBUG: Check TG and Students data match
@@ -126,7 +130,6 @@ async function verifyStudentByTG(req, res) {
   }
 }
 
-// ⭐ NEW: Get unverified students for TG dashboard
 async function getUnverifiedStudents(req, res) {
   try {
     if (!req.user || req.user.role !== "tg") {
@@ -177,7 +180,6 @@ async function getUnverifiedStudents(req, res) {
   }
 }
 
-// ⭐ NEW: Get all students (verified + unverified) for TG
 async function getAllMyStudents(req, res) {
   try {
     if (!req.user || req.user.role !== "tg") {
@@ -844,6 +846,134 @@ async function getTgDashboardStats(req, res) {
   }
 }
 
+// Get current semester data for all TG's students
+async function getTgCurrentSemesterStudentData(req, res) {
+  try {
+    if (!req.user || req.user.role !== "tg") {
+      return res.status(401).json({ error: "Unauthorized: TG only" });
+    }
+
+    const tgId = req.user._id;
+    const tg = await TG.findById(tgId);
+
+    if (!tg) {
+      return res.status(404).json({ error: "TG not found" });
+    }
+
+    // Get current active semester
+    const now = new Date();
+    const currentSemester = await Semester.findOne({
+      status: "active",
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+
+    if (!currentSemester) {
+      return res.status(404).json({
+        error: "No active semester found",
+      });
+    }
+
+    // Get all students under this TG
+    const students = await Student.find({
+      department: tg.department,
+      branch: tg.branch,
+      section: tg.section,
+      academicYear: tg.academicYear,
+      course: tg.course,
+    }).select("_id enrollmentNumber name");
+
+    const studentIds = students.map((s) => s._id);
+
+    // Get semester data for all students
+    const [attendanceData, marksData, assignmentData] = await Promise.all([
+      ClassAttendance.find({
+        studentId: { $in: studentIds },
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+      Marks.find({
+        studentId: { $in: studentIds },
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+      Assignment.find({
+        branch: tg.branch,
+        section: tg.section,
+        semesterNumber: currentSemester.semesterNumber,
+        academicYear: currentSemester.academicYear,
+      }),
+    ]);
+
+    // Aggregate attendance by student
+    const studentAttendanceMap = {};
+    students.forEach((s) => {
+      studentAttendanceMap[s._id] = {
+        studentId: s._id,
+        enrollmentNumber: s.enrollmentNumber,
+        name: s.name,
+        total: 0,
+        present: 0,
+        absent: 0,
+        leave: 0,
+        percentage: 0,
+      };
+    });
+
+    attendanceData.forEach((record) => {
+      if (studentAttendanceMap[record.studentId]) {
+        studentAttendanceMap[record.studentId].total++;
+        if (record.status === "present") {
+          studentAttendanceMap[record.studentId].present++;
+        } else if (record.status === "absent") {
+          studentAttendanceMap[record.studentId].absent++;
+        } else if (record.status === "leave") {
+          studentAttendanceMap[record.studentId].leave++;
+        }
+      }
+    });
+
+    // Calculate percentage
+    Object.values(studentAttendanceMap).forEach((record) => {
+      if (record.total > 0) {
+        record.percentage = ((record.present / record.total) * 100).toFixed(2);
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        tg: {
+          name: tg.name,
+          tgId: tg.tgId,
+          department: tg.department,
+          branch: tg.branch,
+          section: tg.section,
+          academicYear: tg.academicYear,
+        },
+        currentSemester: {
+          semesterNumber: currentSemester.semesterNumber,
+          semesterName: currentSemester.semesterName,
+          academicYear: currentSemester.academicYear,
+          startDate: currentSemester.startDate,
+          endDate: currentSemester.endDate,
+          status: currentSemester.status,
+        },
+        students: Object.values(studentAttendanceMap),
+        studentCount: students.length,
+        assignments: assignmentData.map((a) => ({
+          id: a._id,
+          title: a.title,
+          subject: a.subject,
+          dueDate: a.dueDate,
+        })),
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   getTgProfile,
   updateTgProfile,
@@ -862,5 +992,6 @@ module.exports = {
   getTgReports,
   getTgSchedule,
   getTgDashboardStats,
+  getTgCurrentSemesterStudentData,
   debugTgStudents,
 };

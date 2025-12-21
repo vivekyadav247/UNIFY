@@ -95,7 +95,6 @@ async function handleCreateHOD(req, res) {
   }
 }
 
-// ADMIN — Edit HOD Details
 async function editHOD(req, res) {
   if (!req.user || req.user.role !== "admin") {
     return res.status(401).send("Unauthorized: Admin only.");
@@ -117,7 +116,6 @@ async function editHOD(req, res) {
   }
 }
 
-// ADMIN — Reset HOD Password
 async function resetHODPassword(req, res) {
   if (!req.user || req.user.role !== "admin") {
     return res.status(401).send("Unauthorized: Admin only.");
@@ -523,6 +521,20 @@ async function getAllAcademicYears(req, res) {
   }
 }
 
+async function getActiveAcademicYear(req, res) {
+  try {
+    const activeYear = await AcademicYear.findOne({ isActive: true });
+    const allYears = await AcademicYear.find().sort({ year: -1 });
+
+    return res.status(200).json({
+      academicYear: activeYear,
+      allYears: allYears.map((y) => y.year),
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+}
+
 async function updateAcademicYear(req, res) {
   if (!req.user || req.user.role !== "admin") {
     return res.status(401).send("Unauthorized: Admin only.");
@@ -764,6 +776,7 @@ module.exports = {
   // Academic Year
   createAcademicYear,
   getAllAcademicYears,
+  getActiveAcademicYear,
   updateAcademicYear,
   deleteAcademicYear,
   // Subject

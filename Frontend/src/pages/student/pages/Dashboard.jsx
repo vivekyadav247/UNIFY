@@ -34,9 +34,11 @@ export default function Dashboard() {
   const [announcements, setAnnouncements] = useState([]);
   const [feedback, setFeedback] = useState([]);
   const [classTeacher, setClassTeacher] = useState(null);
+  const [hod, setHod] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [currentSemester, setCurrentSemester] = useState(null);
   const [selectedSemester, setSelectedSemester] = useState(
     student?.semesterNumber || 1
   );
@@ -51,6 +53,9 @@ export default function Dashboard() {
     );
     setSemesters(semesterOptions);
 
+    // Fetch current active semester info
+    fetchCurrentSemesterInfo();
+
     // Fetch class teacher info
     fetchClassTeacher();
 
@@ -64,6 +69,27 @@ export default function Dashboard() {
     );
     return () => clearInterval(interval);
   }, [selectedSemester, student?.semesterNumber]);
+
+  const fetchCurrentSemesterInfo = async () => {
+    try {
+      const data = await studentAPI.getCurrentSemesterData();
+      setCurrentSemester(data.currentSemester || data.data?.currentSemester);
+      setHod(data.hod || data.data?.hod);
+      // Auto-select current active semester
+      if (
+        data.currentSemester?.semesterNumber ||
+        data.data?.currentSemester?.semesterNumber
+      ) {
+        setSelectedSemester(
+          data.currentSemester?.semesterNumber ||
+            data.data?.currentSemester?.semesterNumber
+        );
+      }
+    } catch (err) {
+      setCurrentSemester(null);
+      setHod(null);
+    }
+  };
 
   const fetchClassTeacher = async () => {
     try {
@@ -219,7 +245,7 @@ export default function Dashboard() {
               darkMode ? "text-white" : "text-gray-900"
             }`}
           >
-            Welcome back, {student?.name || "Student"}! 👋
+            Welcome back, {student?.name || "Student"}!
           </h1>
           <p
             className={`mt-2 text-lg ${
@@ -232,6 +258,19 @@ export default function Dashboard() {
 
         {/* Semester Selector */}
         <div className="flex flex-col items-end gap-2">
+          {/* Current Semester Info */}
+          {currentSemester && (
+            <div
+              className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                darkMode
+                  ? "bg-green-900/30 text-green-300 border border-green-700"
+                  : "bg-green-100 text-green-800 border border-green-300"
+              }`}
+            >
+              Active: Sem {currentSemester.semesterNumber} (
+              {currentSemester.academicYear})
+            </div>
+          )}
           <label
             className={`text-sm font-semibold ${
               darkMode ? "text-gray-300" : "text-gray-700"
@@ -290,8 +329,8 @@ export default function Dashboard() {
         <div
           className={`p-5 rounded-2xl border ${
             darkMode
-              ? "bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border-indigo-700/50"
-              : "bg-gradient-to-r from-indigo-50 to-purple-50 border-indigo-200"
+              ? "bg-linear-to-r from-indigo-900/40 to-purple-900/40 border-indigo-700/50"
+              : "bg-linear-to-r from-indigo-50 to-purple-50 border-indigo-200"
           }`}
         >
           <div className="flex items-center gap-4">
@@ -361,6 +400,82 @@ export default function Dashboard() {
         </div>
       )}
 
+      {/* HOD CARD */}
+      {hod && (
+        <div
+          className={`p-5 rounded-2xl border ${
+            darkMode
+              ? "bg-linear-to-r from-orange-900/40 to-red-900/40 border-orange-700/50"
+              : "bg-linear-to-r from-orange-50 to-red-50 border-orange-200"
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            {hod.profilePic ? (
+              <img
+                src={hod.profilePic}
+                alt={hod.name}
+                className="w-14 h-14 rounded-full object-cover border-2 border-orange-500"
+              />
+            ) : (
+              <div
+                className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                  darkMode ? "bg-orange-700" : "bg-orange-500"
+                }`}
+              >
+                <FiUser className="text-white text-2xl" />
+              </div>
+            )}
+            <div className="flex-1">
+              <p
+                className={`text-xs font-semibold uppercase tracking-wide ${
+                  darkMode ? "text-orange-300" : "text-orange-600"
+                }`}
+              >
+                Your Department Head (HOD)
+              </p>
+              <h3
+                className={`text-lg font-bold ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                {hod.name}
+              </h3>
+              <p
+                className={`text-sm ${
+                  darkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                Head of Department
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <a
+                href={`mailto:${hod.email}`}
+                className={`p-3 rounded-lg transition-all ${
+                  darkMode
+                    ? "bg-orange-700/50 hover:bg-orange-600 text-orange-200"
+                    : "bg-orange-100 hover:bg-orange-200 text-orange-600"
+                }`}
+                title={hod.email}
+              >
+                <FiMail className="text-xl" />
+              </a>
+              <a
+                href={`tel:${hod.mobileNumber}`}
+                className={`p-3 rounded-lg transition-all ${
+                  darkMode
+                    ? "bg-green-700/50 hover:bg-green-600 text-green-200"
+                    : "bg-green-100 hover:bg-green-200 text-green-600"
+                }`}
+                title={hod.mobileNumber}
+              >
+                <FiPhone className="text-xl" />
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div
@@ -380,8 +495,8 @@ export default function Dashboard() {
                 p-6 rounded-2xl border transition-all duration-300
                 ${
                   darkMode
-                    ? "bg-gradient-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40 hover:border-blue-600/60"
-                    : "bg-gradient-to-br from-blue-50 to-blue-100/50 border-blue-200/60 hover:border-blue-300"
+                    ? "bg-linear-to-br from-blue-900/30 to-blue-800/20 border-blue-700/40 hover:border-blue-600/60"
+                    : "bg-linear-to-br from-blue-50 to-blue-100/50 border-blue-200/60 hover:border-blue-300"
                 }
                 hover:shadow-lg
               `}
@@ -430,8 +545,8 @@ export default function Dashboard() {
                 p-6 rounded-2xl border transition-all duration-300
                 ${
                   darkMode
-                    ? "bg-gradient-to-br from-purple-900/30 to-purple-800/20 border-purple-700/40 hover:border-purple-600/60"
-                    : "bg-gradient-to-br from-purple-50 to-purple-100/50 border-purple-200/60 hover:border-purple-300"
+                    ? "bg-linear-to-br from-purple-900/30 to-purple-800/20 border-purple-700/40 hover:border-purple-600/60"
+                    : "bg-linear-to-br from-purple-50 to-purple-100/50 border-purple-200/60 hover:border-purple-300"
                 }
                 hover:shadow-lg
               `}
@@ -480,8 +595,8 @@ export default function Dashboard() {
                 p-6 rounded-2xl border transition-all duration-300
                 ${
                   darkMode
-                    ? "bg-gradient-to-br from-orange-900/30 to-orange-800/20 border-orange-700/40 hover:border-orange-600/60"
-                    : "bg-gradient-to-br from-orange-50 to-orange-100/50 border-orange-200/60 hover:border-orange-300"
+                    ? "bg-linear-to-br from-orange-900/30 to-orange-800/20 border-orange-700/40 hover:border-orange-600/60"
+                    : "bg-linear-to-br from-orange-50 to-orange-100/50 border-orange-200/60 hover:border-orange-300"
                 }
                 hover:shadow-lg
               `}
@@ -530,8 +645,8 @@ export default function Dashboard() {
                 p-6 rounded-2xl border transition-all duration-300
                 ${
                   darkMode
-                    ? "bg-gradient-to-br from-green-900/30 to-green-800/20 border-green-700/40 hover:border-green-600/60"
-                    : "bg-gradient-to-br from-green-50 to-green-100/50 border-green-200/60 hover:border-green-300"
+                    ? "bg-linear-to-br from-green-900/30 to-green-800/20 border-green-700/40 hover:border-green-600/60"
+                    : "bg-linear-to-br from-green-50 to-green-100/50 border-green-200/60 hover:border-green-300"
                 }
                 hover:shadow-lg
               `}

@@ -60,12 +60,12 @@ export default function HodLayout() {
       <Sidebar darkMode={darkMode} />
 
       {/* MAIN AREA */}
-      <div className="flex-1 flex flex-col">
+      <div className="ml-72 flex-1 flex flex-col">
         {/* NAVBAR */}
         <header
           className={`
-            p-6 flex items-center justify-between border-b
-            transition-colors duration-300
+            fixed top-0 left-72 right-0 p-6 flex items-center justify-between border-b
+            transition-colors duration-300 z-30
             ${
               darkMode
                 ? "bg-gray-800 border-gray-700"
@@ -115,7 +115,7 @@ export default function HodLayout() {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto mt-24">
           <Outlet context={{ darkMode, hod }} />
         </main>
       </div>

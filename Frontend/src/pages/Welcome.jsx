@@ -220,7 +220,7 @@ export default function Welcome() {
             },
             {
               name: "Sujal Bhawsar",
-              role: "Frpntend Developer | UI/UX",
+              role: "Frontend Developer | UI/UX",
               img: "public/devs/sujalb.jpg",
               github: "https://github.com/SUJAL1902",
               linkedin: "www.linkedin.com/in/sujalbhawsar19",

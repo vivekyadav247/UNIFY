@@ -1,0 +1,7 @@
+[2025-12-30T05:16:40.571Z] [INFO] [SERVER_START] Server running successfully
+{
+  "port": 3000,
+  "environment": "development",
+  "corsOrigin": "http://localhost:5173"
+}
+================================================================================

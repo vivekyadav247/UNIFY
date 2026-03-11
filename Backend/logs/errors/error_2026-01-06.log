@@ -1,0 +1,246 @@
+[2026-01-06T10:58:46.517Z] [ERROR] [POST /api/auth/login] POST /api/auth/login
+{
+  "statusCode": 401,
+  "duration": "1ms",
+  "ip": "::1",
+  "requestBody": {
+    "enrollmentNumber": "0805CS221001",
+    "password": "password123",
+    "role": "student"
+  }
+}
+================================================================================
+[2026-01-06T10:59:48.991Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "66ms",
+  "ip": "::1",
+  "requestBody": {
+    "enrollmentNumber": "0805CS221001",
+    "password": "password123",
+    "role": "student"
+  }
+}
+================================================================================
+[2026-01-06T11:05:22.401Z] [ERROR] [GET /api/announcements] GET /api/announcements
+{
+  "statusCode": 404,
+  "duration": "2ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:25:02.929Z] [ERROR] [GET /api/student/class-teacher] GET /api/student/class-teacher
+{
+  "statusCode": 404,
+  "duration": "48ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:25:03.027Z] [ERROR] [GET /api/student/class-teacher] GET /api/student/class-teacher
+{
+  "statusCode": 404,
+  "duration": "36ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:25:16.372Z] [ERROR] [GET /api/student/class-teacher] GET /api/student/class-teacher
+{
+  "statusCode": 404,
+  "duration": "24ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:25:16.429Z] [ERROR] [GET /api/student/class-teacher] GET /api/student/class-teacher
+{
+  "statusCode": 404,
+  "duration": "21ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:27:12.305Z] [ERROR] [POST /api/schedule/create] POST /api/schedule/create
+{
+  "statusCode": 500,
+  "duration": "17ms",
+  "ip": "::1",
+  "requestBody": {
+    "academicYear": "2023-2027",
+    "year": "3",
+    "branch": "CSE",
+    "section": "A",
+    "semester": "5",
+    "timeSlots": [
+      {
+        "day": "Monday",
+        "startTime": "09:00",
+        "endTime": "10:30",
+        "classType": "Theory",
+        "faculty": "",
+        "subject": "",
+        "subjectName": "",
+        "subjectCode": "",
+        "location": "Classroom"
+      }
+    ],
+    "remarks": "",
+    "assignedFaculty": []
+  }
+}
+================================================================================
+[2026-01-06T11:43:29.449Z] [ERROR] [GET /api/faculty/attendance/students?department=CSE&branch=CSE&academicYear=2022-2026&section=A&subjectId=695cf53379aead4fe22b4aa8] GET /api/faculty/attendance/students?department=CSE&branch=CSE&academicYear=2022-2026&section=A&subjectId=695cf53379aead4fe22b4aa8
+{
+  "statusCode": 403,
+  "duration": "3ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:46:14.882Z] [ERROR] [GET /api/faculty/attendance/students?department=CSE&branch=CSE&academicYear=2022-2026&section=A&subjectId=695cf5a41b22d2b56bc4c082] GET /api/faculty/attendance/students?department=CSE&branch=CSE&academicYear=2022-2026&section=A&subjectId=695cf5a41b22d2b56bc4c082
+{
+  "statusCode": 500,
+  "duration": "11ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:48:21.955Z] [ERROR] [GET /api/marks/students?branch=CSE&section=A&semester=1] GET /api/marks/students?branch=CSE&section=A&semester=1
+{
+  "statusCode": 404,
+  "duration": "3ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:51:15.024Z] [ERROR] [POST /api/faculty/assignments/create] POST /api/faculty/assignments/create
+{
+  "statusCode": 500,
+  "duration": "10ms",
+  "ip": "::1",
+  "requestBody": {
+    "title": "Test Assignment 1",
+    "description": "Solve Q1 to Q10",
+    "subject": "Intro to Programming",
+    "subjectId": "695cf5a41b22d2b56bc4c082",
+    "dueDate": "2026-01-07T11:51:15.011Z",
+    "branch": "CSE",
+    "section": "A",
+    "totalMarks": 20
+  }
+}
+================================================================================
+[2026-01-06T11:53:11.220Z] [ERROR] [GET /api/student/assignments] GET /api/student/assignments
+{
+  "statusCode": 500,
+  "duration": "9ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:53:55.821Z] [ERROR] [GET /api/student/assignments] GET /api/student/assignments
+{
+  "statusCode": 500,
+  "duration": "63ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:54:20.237Z] [ERROR] [GET /api/faculty/assignments/695cf7eca25d6753bd8af3a1/submissions] GET /api/faculty/assignments/695cf7eca25d6753bd8af3a1/submissions
+{
+  "statusCode": 404,
+  "duration": "3ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T11:56:03.003Z] [ERROR] [POST /api/study-material/upload] POST /api/study-material/upload
+{
+  "statusCode": 404,
+  "duration": "3ms",
+  "ip": "::1",
+  "requestBody": {
+    "title": "Week 1 Notes",
+    "subjectId": "695cf5a41b22d2b56bc4c082",
+    "type": "PDF",
+    "unit": "Unit 1"
+  }
+}
+================================================================================
+[2026-01-06T12:00:22.711Z] [ERROR] [GET /api/hod/profile] GET /api/hod/profile
+{
+  "statusCode": 404,
+  "duration": "34ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T12:00:22.722Z] [ERROR] [GET /api/hod/profile] GET /api/hod/profile
+{
+  "statusCode": 404,
+  "duration": "5ms",
+  "ip": "::1"
+}
+================================================================================
+[2026-01-06T12:00:36.515Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "6ms",
+  "ip": "::1",
+  "requestBody": {
+    "role": "student",
+    "password": "password123",
+    "enrollmentNumber": "0805CSE231001"
+  }
+}
+================================================================================
+[2026-01-06T12:28:09.482Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 400,
+  "duration": "1ms",
+  "ip": "::1",
+  "requestBody": {
+    "email": "tg1@example.com",
+    "password": "password123",
+    "role": "tg"
+  }
+}
+================================================================================
+[2026-01-06T12:28:47.079Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "22ms",
+  "ip": "::1",
+  "requestBody": {
+    "tgId": "TG01",
+    "password": "password123",
+    "role": "tg"
+  }
+}
+================================================================================
+[2026-01-06T12:30:19.284Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "9ms",
+  "ip": "::1",
+  "requestBody": {
+    "tgId": "TG01",
+    "password": "password123",
+    "role": "tg"
+  }
+}
+================================================================================
+[2026-01-06T12:30:46.657Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "16ms",
+  "ip": "::1",
+  "requestBody": {
+    "role": "student",
+    "password": "123456",
+    "enrollmentNumber": "0805CS231088"
+  }
+}
+================================================================================
+[2026-01-06T12:30:59.984Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "6ms",
+  "ip": "::1",
+  "requestBody": {
+    "role": "student",
+    "password": "123456",
+    "enrollmentNumber": "0805CS231088"
+  }
+}
+================================================================================

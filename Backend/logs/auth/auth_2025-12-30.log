@@ -1,0 +1,18 @@
+[2025-12-30T05:17:27.236Z] [INFO] [SIGNIN_FAILED] Failed signin attempt for student 0805CS231171
+{
+  "enrollmentNumber": "0805CS231171",
+  "error": "Invalid password"
+}
+================================================================================
+[2025-12-30T07:56:20.561Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS231088",
+  "timestamp": "2025-12-30T07:56:20.561Z"
+}
+================================================================================
+[2025-12-30T08:41:48.855Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS231088",
+  "timestamp": "2025-12-30T08:41:48.855Z"
+}
+================================================================================

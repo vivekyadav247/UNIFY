@@ -1,0 +1,6 @@
+[2025-12-29T05:07:03.123Z] [INFO] [SIGNIN_FAILED] Failed signin attempt for student 0805CS231171
+{
+  "enrollmentNumber": "0805CS231171",
+  "error": "Invalid password"
+}
+================================================================================

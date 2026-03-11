@@ -1,0 +1,162 @@
+[2025-12-21T15:30:09.999Z] [INFO] [POST /api/auth/signin] Response Status: 200 | Duration: 57ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:10.063Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 31ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:10.071Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 4ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:10.077Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 4ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:10.083Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 4ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:10.266Z] [INFO] [GET /api/hod/dashboard] Response Status: 200 | Duration: 148ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:10.284Z] [INFO] [GET /api/hod/dashboard] Response Status: 200 | Duration: 16ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:12.512Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 9ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:12.525Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 6ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:12.577Z] [INFO] [GET /api/hod/announcements?limit=50&sort=-createdAt] Response Status: 200 | Duration: 78ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:12.594Z] [INFO] [GET /api/hod/announcements?limit=50&sort=-createdAt] Response Status: 200 | Duration: 14ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:14.278Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 10ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:14.280Z] [INFO] [GET /api/hod/students] Response Status: 200 | Duration: 16ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:14.302Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 11ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:14.309Z] [INFO] [GET /api/hod/students] Response Status: 200 | Duration: 12ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.536Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 7ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.543Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 4ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.597Z] [INFO] [GET /api/hod/semester/current] Response Status: 200 | Duration: 77ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.601Z] [INFO] [GET /api/hod/semesters] Response Status: 200 | Duration: 85ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.613Z] [INFO] [GET /api/hod/analytics/students-by-semester] Response Status: 200 | Duration: 87ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.616Z] [INFO] [GET /api/hod/semester/current] Response Status: 200 | Duration: 13ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.624Z] [INFO] [GET /api/hod/semesters] Response Status: 200 | Duration: 17ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:16.633Z] [INFO] [GET /api/hod/analytics/students-by-semester] Response Status: 200 | Duration: 15ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:21.293Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 11ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:21.295Z] [INFO] [GET /api/schedule/all] Response Status: 200 | Duration: 15ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:21.305Z] [INFO] [GET /api/hod/profile] Response Status: 200 | Duration: 7ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================
+[2025-12-21T15:30:21.308Z] [INFO] [GET /api/schedule/all] Response Status: 200 | Duration: 6ms
+{
+  "ip": "::1",
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
+}
+================================================================================

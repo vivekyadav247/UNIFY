@@ -1,0 +1,10 @@
+[2025-12-21T10:40:16.191Z] [ERROR] [DB_CONNECTION] MongoDB connection failed
+{
+  "error": "logger.info is not a function"
+}
+================================================================================
+[2025-12-21T10:41:06.492Z] [ERROR] [DB_CONNECTION] MongoDB connection failed
+{
+  "error": "logger.info is not a function"
+}
+================================================================================

@@ -1,0 +1,12 @@
+[2025-12-29T05:07:03.125Z] [ERROR] [POST /api/auth/signin] POST /api/auth/signin
+{
+  "statusCode": 401,
+  "duration": "62ms",
+  "ip": "::1",
+  "requestBody": {
+    "role": "student",
+    "password": "123456",
+    "enrollmentNumber": "0805CS231171"
+  }
+}
+================================================================================

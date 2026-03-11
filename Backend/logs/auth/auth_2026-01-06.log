@@ -1,0 +1,126 @@
+[2026-01-06T10:59:48.989Z] [INFO] [SIGNIN_FAILED] Failed signin attempt for student 0805CS221001
+{
+  "enrollmentNumber": "0805CS221001",
+  "error": "Invalid password"
+}
+================================================================================
+[2026-01-06T11:00:36.047Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:00:36.047Z"
+}
+================================================================================
+[2026-01-06T11:05:22.394Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:05:22.394Z"
+}
+================================================================================
+[2026-01-06T11:05:49.240Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:05:49.239Z"
+}
+================================================================================
+[2026-01-06T11:10:39.832Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:10:39.832Z"
+}
+================================================================================
+[2026-01-06T11:19:39.294Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:19:39.294Z"
+}
+================================================================================
+[2026-01-06T11:25:02.667Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:25:02.667Z"
+}
+================================================================================
+[2026-01-06T11:37:35.359Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:37:35.359Z"
+}
+================================================================================
+[2026-01-06T11:45:19.656Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:45:19.656Z"
+}
+================================================================================
+[2026-01-06T11:46:50.667Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:46:50.667Z"
+}
+================================================================================
+[2026-01-06T11:49:54.573Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:49:54.573Z"
+}
+================================================================================
+[2026-01-06T11:51:53.437Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:51:53.437Z"
+}
+================================================================================
+[2026-01-06T11:53:11.208Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:53:11.208Z"
+}
+================================================================================
+[2026-01-06T11:53:55.754Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:53:55.754Z"
+}
+================================================================================
+[2026-01-06T11:54:20.155Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:54:20.155Z"
+}
+================================================================================
+[2026-01-06T11:54:41.608Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:54:41.608Z"
+}
+================================================================================
+[2026-01-06T11:57:13.796Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:57:13.796Z"
+}
+================================================================================
+[2026-01-06T11:58:25.724Z] [INFO] [SIGNIN_SUCCESS] Student signed in successfully
+{
+  "enrollmentNumber": "0805CS221001",
+  "timestamp": "2026-01-06T11:58:25.724Z"
+}
+================================================================================
+[2026-01-06T12:00:36.514Z] [INFO] [SIGNIN_FAILED] Failed signin attempt for student 0805CSE231001
+{
+  "enrollmentNumber": "0805CSE231001",
+  "error": "User not found"
+}
+================================================================================
+[2026-01-06T12:30:46.654Z] [INFO] [SIGNIN_FAILED] Failed signin attempt for student 0805CS231088
+{
+  "enrollmentNumber": "0805CS231088",
+  "error": "User not found"
+}
+================================================================================
+[2026-01-06T12:30:59.983Z] [INFO] [SIGNIN_FAILED] Failed signin attempt for student 0805CS231088
+{
+  "enrollmentNumber": "0805CS231088",
+  "error": "User not found"
+}
+================================================================================

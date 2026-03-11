@@ -1,47 +1,117 @@
 
-/* === TailwindCSS v4 syntax === */
 @import "tailwindcss";
+@import "@fortawesome/fontawesome-free/css/all.min.css";
 
-/* === Optional: Global Custom Styling === */
-:root {
-  font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1a1a;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+
+/* --- Base Layer --- */
+@layer base {
+  :root {
+    font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    /* Light theme variables */
+    --color-bg: #f9fafb;
+    --color-text: #111827;
+    --color-primary: #2563eb;
+    --color-secondary: #1d4ed8;
+  }
+
+  /* Dark theme variables */
+  [data-theme="dark"] {
+    --color-bg: #1f2937;
+    --color-text: #f9fafb;
+    --color-primary: #6366f1;
+    --color-secondary: #fbbf24;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-secondary);
+  }
+
+  button {
+    border: none;
+    background-color: var(--color-primary);
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+  }
+
+  button:hover {
+    background-color: var(--color-secondary);
+  }
 }
 
-/* === Body default style === */
-body {
-  margin: 0;
-  background-color: #f9fafb; /* soft gray */
-  color: #111827; /* text-gray-900 */
-}
+/* --- Utilities Layer --- */
+@layer utilities {
+  /* Fade-in-up animation */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-/* === Optional: Link style (normal CSS) === */
-a {
-  color: #2563eb; /* blue-600 */
-  text-decoration: none;
-}
-a:hover {
-  color: #1d4ed8; /* blue-700 */
-}
+  .animate-fadeInUp {
+    animation: fadeInUp 0.7s ease forwards;
+  }
 
-/* === Optional: Button style === */
-button {
-  border: none;
-  background-color: #2563eb; /* blue-600 */
-  color: white;
-  border-radius: 0.5rem;
-  padding: 0.6rem 1.2rem;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
-}
-button:hover {
-  background-color: #1d4ed8; /* blue-700 */
+  .animation-delay-200 {
+    animation-delay: 0.2s;
+  }
+
+  .animation-delay-300 {
+    animation-delay: 0.3s;
+  }
+
+  /* Custom classes to use CSS variables */
+  .bg-custom {
+    background-color: var(--color-bg);
+  }
+
+  .text-custom {
+    color: var(--color-text);
+  }
+
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .hover\:bg-primary:hover {
+    background-color: var(--color-primary);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .text-secondary {
+    color: var(--color-secondary);
+  }
 }
